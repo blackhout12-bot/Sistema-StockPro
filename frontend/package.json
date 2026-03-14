@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.213.0",
     "@opentelemetry/instrumentation-fetch": "^0.213.0",
@@ -16,10 +17,12 @@
     "lucide-react": "^0.576.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
+    "react-hook-form": "^7.71.2",
     "react-hot-toast": "^2.6.0",
     "react-router-dom": "^7.13.1",
     "recharts": "^3.7.0",
-    "socket.io-client": "^4.8.3"
+    "socket.io-client": "^4.8.3",
+    "zod": "^4.3.6"
   },
   "scripts": {
     "start": "vite",

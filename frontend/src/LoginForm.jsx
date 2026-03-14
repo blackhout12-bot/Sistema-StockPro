@@ -1,38 +1,64 @@
 import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import api from './utils/axiosConfig';
 import { toast } from 'react-hot-toast';
 import { useAuth } from './context/AuthContext';
 import { ArrowRight, Building2, Mail, Lock, User } from 'lucide-react';
 
+const loginSchema = z.object({
+  email: z.string().email('Correo electrónico inválido'),
+  password: z.string().min(1, 'La contraseña es requerida'),
+});
+
+const registerSchema = z.object({
+  empresaNombre: z.string().min(2, 'Mínimo 2 caracteres para la empresa'),
+  nombre: z.string().min(2, 'Mínimo 2 caracteres para el nombre'),
+  email: z.string().email('Correo electrónico inválido'),
+  password: z.string().min(6, 'Debe tener al menos 6 caracteres'),
+});
+
 const LoginForm = () => {
     const { login } = useAuth();
     const [isLogin, setIsLogin] = useState(true);
     const [isForgotPassword, setIsForgotPassword] = useState(false);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [nombre, setNombre] = useState('');
-    const [empresaNombre, setEmpresaNombre] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        reset
+    } = useForm({
+        resolver: zodResolver(isLogin ? loginSchema : registerSchema),
+        mode: 'onSubmit'
+    });
+
+    const onSubmit = async (data) => {
         setLoading(true);
         try {
             if (isForgotPassword) {
-                await api.post('/auth/forgot-password', { email });
+                await api.post('/auth/forgot-password', { email: data.email });
                 toast.success('Si el correo existe, se envió un enlace de recuperación.');
                 setIsForgotPassword(false);
                 setIsLogin(true);
             } else if (isLogin) {
-                const res = await api.post('/auth/login', { email, password });
+                const res = await api.post('/auth/login', { email: data.email, password: data.password });
                 login(res.data);
                 if (!res.data.requires_empresa_select) {
                     toast.success('Sesión iniciada correctamente.');
                 }
             } else {
-                await api.post('/auth/register', { empresaNombre, nombre, email, password });
+                await api.post('/auth/register', { 
+                    empresaNombre: data.empresaNombre, 
+                    nombre: data.nombre, 
+                    email: data.email, 
+                    password: data.password 
+                });
                 toast.success('Empresa registrada. Ahora puedes iniciar sesión.');
                 setIsLogin(true);
+                reset();
             }
         } catch (err) {
             const errorMsg = err.response?.data?.error || 'Error en la operación';
@@ -74,13 +100,12 @@ const LoginForm = () => {
                                         </div>
                                         <input
                                             type="text"
-                                            required
-                                            value={empresaNombre}
-                                            onChange={(e) => setEmpresaNombre(e.target.value)}
-                                            className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-lg focus:ring-black focus:border-black sm:text-sm bg-gray-50/50 hover:bg-gray-50 transition-colors"
+                                            {...register('empresaNombre')}
+                                            className={`block w-full pl-10 pr-3 py-2.5 border ${errors.empresaNombre ? 'border-red-500' : 'border-gray-200'} rounded-lg focus:ring-black focus:border-black sm:text-sm bg-gray-50/50 hover:bg-gray-50 transition-colors`}
                                             placeholder="Nombre de la empresa"
                                         />
                                     </div>
+                                    {errors.empresaNombre && <p className="mt-1 text-xs text-red-500">{errors.empresaNombre.message}</p>}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
@@ -90,13 +115,12 @@ const LoginForm = () => {
                                         </div>
                                         <input
                                             type="text"
-                                            required
-                                            value={nombre}
-                                            onChange={(e) => setNombre(e.target.value)}
-                                            className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-lg focus:ring-black focus:border-black sm:text-sm bg-gray-50/50 hover:bg-gray-50 transition-colors"
+                                            {...register('nombre')}
+                                            className={`block w-full pl-10 pr-3 py-2.5 border ${errors.nombre ? 'border-red-500' : 'border-gray-200'} rounded-lg focus:ring-black focus:border-black sm:text-sm bg-gray-50/50 hover:bg-gray-50 transition-colors`}
                                             placeholder="Tu nombre y apellido"
                                         />
                                     </div>
+                                    {errors.nombre && <p className="mt-1 text-xs text-red-500">{errors.nombre.message}</p>}
                                 </div>
                             </div>
                         )}
@@ -109,13 +133,12 @@ const LoginForm = () => {
                                 </div>
                                 <input
                                     type="email"
-                                    required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-lg focus:ring-black focus:border-black sm:text-sm bg-gray-50/50 hover:bg-gray-50 transition-colors"
+                                    {...register('email')}
+                                    className={`block w-full pl-10 pr-3 py-2.5 border ${errors.email ? 'border-red-500' : 'border-gray-200'} rounded-lg focus:ring-black focus:border-black sm:text-sm bg-gray-50/50 hover:bg-gray-50 transition-colors`}
                                     placeholder="ejemplo@correo.com"
                                 />
                             </div>
+                            {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
                         </div>
 
                         {!isForgotPassword && (
@@ -141,13 +164,12 @@ const LoginForm = () => {
                                     </div>
                                     <input
                                         type="password"
-                                        required
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-lg focus:ring-black focus:border-black sm:text-sm bg-gray-50/50 hover:bg-gray-50 transition-colors"
+                                        {...register('password')}
+                                        className={`block w-full pl-10 pr-3 py-2.5 border ${errors.password ? 'border-red-500' : 'border-gray-200'} rounded-lg focus:ring-black focus:border-black sm:text-sm bg-gray-50/50 hover:bg-gray-50 transition-colors`}
                                         placeholder="••••••••"
                                     />
                                 </div>
+                                {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>}
                             </div>
                         )}
 

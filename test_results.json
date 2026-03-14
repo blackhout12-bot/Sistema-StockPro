@@ -1,0 +1,173 @@
+[20:19:40] [32mINFO[39m: [36m­ƒÜÇ Iniciando infraestructura de BullMQ (Graceful Degradation Mode)...[39m
+[20:19:40] [32mINFO[39m: [36malertWorker (Legacy) importado. Las tareas ahora son administradas por BullMQ cronQueue.[39m
+[20:19:40] [32mINFO[39m: [36m­ƒÜÇ Socket.io inicializado con soporte multi-tenant[39m
+[20:19:40] [33mWARN[39m: [36mRedis no disponible en 127.0.0.1:6379. Operando en modo degradado.[39m
+[20:19:40] [33mWARN[39m: [36mReconectando a Redis...[39m
+[20:19:40] [32mINFO[39m: [36mIncoming Request[39m
+    [35mmethod[39m: "GET"
+    [35murl[39m: "/health"
+{"numFailedTestSuites":1,"numFailedTests":1,"numPassedTestSuites":0,"numPassedTests":0,"numPendingTestSuites":0,"numPendingTests":0,"numRuntimeErrorTestSuites":0,"numTodoTests":0,"numTotalTestSuites":1,"numTotalTests":1,"openHandles":[],"snapshot":{"added":0,"didUpdate":false,"failure":false,"filesAdded":0,"filesRemoved":0,"filesRemovedList":[],"filesUnmatched":0,"filesUpdated":0,"matched":0,"total":0,"unchecked":0,"uncheckedKeysByFile":[],"unmatched":0,"updated":0},"startTime":1773530378233,"success":false,"testResults":[{"assertionResults":[{"ancestorTitles":["Health Check Endpoint"],"duration":50,"failing":false,"failureDetails":[{"matcherResult":{"actual":207,"expected":200,"message":"expect(received).toBe(expected) // Object.is equality\n\nExpected: 200\nReceived: 207","name":"toBe","pass":false}}],"failureMessages":["Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 200\nReceived: 207\n    at Object.toBe (C:\\Users\\egar0\\stock-system\\src\\tests\\integration\\health.test.js:7:33)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"],"fullName":"Health Check Endpoint should return 200 and status ok","invocations":1,"location":null,"numPassingAsserts":0,"retryReasons":[],"startAt":1773530380796,"status":"failed","title":"should return 200 and status ok"}],"endTime":1773530380852,"message":"  ÔùÅ Health Check Endpoint ÔÇ║ should return 200 and status ok\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: 200\n    Received: 207\n\n    \u001b[0m \u001b[90m  5 |\u001b[39m     it(\u001b[32m'should return 200 and status ok'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\n     \u001b[90m  6 |\u001b[39m         \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m request(app)\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m(\u001b[32m'/health'\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m         expect(response\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m200\u001b[39m)\u001b[33m;\u001b[39m\n     \u001b[90m    |\u001b[39m                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n     \u001b[90m  8 |\u001b[39m         expect(response\u001b[33m.\u001b[39mbody)\u001b[33m.\u001b[39mtoHaveProperty(\u001b[32m'status'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'ok'\u001b[39m)\u001b[33m;\u001b[39m\n     \u001b[90m  9 |\u001b[39m         expect(response\u001b[33m.\u001b[39mbody)\u001b[33m.\u001b[39mtoHaveProperty(\u001b[32m'time'\u001b[39m)\u001b[33m;\u001b[39m\n     \u001b[90m 10 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\n      at Object.toBe (src/tests/integration/health.test.js:7:33)\n","name":"C:\\Users\\egar0\\stock-system\\src\\tests\\integration\\health.test.js","startTime":1773530378286,"status":"failed","summary":""}],"wasInterrupted":false}
+[20:19:41] [33mWARN[39m: [36mRedis no disponible en 127.0.0.1:6379. Operando en modo degradado.[39m
+[20:19:41] [33mWARN[39m: [36mReconectando a Redis...[39m
+[20:19:41] [33mWARN[39m: [36mRedis no disponible en 127.0.0.1:6379. Operando en modo degradado.[39m
+[20:19:41] [33mWARN[39m: [36mReconectando a Redis...[39m
+[20:19:42] [33mWARN[39m: [36mRedis no disponible en 127.0.0.1:6379. Operando en modo degradado.[39m
+[20:19:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:19:42] [33mWARN[39m: [36mReconectando a Redis...[39m
+[20:19:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:19:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:19:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:19:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:19:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:19:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:19:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:19:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:19:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:19:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:19:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:19:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:19:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:20:42] [33mWARN[39m: [36mRedis no disponible en 127.0.0.1:6379. Operando en modo degradado.[39m
+[20:20:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:20:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:20:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:20:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:20:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:20:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:20:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:20:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:20:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:20:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:20:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:20:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:20:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:20:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:20:42] [33mWARN[39m: [36mReconectando a Redis...[39m
+[20:21:42] [33mWARN[39m: [36mRedis no disponible en 127.0.0.1:6379. Operando en modo degradado.[39m
+[20:21:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:21:42] [33mWARN[39m: [36mReconectando a Redis...[39m
+[20:21:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:21:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:21:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:21:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:21:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:21:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:21:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:21:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:21:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:21:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:21:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:21:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:21:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:22:42] [33mWARN[39m: [36mRedis no disponible en 127.0.0.1:6379. Operando en modo degradado.[39m
+[20:22:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:22:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:22:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:22:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:22:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:22:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:22:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:22:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:22:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:22:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:22:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:22:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:22:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:22:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:22:42] [33mWARN[39m: [36mReconectando a Redis...[39m
+[20:23:42] [33mWARN[39m: [36mRedis no disponible en 127.0.0.1:6379. Operando en modo degradado.[39m
+[20:23:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:23:42] [33mWARN[39m: [36mReconectando a Redis...[39m
+[20:23:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:23:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:23:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:23:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:23:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:23:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:23:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:23:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:23:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:23:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:23:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:23:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:23:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:24:42] [33mWARN[39m: [36mRedis no disponible en 127.0.0.1:6379. Operando en modo degradado.[39m
+[20:24:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:24:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:24:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:24:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:24:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:24:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:24:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:24:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:24:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:24:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:24:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:24:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:24:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:24:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:24:42] [33mWARN[39m: [36mReconectando a Redis...[39m
+[20:25:42] [33mWARN[39m: [36mRedis no disponible en 127.0.0.1:6379. Operando en modo degradado.[39m
+[20:25:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:25:42] [33mWARN[39m: [36mReconectando a Redis...[39m
+[20:25:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:25:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:25:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:25:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:25:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:25:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:25:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:25:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:25:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:25:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:25:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:25:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:25:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:26:42] [33mWARN[39m: [36mRedis no disponible en 127.0.0.1:6379. Operando en modo degradado.[39m
+[20:26:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:26:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:26:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:26:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:26:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:26:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:26:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:26:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:26:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:26:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:26:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:26:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:26:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:26:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:26:42] [33mWARN[39m: [36mReconectando a Redis...[39m
+[20:27:42] [33mWARN[39m: [36mRedis no disponible en 127.0.0.1:6379. Operando en modo degradado.[39m
+[20:27:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:27:42] [33mWARN[39m: [36mReconectando a Redis...[39m
+[20:27:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:27:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:27:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:27:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:27:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:27:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:27:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:27:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:27:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:27:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:27:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:27:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:27:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:28:42] [33mWARN[39m: [36mRedis no disponible en 127.0.0.1:6379. Operando en modo degradado.[39m
+[20:28:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:28:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:28:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:28:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:28:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:28:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:28:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:28:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:28:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:28:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:28:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:28:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:28:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:28:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:28:42] [33mWARN[39m: [36mReconectando a Redis...[39m

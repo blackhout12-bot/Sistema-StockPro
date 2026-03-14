@@ -1,0 +1,91 @@
+[20:23:09] [32mINFO[39m: [36m­ƒÜÇ Iniciando infraestructura de BullMQ (Graceful Degradation Mode)...[39m
+[20:23:09] [32mINFO[39m: [36m­ƒÜÇ Iniciando infraestructura de BullMQ (Graceful Degradation Mode)...[39m
+[20:23:09] [32mINFO[39m: [36malertWorker (Legacy) importado. Las tareas ahora son administradas por BullMQ cronQueue.[39m
+[20:23:09] [32mINFO[39m: [36m­ƒÜÇ Socket.io inicializado con soporte multi-tenant[39m
+[20:23:09] [32mINFO[39m: [36malertWorker (Legacy) importado. Las tareas ahora son administradas por BullMQ cronQueue.[39m
+[20:23:09] [32mINFO[39m: [36m­ƒÜÇ Socket.io inicializado con soporte multi-tenant[39m
+[20:23:09] [32mINFO[39m: [36m­ƒÜÇ Iniciando infraestructura de BullMQ (Graceful Degradation Mode)...[39m
+[20:23:09] [32mINFO[39m: [36malertWorker (Legacy) importado. Las tareas ahora son administradas por BullMQ cronQueue.[39m
+[20:23:09] [32mINFO[39m: [36m­ƒÜÇ Socket.io inicializado con soporte multi-tenant[39m
+[20:23:09] [33mWARN[39m: [36mRedis no disponible en 127.0.0.1:6379. Operando en modo degradado.[39m
+[20:23:09] [33mWARN[39m: [36mRedis no disponible en 127.0.0.1:6379. Operando en modo degradado.[39m
+[20:23:09] [33mWARN[39m: [36mRedis no disponible en 127.0.0.1:6379. Operando en modo degradado.[39m
+[20:23:09] [33mWARN[39m: [36mReconectando a Redis...[39m
+[20:23:09] [32mINFO[39m: [36mIncoming Request[39m
+    [35mmethod[39m: "GET"
+    [35murl[39m: "/health"
+[20:23:09] [33mWARN[39m: [36mReconectando a Redis...[39m
+[20:23:09] [32mINFO[39m: [36mIncoming Request[39m
+    [35mmethod[39m: "POST"
+    [35murl[39m: "/api/public/auth/login"
+    [35mbody[39m: "REDACTED"
+[20:23:09] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 1,
+      "method": "POST",
+      "url": "/api/public/auth/login",
+      "query": {},
+      "params": {},
+      "headers": {
+        "host": "127.0.0.1:60744",
+        "accept-encoding": "gzip, deflate",
+        "content-type": "application/json",
+        "content-length": "48",
+        "connection": "close"
+      },
+      "remoteAddress": "::ffff:127.0.0.1",
+      "remotePort": 60747
+    }
+    [35mres[39m: {
+      "statusCode": 401,
+      "headers": {
+        "x-powered-by": "Express",
+        "vary": "Origin",
+        "access-control-allow-credentials": "true",
+        "content-type": "application/json; charset=utf-8",
+        "content-length": "42",
+        "etag": "W/\"2a-RGeA6zBeESnfVQLY88z4ho6KVW8\""
+      }
+    }
+    [35mresponseTime[39m: 16
+[20:23:09] [33mWARN[39m: [36mReconectando a Redis...[39m
+[20:23:09] [32mINFO[39m: [36mIncoming Request[39m
+    [35mmethod[39m: "POST"
+    [35murl[39m: "/api/public/auth/login"
+    [35mbody[39m: "REDACTED"
+[20:23:09] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 1,
+      "method": "POST",
+      "url": "/api/public/auth/login",
+      "query": {},
+      "params": {},
+      "headers": {
+        "host": "127.0.0.1:60745",
+        "accept-encoding": "gzip, deflate",
+        "content-type": "application/json",
+        "content-length": "48",
+        "connection": "close"
+      },
+      "remoteAddress": "::ffff:127.0.0.1",
+      "remotePort": 60748
+    }
+    [35mres[39m: {
+      "statusCode": 401,
+      "headers": {
+        "x-powered-by": "Express",
+        "vary": "Origin",
+        "access-control-allow-credentials": "true",
+        "content-type": "application/json; charset=utf-8",
+        "content-length": "42",
+        "etag": "W/\"2a-RGeA6zBeESnfVQLY88z4ho6KVW8\""
+      }
+    }
+    [35mresponseTime[39m: 18
+[20:23:09] [33mWARN[39m: [36mRedis no disponible en 127.0.0.1:6379. Operando en modo degradado.[39m
+[20:23:09] [33mWARN[39m: [36mReconectando a Redis...[39m
+[20:23:09] [33mWARN[39m: [36mRedis no disponible en 127.0.0.1:6379. Operando en modo degradado.[39m
+[20:23:09] [33mWARN[39m: [36mReconectando a Redis...[39m
+[20:23:09] [33mWARN[39m: [36mRedis no disponible en 127.0.0.1:6379. Operando en modo degradado.[39m
+[20:23:09] [33mWARN[39m: [36mReconectando a Redis...[39m
+{"numFailedTestSuites":0,"numFailedTests":0,"numPassedTestSuites":3,"numPassedTests":4,"numPendingTestSuites":0,"numPendingTests":0,"numRuntimeErrorTestSuites":0,"numTodoTests":0,"numTotalTestSuites":3,"numTotalTests":4,"openHandles":[],"snapshot":{"added":0,"didUpdate":false,"failure":false,"filesAdded":0,"filesRemoved":0,"filesRemovedList":[],"filesUnmatched":0,"filesUpdated":0,"matched":0,"total":0,"unchecked":0,"uncheckedKeysByFile":[],"unmatched":0,"updated":0},"startTime":1773530586893,"success":true,"testResults":[{"assertionResults":[{"ancestorTitles":["Health Check Endpoint"],"duration":50,"failing":false,"failureDetails":[],"failureMessages":[],"fullName":"Health Check Endpoint should return 200 or 207 and status ok","invocations":1,"location":null,"numPassingAsserts":3,"retryReasons":[],"startAt":1773530589500,"status":"passed","title":"should return 200 or 207 and status ok"}],"endTime":1773530589552,"message":"","name":"C:\\Users\\egar0\\stock-system\\src\\tests\\integration\\health.test.js","startTime":1773530587296,"status":"passed","summary":""},{"assertionResults":[{"ancestorTitles":["Products API Integration"],"duration":4,"failing":false,"failureDetails":[],"failureMessages":[],"fullName":"Products API Integration should fetch products only for the specified tenant","invocations":1,"location":null,"numPassingAsserts":0,"retryReasons":[],"startAt":1773530589552,"status":"passed","title":"should fetch products only for the specified tenant"}],"endTime":1773530589558,"message":"","name":"C:\\Users\\egar0\\stock-system\\src\\tests\\integration\\productos.test.js","startTime":1773530587298,"status":"passed","summary":""},{"assertionResults":[{"ancestorTitles":["Movements API Integration"],"duration":3,"failing":false,"failureDetails":[],"failureMessages":[],"fullName":"Movements API Integration should fetch movements only for the specified tenant","invocations":1,"location":null,"numPassingAsserts":0,"retryReasons":[],"startAt":1773530589556,"status":"passed","title":"should fetch movements only for the specified tenant"},{"ancestorTitles":["Movements API Integration"],"duration":1,"failing":false,"failureDetails":[],"failureMessages":[],"fullName":"Movements API Integration should calculate accurate stock impact based on movement","invocations":1,"location":null,"numPassingAsserts":1,"retryReasons":[],"startAt":1773530589559,"status":"passed","title":"should calculate accurate stock impact based on movement"}],"endTime":1773530589561,"message":"","name":"C:\\Users\\egar0\\stock-system\\src\\tests\\integration\\movimientos.test.js","startTime":1773530587295,"status":"passed","summary":""}],"wasInterrupted":false}

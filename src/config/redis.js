@@ -12,7 +12,11 @@ const redisConfig = {
     password: process.env.REDIS_PASSWORD || 'tu_password_local_seguro',
     maxRetriesPerRequest: null, // Requerido por BullMQ
     retryStrategy(times) {
-        const delay = Math.min(times * 100, 3000);
+        if (times > 3) {
+            logger.warn('Redis retry limit reached. Using 60s lazy retry interval.');
+            return 60000; // Wait 1 minute before checking again
+        }
+        const delay = Math.min(times * 300, 3000);
         return delay;
     }
 };

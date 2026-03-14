@@ -51,7 +51,9 @@ router.get('/estadisticas', checkPermiso('dashboard', 'ver'), async (req, res, n
 // ── PUT /empresa/configuracion/regional ───────────────────────────────────────
 router.put('/configuracion/regional', checkPermiso('empresa', 'editar'), validateBody(regionalSchema), audit('actualizar_regional', 'Empresa'), async (req, res, next) => {
     try {
-        const empresa = await empresaService.updateConfiguracion(req.tenant_id, req.body);
+        const { razon_social, condicion_iva, moneda_principal, zona_horaria } = req.body;
+        const cleanBody = { razon_social, condicion_iva, moneda_principal, zona_horaria };
+        const empresa = await empresaService.updateConfiguracion(req.tenant_id, cleanBody);
         res.json(empresa);
     } catch (error) {
         next(error);
@@ -61,7 +63,9 @@ router.put('/configuracion/regional', checkPermiso('empresa', 'editar'), validat
 // ── PUT /empresa/configuracion/branding ───────────────────────────────────────
 router.put('/configuracion/branding', checkPermiso('empresa', 'editar'), validateBody(brandingSchema), audit('actualizar_branding', 'Empresa'), async (req, res, next) => {
     try {
-        const empresa = await empresaService.updateBranding(req.tenant_id, req.body);
+        const { color_primario, color_secundario, logo_url } = req.body;
+        const cleanBody = { color_primario, color_secundario, logo_url };
+        const empresa = await empresaService.updateBranding(req.tenant_id, cleanBody);
         res.json(empresa);
     } catch (error) {
         next(error);
@@ -71,7 +75,9 @@ router.put('/configuracion/branding', checkPermiso('empresa', 'editar'), validat
 // ── PUT /empresa/configuracion/inventario ─────────────────────────────────────
 router.put('/configuracion/inventario', checkPermiso('empresa', 'editar'), validateBody(inventarioConfigSchema), audit('actualizar_inventario', 'Empresa'), async (req, res, next) => {
     try {
-        const empresa = await empresaService.updateInventarioConfig(req.tenant_id, req.body);
+        const { permitir_stock_negativo, notificar_stock_minimo, metodo_costeo } = req.body;
+        const cleanBody = { permitir_stock_negativo, notificar_stock_minimo, metodo_costeo };
+        const empresa = await empresaService.updateInventarioConfig(req.tenant_id, cleanBody);
         res.json(empresa);
     } catch (error) {
         next(error);
@@ -81,7 +87,9 @@ router.put('/configuracion/inventario', checkPermiso('empresa', 'editar'), valid
 // ── PUT /empresa/configuracion/impuestos ──────────────────────────────────────
 router.put('/configuracion/impuestos', checkPermiso('empresa', 'editar'), validateBody(impuestosConfigSchema), audit('actualizar_impuestos', 'Empresa'), async (req, res, next) => {
     try {
-        const empresa = await empresaService.updateImpuestosConfig(req.tenant_id, req.body);
+        const { iva_por_defecto, incluir_impuestos_precio } = req.body;
+        const cleanBody = { iva_por_defecto, incluir_impuestos_precio };
+        const empresa = await empresaService.updateImpuestosConfig(req.tenant_id, cleanBody);
         res.json(empresa);
     } catch (error) {
         next(error);
@@ -101,7 +109,9 @@ router.put('/configuracion/integraciones', checkPermiso('empresa', 'editar'), va
 // ── PUT /empresa/configuracion/dashboard ─────────────────────────────────────
 router.put('/configuracion/dashboard', checkPermiso('empresa', 'editar'), validateBody(dashboardConfigSchema), audit('actualizar_dashboard', 'Empresa'), async (req, res, next) => {
     try {
-        const empresa = await empresaService.updateDashboardConfig(req.tenant_id, req.body);
+        const { widgets_activos, tema } = req.body;
+        const cleanBody = { widgets_activos, tema };
+        const empresa = await empresaService.updateDashboardConfig(req.tenant_id, cleanBody);
         res.json(empresa);
     } catch (error) {
         next(error);

@@ -28,9 +28,12 @@ router.get('/recientes', checkPermiso('movimientos', 'leer'), async (req, res, n
     next(err);
   }
 });
+// Registrar nuevo movimiento
 router.post('/registrar', checkPermiso('movimientos', 'crear'), validateBody(movimientoSchema), audit('crear', 'Movimiento'), async (req, res, next) => {
   try {
-    const movimiento = await movimientosService.agregarMovimiento(req.body, req.user.id, req.tenant_id);
+    const { tipo, cantidad, producto_id, motivo, nro_comprobante } = req.body;
+    const cleanBody = { tipo, cantidad, producto_id, motivo, nro_comprobante };
+    const movimiento = await movimientosService.agregarMovimiento(cleanBody, req.user.id, req.tenant_id);
     res.locals.insertedId = movimiento.id;
     res.status(201).json(movimiento);
   } catch (err) {
