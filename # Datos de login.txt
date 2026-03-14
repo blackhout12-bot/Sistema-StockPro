@@ -1,0 +1,25 @@
+# Datos de login
+$email = "edgardo@example.com"
+$password = "123456"
+
+# 1. Login y obtener token
+$response = Invoke-RestMethod -Method POST `
+  -Uri "http://localhost:3000/auth/login" `
+  -ContentType "application/json" `
+  -Body (@{ email = $email; password = $password } | ConvertTo-Json)
+
+# Guardar el token completo en variable
+$token = $response.token
+
+Write-Host "Token obtenido correctamente: $token"
+
+# 2. Consultar reporte de ventas por producto
+$fechaInicio = "2026-02-01"
+$fechaFin = "2026-02-28"
+
+$reporte = Invoke-RestMethod -Method GET `
+  -Uri "http://localhost:3000/reportes/ventas-producto?fechaInicio=$fechaInicio&fechaFin=$fechaFin" `
+  -Headers @{ Authorization = "Bearer $token" }
+
+Write-Host "Reporte de ventas por producto:"
+$reporte | ConvertTo-Json -Depth 3

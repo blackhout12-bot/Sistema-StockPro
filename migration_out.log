@@ -1,0 +1,7 @@
+[dotenv@17.3.1] injecting env (10) from .env -- tip: ÔÜÖ´©Å  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ­ƒñû agentic secret storage: https://dotenvx.com/as2
+Iniciando migraci├│n 013_depositos_y_transferencias...
+[23:37:17] [32mINFO[39m: [36mConectado a SQL Server[39m
+Error durante la migraci├│n: Transaction count after EXECUTE indicates a mismatching number of BEGIN and COMMIT statements. Previous count = 0, current count = 1.
+  -  Cannot find the object "FacturaItems" because it does not exist or you do not have permissions.
+[23:37:17] [32mINFO[39m: [36mConexi├│n a SQL Server cerrada[39m

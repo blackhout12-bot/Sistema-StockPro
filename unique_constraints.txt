@@ -1,0 +1,5 @@
+--- TODAS LAS RESTRICCIONES UNIQUE ---
+Facturas.nro_factura -> UQ__Facturas__B31FA9AE022744DF
+Usuarios.email -> UQ__Usuarios__AB6E61643B5DD2E5
+UsuarioEmpresas.empresa_id -> UQ_UsuarioEmpresas_userEmpresa
+UsuarioEmpresas.usuario_id -> UQ_UsuarioEmpresas_userEmpresa

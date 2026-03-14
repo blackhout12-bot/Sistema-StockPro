@@ -1,0 +1,84 @@
+global:
+  environment: dev
+
+backend:
+  replicaCount: 2
+  image:
+    repository: ghcr.io/tbsoluciones/stock-system-backend
+    tag: "latest"
+    pullPolicy: Always
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+  env:
+    DB_HOST: "sql-server"
+    DB_NAME: "StockDB"
+    REDIS_HOST: "redis"
+
+frontend:
+  replicaCount: 2
+  image:
+    repository: ghcr.io/tbsoluciones/stock-system-frontend
+    tag: "latest"
+    pullPolicy: Always
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "128Mi"
+    limits:
+      cpu: "250m"
+      memory: "256Mi"
+
+worker:
+  replicaCount: 1
+  image:
+    repository: ghcr.io/tbsoluciones/stock-system-backend
+    tag: "latest"
+    pullPolicy: Always
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+  hosts:
+    - host: api.stocksystem.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: backend
+    - host: app.stocksystem.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: frontend
+  tls:
+    - secretName: stocksystem-tls
+      hosts:
+        - api.stocksystem.com
+        - app.stocksystem.com
+
+secrets:
+  dbPassword: "YOUR_DB_PASSWORD"
+  dbUser: "sa"
+  jwtSecret: "YOUR_JWT_SECRET"
+  meliAccessToken: "MOCK_TOKEN"
+  googleClientId: "MOCK_GOOGLE_ID"
+  msClientId: "MOCK_MS_ID"

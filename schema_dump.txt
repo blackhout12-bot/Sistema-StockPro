@@ -1,0 +1,60 @@
+
+--- EMPRESA ---
+[
+  {
+    "COLUMN_NAME": "id",
+    "IS_NULLABLE": "NO"
+  },
+  {
+    "COLUMN_NAME": "nombre",
+    "IS_NULLABLE": "NO"
+  },
+  {
+    "COLUMN_NAME": "documento_identidad",
+    "IS_NULLABLE": "NO"
+  },
+  {
+    "COLUMN_NAME": "direccion",
+    "IS_NULLABLE": "YES"
+  },
+  {
+    "COLUMN_NAME": "telefono",
+    "IS_NULLABLE": "YES"
+  },
+  {
+    "COLUMN_NAME": "email",
+    "IS_NULLABLE": "YES"
+  }
+]
+
+--- USUARIOS ---
+[
+  {
+    "COLUMN_NAME": "id",
+    "IS_NULLABLE": "NO"
+  },
+  {
+    "COLUMN_NAME": "nombre",
+    "IS_NULLABLE": "NO"
+  },
+  {
+    "COLUMN_NAME": "email",
+    "IS_NULLABLE": "NO"
+  },
+  {
+    "COLUMN_NAME": "password_hash",
+    "IS_NULLABLE": "NO"
+  },
+  {
+    "COLUMN_NAME": "rol",
+    "IS_NULLABLE": "NO"
+  },
+  {
+    "COLUMN_NAME": "creado_en",
+    "IS_NULLABLE": "YES"
+  },
+  {
+    "COLUMN_NAME": "empresa_id",
+    "IS_NULLABLE": "NO"
+  }
+]

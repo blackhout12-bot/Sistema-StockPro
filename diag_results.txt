@@ -1,0 +1,82 @@
+[dotenv@17.3.1] injecting env (7) from .env -- tip: ÔÜí´©Å secrets for agents: https://dotenvx.com/as2
+=== DIAGN├ôSTICO DEL SISTEMA ===
+
+--- 1. Estructura de Movimientos ---
+[23:56:49] [32mINFO[39m: [36mConectado a SQL Server[39m
+ÔöîÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö¼ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö¼ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÉ
+Ôöé (index) Ôöé COLUMN_NAME  Ôöé DATA_TYPE  Ôöé
+Ôö£ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö╝ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö╝ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöñ
+Ôöé 0       Ôöé 'id'         Ôöé 'int'      Ôöé
+Ôöé 1       Ôöé 'productoId' Ôöé 'int'      Ôöé
+Ôöé 2       Ôöé 'tipo'       Ôöé 'varchar'  Ôöé
+Ôöé 3       Ôöé 'cantidad'   Ôöé 'int'      Ôöé
+Ôöé 4       Ôöé 'usuarioId'  Ôöé 'int'      Ôöé
+Ôöé 5       Ôöé 'fecha'      Ôöé 'datetime' Ôöé
+Ôöé 6       Ôöé 'empresa_id' Ôöé 'int'      Ôöé
+ÔööÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö┤ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö┤ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÿ
+
+--- 2. ├Ültimos 5 Movimientos (con Lote/Vto) ---
+ERROR EN DIAGN├ôSTICO: RequestError: Invalid column name 'fecha_vto'.
+    at handleError (C:\Users\egar0\stock-system\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\Users\egar0\stock-system\node_modules\tedious\lib\connection.js:1013:18)
+    at RequestTokenHandler.onErrorMessage (C:\Users\egar0\stock-system\node_modules\tedious\lib\token\handler.js:285:21)
+    at Readable.<anonymous> (C:\Users\egar0\stock-system\node_modules\tedious\lib\token\token-stream-parser.js:19:33)
+    at Readable.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22) {
+  code: 'EREQUEST',
+  originalError: Error: Invalid column name 'fecha_vto'.
+      at handleError (C:\Users\egar0\stock-system\node_modules\mssql\lib\tedious\request.js:382:19)
+      at Connection.emit (node:events:508:28)
+      at Connection.emit (C:\Users\egar0\stock-system\node_modules\tedious\lib\connection.js:1013:18)
+      at RequestTokenHandler.onErrorMessage (C:\Users\egar0\stock-system\node_modules\tedious\lib\token\handler.js:285:21)
+      at Readable.<anonymous> (C:\Users\egar0\stock-system\node_modules\tedious\lib\token\token-stream-parser.js:19:33)
+      at Readable.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+      at Readable.push (node:internal/streams/readable:391:5)
+      at nextAsync (node:internal/streams/from:194:22) {
+    info: ErrorMessageToken {
+      name: 'ERROR',
+      handlerName: 'onErrorMessage',
+      number: 207,
+      state: 1,
+      class: 16,
+      message: "Invalid column name 'fecha_vto'.",
+      serverName: 'Ed\\SQLEXPRESS',
+      procName: '',
+      lineNumber: 1
+    }
+  },
+  number: 207,
+  lineNumber: 1,
+  state: 1,
+  class: 16,
+  serverName: 'Ed\\SQLEXPRESS',
+  procName: '',
+  precedingErrors: [
+    RequestError: Invalid column name 'nro_lote'.
+        at handleError (C:\Users\egar0\stock-system\node_modules\mssql\lib\tedious\request.js:384:15)
+        at Connection.emit (node:events:508:28)
+        at Connection.emit (C:\Users\egar0\stock-system\node_modules\tedious\lib\connection.js:1013:18)
+        at RequestTokenHandler.onErrorMessage (C:\Users\egar0\stock-system\node_modules\tedious\lib\token\handler.js:285:21)
+        at Readable.<anonymous> (C:\Users\egar0\stock-system\node_modules\tedious\lib\token\token-stream-parser.js:19:33)
+        at Readable.emit (node:events:508:28)
+        at addChunk (node:internal/streams/readable:559:12)
+        at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+        at Readable.push (node:internal/streams/readable:391:5)
+        at nextAsync (node:internal/streams/from:194:22) {
+      code: 'EREQUEST',
+      originalError: [Error],
+      number: 207,
+      lineNumber: 1,
+      state: 1,
+      class: 16,
+      serverName: 'Ed\\SQLEXPRESS',
+      procName: ''
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+node_modules
+npm-debug.log
+docker-compose*.yml
+.env
+.git
+.vscode
+frontend
+tmp
+chrome_test_downloads
+*.pdf
+logs
+*.log

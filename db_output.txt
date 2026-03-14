@@ -1,0 +1,10 @@
+[dotenv@17.3.1] injecting env (7) from .env -- tip: ÔÜÖ´©Å  specify custom .env file path with { path: '/custom/path/.env' }
+--- VERIFICANDO TABLAS ---
+[23:51:35] [32mINFO[39m: [36mConectado a SQL Server[39m
+Tablas encontradas: UsuarioEmpresas, AuditLog, Permisos, RolPermisos, ConfigComprobantes, Usuarios, Productos, MovimientosStock, Logs, Movimientos, Lotes, Notificaciones, Empresa, Clientes, Facturas, Detalle_Facturas
+
+--- VERIFICANDO COLUMNAS DE MOVIMIENTOS ---
+Columnas Movimientos: id, productoId, tipo, cantidad, usuarioId, fecha, empresa_id
+
+--- VERIFICANDO COLUMNAS DE CONFIG COMPROBANTES ---
+Columnas ConfigComprobantes: id, empresa_id, tipo_comprobante, prefijo, proximo_nro, activo

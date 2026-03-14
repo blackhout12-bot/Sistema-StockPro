@@ -1,0 +1,19 @@
+[dotenv@17.3.1] injecting env (7) from .env -- tip: ÔÜÖ´©Å  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ­ƒöÉ prevent building .env in docker: https://dotenvx.com/prebuild
+--- SIMULANDO REGISTRO DE MOVIMIENTO CON LOTE ---
+[00:44:16] [32mINFO[39m: [36mConectado a SQL Server[39m
+!!! ERROR DETECTADO !!!
+Mensaje: Invalid column name 'stock_min'.
+C├│digo: EREQUEST
+Pila: RequestError: Invalid column name 'stock_min'.
+    at handleError (C:\Users\egar0\stock-system\node_modules\mssql\lib\tedious\request.js:384:15)
+    at Connection.emit (node:events:508:28)
+    at Connection.emit (C:\Users\egar0\stock-system\node_modules\tedious\lib\connection.js:1013:18)
+    at RequestTokenHandler.onErrorMessage (C:\Users\egar0\stock-system\node_modules\tedious\lib\token\handler.js:285:21)
+    at Readable.<anonymous> (C:\Users\egar0\stock-system\node_modules\tedious\lib\token\token-stream-parser.js:19:33)
+    at Readable.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushObjectMode (node:internal/streams/readable:536:3)
+    at Readable.push (node:internal/streams/readable:391:5)
+    at nextAsync (node:internal/streams/from:194:22)
+Errores precedentes: []

@@ -1,0 +1,6 @@
+Iniciando login...
+Token obtenido.
+Obteniendo clientes y productos...
+FETCH ERROR: TypeError: productos.find is not a function
+    at testApi (C:\Users\egar0\stock-system\test_fetch.js:23:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)

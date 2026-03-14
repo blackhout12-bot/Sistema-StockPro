@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Release.Name }}-backend-monitor
+  labels:
+    app: {{ .Release.Name }}-backend
+    release: prometheus # Asume que Prometheus Operator seleccionará este label
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-backend
+  endpoints:
+    - port: http
+      path: /api/v1/metrics # Asegurarse que el backend exponga métricas aquí
+      interval: 15s

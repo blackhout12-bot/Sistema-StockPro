@@ -1,0 +1,35 @@
+[dotenv@17.3.1] injecting env (7) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+--- TABLA MOVIMIENTOS ---
+[00:23:33] [32mINFO[39m: [36mConectado a SQL Server[39m
+┌─────────┬──────────────┬────────────┐
+│ (index) │ COLUMN_NAME  │ DATA_TYPE  │
+├─────────┼──────────────┼────────────┤
+│ 0       │ 'id'         │ 'int'      │
+│ 1       │ 'productoId' │ 'int'      │
+│ 2       │ 'tipo'       │ 'varchar'  │
+│ 3       │ 'cantidad'   │ 'int'      │
+│ 4       │ 'usuarioId'  │ 'int'      │
+│ 5       │ 'fecha'      │ 'datetime' │
+│ 6       │ 'empresa_id' │ 'int'      │
+│ 7       │ 'nro_lote'   │ 'nvarchar' │
+│ 8       │ 'fecha_vto'  │ 'date'     │
+└─────────┴──────────────┴────────────┘
+--- TABLA LOTES ---
+┌─────────┬───────────────┬─────────────┐
+│ (index) │ COLUMN_NAME   │ DATA_TYPE   │
+├─────────┼───────────────┼─────────────┤
+│ 0       │ 'id'          │ 'int'       │
+│ 1       │ 'producto_id' │ 'int'       │
+│ 2       │ 'nro_lote'    │ 'nvarchar'  │
+│ 3       │ 'cantidad'    │ 'int'       │
+│ 4       │ 'fecha_vto'   │ 'date'      │
+│ 5       │ 'empresa_id'  │ 'int'       │
+│ 6       │ 'creado_en'   │ 'datetime2' │
+└─────────┴───────────────┴─────────────┘
+--- CONTEO ---
+┌─────────┬───────────────────┬─────────────┬────────────────────┐
+│ (index) │ total_movimientos │ total_lotes │ total_comprobantes │
+├─────────┼───────────────────┼─────────────┼────────────────────┤
+│ 0       │ 56                │ 0           │ 19                 │
+└─────────┴───────────────────┴─────────────┴────────────────────┘

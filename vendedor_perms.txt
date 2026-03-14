@@ -1,0 +1,12 @@
+recurso                                            accion                                            
+-------------------------------------------------- --------------------------------------------------
+productos                                          leer                                              
+facturacion                                        leer                                              
+facturacion                                        emitir                                            
+clientes                                           leer                                              
+clientes                                           crear                                             
+clientes                                           editar                                            
+dashboard                                          ver                                               
+movimientos                                        leer                                              
+
+(8 rows affected)

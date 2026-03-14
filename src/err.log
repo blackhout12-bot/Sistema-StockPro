@@ -1,0 +1,13 @@
+[dotenv@17.3.1] injecting env (7) from ..\.env -- tip: ­ƒøá´©Å  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.3.1] injecting env (0) from ..\.env -- tip: ­ƒöÉ encrypt with Dotenvx: https://dotenvx.com
+Error creating Empresa table: TypeError: The "config.server" property is required and must be of type string.
+    at new Connection (C:\Users\egar0\stock-system\node_modules\tedious\lib\connection.js:289:13)
+    at C:\Users\egar0\stock-system\node_modules\mssql\lib\tedious\connection-pool.js:78:19
+    at new Promise (<anonymous>)
+    at ConnectionPool._poolCreate (C:\Users\egar0\stock-system\node_modules\mssql\lib\tedious\connection-pool.js:67:12)
+    at ConnectionPool._connect (C:\Users\egar0\stock-system\node_modules\mssql\lib\base\connection-pool.js:445:10)
+    at C:\Users\egar0\stock-system\node_modules\mssql\lib\base\connection-pool.js:417:19
+    at new Promise (<anonymous>)
+    at ConnectionPool.connect (C:\Users\egar0\stock-system\node_modules\mssql\lib\base\connection-pool.js:416:12)
+    at Object.connect (C:\Users\egar0\stock-system\node_modules\mssql\lib\global-connection.js:59:27)
+    at createEmpresaTable (C:\Users\egar0\stock-system\src\create-empresa-table.js:7:19)

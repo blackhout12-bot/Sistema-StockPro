@@ -1,0 +1,247 @@
+// src/modules/auth/auth.model.js
+const { sql, connectDB } = require('../config/db');
+
+// ─── Usuarios ────────────────────────────────────────────────────────────────
+
+async function obtenerUsuarioPorEmail(email) {
+  const pool = await connectDB();
+  const result = await pool.request()
+    .input('email', sql.VarChar, email)
+    .query('SELECT * FROM Usuarios WHERE email = @email');
+  return result.recordset[0] || null;
+}
+
+/**
+ * Inserta usuario + membresía inicial en UsuarioEmpresas (transacción).
+ * Backward compatible: también actualiza empresa_id y rol en Usuarios.
+ */
+async function crearUsuario(nombre, email, passwordHash, rol, empresa_id) {
+  const pool = await connectDB();
+  const tx = new sql.Transaction(pool);
+  await tx.begin();
+  try {
+    // 1. Insertar usuario
+    const res = await new sql.Request(tx)
+      .input('nombre', sql.NVarChar(255), nombre)
+      .input('email', sql.NVarChar(255), email)
+      .input('password_hash', sql.VarChar(255), passwordHash)
+      .input('rol', sql.NVarChar(50), rol)
+      .input('empresa_id', sql.Int, empresa_id)
+      .query(`
+                INSERT INTO Usuarios (nombre, email, password_hash, rol, empresa_id)
+                OUTPUT INSERTED.id
+                VALUES (@nombre, @email, @password_hash, @rol, @empresa_id)
+            `);
+    const usuario_id = res.recordset[0].id;
+
+    // 2. Crear membresía en UsuarioEmpresas
+    await _insertarMembresia(tx, usuario_id, empresa_id, rol);
+
+    await tx.commit();
+    return { id: usuario_id, nombre, email, rol, empresa_id };
+  } catch (err) {
+    await tx.rollback();
+    throw err;
+  }
+}
+
+async function _insertarMembresia(requestOrPool, usuario_id, empresa_id, rol) {
+  const req = requestOrPool instanceof sql.Transaction
+    ? new sql.Request(requestOrPool)
+    : requestOrPool.request();
+  await req
+    .input('uid', sql.Int, usuario_id)
+    .input('eid', sql.Int, empresa_id)
+    .input('rol', sql.NVarChar(50), rol)
+    .query(`
+            IF NOT EXISTS (
+                SELECT 1 FROM UsuarioEmpresas WHERE usuario_id=@uid AND empresa_id=@eid
+            )
+            INSERT INTO UsuarioEmpresas (usuario_id, empresa_id, rol, activo)
+            VALUES (@uid, @eid, @rol, 1)
+        `);
+}
+
+// ─── Membresías ──────────────────────────────────────────────────────────────
+
+/**
+ * Devuelve las empresas a las que tiene acceso el usuario con su rol.
+ */
+async function obtenerMembresiasPorUsuario(usuario_id) {
+  const pool = await connectDB();
+  const result = await pool.request()
+    .input('uid', sql.Int, usuario_id)
+    .query(`
+            SELECT
+                ue.empresa_id,
+                ue.rol,
+                ue.activo,
+                ue.fecha_union,
+                e.nombre AS empresa_nombre,
+                e.logo_url,
+                e.documento_identidad
+            FROM UsuarioEmpresas ue
+            INNER JOIN Empresa e ON ue.empresa_id = e.id
+            WHERE ue.usuario_id = @uid AND ue.activo = 1
+            ORDER BY ue.fecha_union ASC
+        `);
+  return result.recordset;
+}
+
+/**
+ * Obtiene la membresía específica de un usuario en una empresa.
+ */
+async function obtenerMembresia(usuario_id, empresa_id) {
+  const pool = await connectDB();
+  const result = await pool.request()
+    .input('uid', sql.Int, usuario_id)
+    .input('eid', sql.Int, empresa_id)
+    .query(`
+            SELECT * FROM UsuarioEmpresas
+            WHERE usuario_id = @uid AND empresa_id = @eid
+        `);
+  return result.recordset[0] || null;
+}
+
+/**
+ * Agrega acceso de un usuario a una empresa con un rol específico.
+ * Reactiva si ya tenía acceso pero estaba inactivo.
+ */
+async function agregarOReactivarMembresia(usuario_id, empresa_id, rol) {
+  const pool = await connectDB();
+  await pool.request()
+    .input('uid', sql.Int, usuario_id)
+    .input('eid', sql.Int, empresa_id)
+    .input('rol', sql.NVarChar(50), rol)
+    .query(`
+            IF EXISTS (SELECT 1 FROM UsuarioEmpresas WHERE usuario_id=@uid AND empresa_id=@eid)
+                UPDATE UsuarioEmpresas SET rol=@rol, activo=1 WHERE usuario_id=@uid AND empresa_id=@eid
+            ELSE
+                INSERT INTO UsuarioEmpresas (usuario_id, empresa_id, rol, activo) VALUES (@uid, @eid, @rol, 1)
+        `);
+}
+
+/**
+ * Actualiza el rol de un usuario en una empresa específica.
+ */
+async function actualizarRolEnEmpresa(usuario_id, empresa_id, rol) {
+  const pool = await connectDB();
+  await pool.request()
+    .input('uid', sql.Int, usuario_id)
+    .input('eid', sql.Int, empresa_id)
+    .input('rol', sql.NVarChar(50), rol)
+    .query(`
+            UPDATE UsuarioEmpresas SET rol = @rol
+            WHERE usuario_id = @uid AND empresa_id = @eid
+        `);
+  // Backward compat: también actualiza rol en Usuarios si es la empresa principal
+  await pool.request()
+    .input('uid', sql.Int, usuario_id)
+    .input('eid', sql.Int, empresa_id)
+    .input('rol', sql.NVarChar(50), rol)
+    .query('UPDATE Usuarios SET rol = @rol WHERE id = @uid AND empresa_id = @eid');
+}
+
+/**
+ * Revoca acceso de un usuario a una empresa (soft delete).
+ */
+async function revocarAccesoEmpresa(usuario_id, empresa_id) {
+  const pool = await connectDB();
+  await pool.request()
+    .input('uid', sql.Int, usuario_id)
+    .input('eid', sql.Int, empresa_id)
+    .query('UPDATE UsuarioEmpresas SET activo = 0 WHERE usuario_id = @uid AND empresa_id = @eid');
+}
+
+/**
+ * Listar TODOS los miembros de TODAS las empresas del sistema (Admin Global).
+ * Útil para la pestaña de Acceso Global.
+ */
+async function obtenerUsuariosGlobal() {
+  const pool = await connectDB();
+  try {
+    const result = await pool.request()
+      .query(`
+          SELECT
+              u.id,
+              u.nombre,
+              u.email,
+              e.nombre AS empresa_nombre,
+              e.id AS empresa_id,
+              ue.rol,
+              ue.activo AS activo_en_empresa,
+              ue.fecha_union,
+              (SELECT COUNT(*) FROM UsuarioEmpresas ue2 WHERE ue2.usuario_id = u.id AND ue2.activo = 1) AS num_empresas
+          FROM UsuarioEmpresas ue
+          INNER JOIN Usuarios u ON ue.usuario_id = u.id
+          INNER JOIN Empresa e ON ue.empresa_id = e.id
+          WHERE ue.activo = 1
+          ORDER BY u.nombre ASC, e.nombre ASC
+      `);
+    return result.recordset;
+  } catch (err) {
+    console.error('Error en obtenerUsuariosGlobal:', err);
+    throw err;
+  }
+}
+
+/**
+ * Obtiene usuarios vinculados a una empresa específica.
+ */
+async function obtenerUsuariosPorEmpresa(empresa_id) {
+  const pool = await connectDB();
+  const result = await pool.request()
+    .input('eid', sql.Int, empresa_id)
+    .query(`
+      SELECT 
+        u.id, u.nombre, u.email, ue.rol, ue.activo, ue.fecha_union,
+        (SELECT COUNT(*) FROM UsuarioEmpresas ue2 WHERE ue2.usuario_id = u.id AND ue2.activo = 1) AS num_empresas
+      FROM Usuarios u
+      INNER JOIN UsuarioEmpresas ue ON u.id = ue.usuario_id
+      WHERE ue.empresa_id = @eid AND ue.activo = 1
+      ORDER BY u.nombre ASC
+    `);
+  return result.recordset;
+}
+
+/**
+ * Backward compat — mantiene API para obtenerUsuarios(empresa_id).
+ */
+async function obtenerUsuarios(empresa_id) {
+  return obtenerUsuariosPorEmpresa(empresa_id);
+}
+
+/**
+ * Verifica si un rol específico tiene un permiso para un recurso y acción determinados.
+ * Busca en la tabla RolPermisos unida a Permisos.
+ */
+async function verificarPermisoRol(rol_nombre, recurso, accion) {
+  const pool = await connectDB();
+  const result = await pool.request()
+    .input('rol', sql.NVarChar(50), rol_nombre)
+    .input('recurso', sql.NVarChar(50), recurso)
+    .input('accion', sql.NVarChar(50), accion)
+    .query(`
+      SELECT 1 
+      FROM dbo.RolPermisos rp
+      INNER JOIN dbo.Permisos p ON rp.permiso_id = p.id
+      WHERE rp.rol_nombre = @rol 
+        AND p.recurso = @recurso 
+        AND p.accion = @accion
+    `);
+  return result.recordset.length > 0;
+}
+
+module.exports = {
+  obtenerUsuarioPorEmail,
+  crearUsuario,
+  obtenerUsuarios,
+  obtenerUsuariosPorEmpresa,
+  obtenerMembresiasPorUsuario,
+  obtenerMembresia,
+  agregarOReactivarMembresia,
+  actualizarRolEnEmpresa,
+  revocarAccesoEmpresa,
+  obtenerUsuariosGlobal,
+  verificarPermisoRol,
+};

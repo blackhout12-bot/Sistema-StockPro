@@ -1,0 +1,138 @@
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "@puppeteer/browsers": {
+      "name": "@puppeteer/browsers",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "extract-zip"
+      ],
+      "effects": [
+        "puppeteer",
+        "puppeteer-core"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/@puppeteer/browsers"
+      ],
+      "fixAvailable": {
+        "name": "puppeteer",
+        "version": "19.8.0",
+        "isSemVerMajor": true
+      }
+    },
+    "extract-zip": {
+      "name": "extract-zip",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "yauzl"
+      ],
+      "effects": [
+        "@puppeteer/browsers"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/extract-zip"
+      ],
+      "fixAvailable": {
+        "name": "puppeteer",
+        "version": "19.8.0",
+        "isSemVerMajor": true
+      }
+    },
+    "puppeteer": {
+      "name": "puppeteer",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "@puppeteer/browsers",
+        "puppeteer-core"
+      ],
+      "effects": [],
+      "range": ">=19.8.1",
+      "nodes": [
+        "node_modules/puppeteer"
+      ],
+      "fixAvailable": {
+        "name": "puppeteer",
+        "version": "19.8.0",
+        "isSemVerMajor": true
+      }
+    },
+    "puppeteer-core": {
+      "name": "puppeteer-core",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@puppeteer/browsers"
+      ],
+      "effects": [
+        "puppeteer"
+      ],
+      "range": ">=19.8.4",
+      "nodes": [
+        "node_modules/puppeteer-core"
+      ],
+      "fixAvailable": {
+        "name": "puppeteer",
+        "version": "19.8.0",
+        "isSemVerMajor": true
+      }
+    },
+    "yauzl": {
+      "name": "yauzl",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1114530,
+          "name": "yauzl",
+          "dependency": "yauzl",
+          "title": "yauzl contains an off-by-one error",
+          "url": "https://github.com/advisories/GHSA-gmq8-994r-jv83",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-193"
+          ],
+          "cvss": {
+            "score": 5.3,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": "<3.2.1"
+        }
+      ],
+      "effects": [
+        "extract-zip"
+      ],
+      "range": "<3.2.1",
+      "nodes": [
+        "node_modules/yauzl"
+      ],
+      "fixAvailable": {
+        "name": "puppeteer",
+        "version": "19.8.0",
+        "isSemVerMajor": true
+      }
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 5,
+      "high": 0,
+      "critical": 0,
+      "total": 5
+    },
+    "dependencies": {
+      "prod": 79,
+      "dev": 269,
+      "optional": 56,
+      "peer": 1,
+      "peerOptional": 0,
+      "total": 348
+    }
+  }
+}

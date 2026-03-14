@@ -1,0 +1,77 @@
+[dotenv@17.3.1] injecting env (0) from ..\.env -- tip: ÔÜÖ´©Å  specify custom .env file path with { path: '/custom/path/.env' }
+OK: src\add-categoria-sa.js
+[dotenv@17.3.1] injecting env (0) from ..\.env -- tip: ÔÜÖ´©Å  load multiple .env files with { path: ['.env.local', '.env'] }
+OK: src\add-categoria.js
+[dotenv@17.3.1] injecting env (0) from ..\.env -- tip: ­ƒöÉ prevent building .env in docker: https://dotenvx.com/prebuild
+OK: src\add-motivo.js
+[dotenv@17.3.1] injecting env (7) from .env -- tip: ÔÜÖ´©Å  override existing env vars with { override: true }
+OK: src\config\db.js
+OK: src\config\swagger.js
+[dotenv@17.3.1] injecting env (0) from ..\.env -- tip: ÔÜÖ´©Å  load multiple .env files with { path: ['.env.local', '.env'] }
+OK: src\create-empresa-sa.js
+OK: src\create-empresa-table.js
+OK: src\drop_rol_constraint.js
+[dotenv@17.3.1] injecting env (0) from ..\.env -- tip: ÔÜÖ´©Å  write to custom object with { processEnv: myObject }
+OK: src\inspect-db.js
+OK: src\middlewares\audit.js
+OK: src\middlewares\auth.js
+OK: src\middlewares\errorHandler.js
+OK: src\middlewares\rbac.js
+OK: src\middlewares\roles.js
+OK: src\middlewares\tenantContext.js
+OK: src\middlewares\validateRequest.js
+[dotenv@17.3.1] injecting env (0) from ..\.env -- tip: ÔÜÖ´©Å  override existing env vars with { override: true }
+--- Iniciando Migraci├│n Multi-Tenant (Phase 6) por SA ---
+OK: src\migrate-multi-tenant.js
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ­ƒøá´©Å  run anywhere with `dotenvx run -- yourcommand`
+OK: src\migrations\check_perms.js
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ­ƒöÉ prevent committing .env to code: https://dotenvx.com/precommit
+ÔÅ│ Intentando conexi├│n como SA...
+OK: src\migrations\force_grant_ddl.js
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ­ƒöÉ encrypt with Dotenvx: https://dotenvx.com
+Intentando conexi├│n 1...
+OK: src\migrations\grant_ddl.js
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ÔÜÖ´©Å  load multiple .env files with { path: ['.env.local', '.env'] }
+OK: src\migrations\list_tables.js
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ÔÜÖ´©Å  override existing env vars with { override: true }
+OK: src\migrations\migrate_002.js
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ÔÜÖ´©Å  override existing env vars with { override: true }
+Conectando a SQL Server...
+OK: src\migrations\migrate_direct.js
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ÔÜÖ´©Å  write to custom object with { processEnv: myObject }
+Conectando a SQL Server...
+OK: src\migrations\run_003.js
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ÔÜÖ´©Å  load multiple .env files with { path: ['.env.local', '.env'] }
+Conectando...
+OK: src\migrations\run_003_direct.js
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ÔÜÖ´©Å  override existing env vars with { override: true }
+Conectando a SQL Server...
+OK: src\migrations\run_migration.js
+OK: src\modules\auth\auth.controller.js
+OK: src\modules\auth\auth.service.js
+OK: src\modules\clientes\clientes.controller.js
+OK: src\modules\clientes\clientes.service.js
+OK: src\modules\empresa\empresa.controller.js
+OK: src\modules\empresa\empresa.model.js
+OK: src\modules\empresa\empresa.service.js
+OK: src\modules\facturacion\facturacion.controller.js
+OK: src\modules\facturacion\facturacion.service.js
+OK: src\modules\movimientos\movimientos.controller.js
+OK: src\modules\movimientos\movimientos.service.js
+OK: src\modules\notificaciones\notificaciones.controller.js
+OK: src\modules\productos\productos.controller.js
+OK: src\modules\productos\productos.service.js
+OK: src\modules\reportes\alertWorker.js
+FAIL: src\modules\reportes\reportes.controller.js
+ReferenceError: generarReporteVentasPorProducto is not defined
+    at Object.<anonymous> (C:\Users\egar0\stock-system\src\modules\reportes\reportes.service.js:24:3)
+    at Module._compile (node:internal/modules/cjs/loader:1804:14)
+    at Object..js (node:internal/modules/cjs/loader:1936:10)
+    at Module.load (node:internal/modules/cjs/loader:1525:32)
+    at Module._load (node:internal/modules/cjs/loader:1327:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.require (node:internal/modules/cjs/loader:1548:12)
+    at require (node:internal/modules/helpers:152:16)
+    at Object.<anonymous> (C:\Users\egar0\stock-system\src\modules\reportes\reportes.controller.js:5:25)
+[22:53:25] [32mINFO[39m: [36mWorker de alertas de Stock/Lotes registrado.[39m

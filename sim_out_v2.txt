@@ -1,0 +1,15 @@
+[dotenv@17.3.1] injecting env (7) from .env -- tip: ÔÜÖ´©Å  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ÔÜÖ´©Å  override existing env vars with { override: true }
+--- SIMULANDO REGISTRO DE MOVIMIENTO CON LOTE ---
+[00:46:22] [32mINFO[39m: [36mConectado a SQL Server[39m
+├ëxito: {
+  "id": 64,
+  "productoId": 1,
+  "tipo": "entrada",
+  "cantidad": 5,
+  "usuarioId": 2,
+  "fecha": "2026-03-08T00:46:22.923Z",
+  "empresa_id": 1,
+  "nro_lote": "SIM-LOTE-456",
+  "fecha_vto": "2026-12-31T00:00:00.000Z"
+}

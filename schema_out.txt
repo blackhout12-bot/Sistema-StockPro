@@ -1,0 +1,18 @@
+[dotenv@17.3.1] injecting env (7) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+--- COLUMNAS DE LA TABLA PRODUCTOS ---
+[00:45:19] [32mINFO[39m: [36mConectado a SQL Server[39m
+┌─────────┬────────────────┐
+│ (index) │ COLUMN_NAME    │
+├─────────┼────────────────┤
+│ 0       │ 'id'           │
+│ 1       │ 'nombre'       │
+│ 2       │ 'descripcion'  │
+│ 3       │ 'precio'       │
+│ 4       │ 'stock_actual' │
+│ 5       │ 'creado_en'    │
+│ 6       │ 'stock'        │
+│ 7       │ 'categoria'    │
+│ 8       │ 'empresa_id'   │
+│ 9       │ 'sku'          │
+└─────────┴────────────────┘
