@@ -1,0 +1,37 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Release.Name }}-alerts
+  labels:
+    app: {{ .Release.Name }}
+    release: prometheus
+spec:
+  groups:
+  - name: stock-system-alerts
+    rules:
+    - alert: BackendPodDown
+      expr: up{app="{{ .Release.Name }}-backend"} == 0
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Backend pod is down"
+        description: "The backend service for {{ $labels.instance }} has been down for more than 2 minutes."
+
+    - alert: HighApiLatency
+      expr: http_request_duration_seconds_sum / http_request_duration_seconds_count > 0.5
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High API latency detected"
+        description: "Average latency is above 500ms for more than 5 minutes."
+
+    - alert: BullMQHighPendingJobs
+      expr: bullmq_waiting_jobs_total > 1000
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High number of pending jobs in BullMQ"
+        description: "There are more than 1000 jobs waiting in the queue for more than 5 minutes."

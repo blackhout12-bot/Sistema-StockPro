@@ -82,3 +82,19 @@ secrets:
   meliAccessToken: "MOCK_TOKEN"
   googleClientId: "MOCK_GOOGLE_ID"
   msClientId: "MOCK_MS_ID"
+  otelEnabled: "true"
+
+observability:
+  loki:
+    enabled: true
+    url: "http://loki-gateway.loki.svc.cluster.local"
+  otel:
+    collectorEndpoint: "http://otel-collector.monitoring.svc.cluster.local:4317"
+    serviceName: "stock-system-backend"
+
+# Configuración para el umbrella chart si se desea instalar el stack aquí:
+# grafana:
+#   enabled: true
+#   sidecar:
+#     dashboards:
+#       enabled: true

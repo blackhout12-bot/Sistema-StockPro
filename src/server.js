@@ -1,5 +1,10 @@
 // src/server.js
+// Debe ser lo primero para instrumentar todos los módulos
+if (process.env.OTEL_ENABLED === 'true') {
+  require('./config/tracing');
+}
 const express = require('express');
+const promClient = require('prom-client');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -55,6 +60,15 @@ app.use(rateLimit({
 
 // ─── Health Check ───────────────────────────────────────────────
 app.get('/health', (_req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
+
+// ─── Prometheus Metrics ──────────────────────────────────────────
+const collectDefaultMetrics = promClient.collectDefaultMetrics;
+collectDefaultMetrics({ prefix: 'stock_system_' });
+
+app.get('/metrics', async (_req, res) => {
+  res.set('Content-Type', promClient.register.contentType);
+  res.end(await promClient.register.metrics());
+});
 
 // ─── Documentación Swagger ──────────────────────────────────────
 const swaggerUi = require('swagger-ui-express');

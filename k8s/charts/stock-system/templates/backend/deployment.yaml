@@ -34,5 +34,11 @@ spec:
               value: {{ .Values.backend.env.DB_NAME }}
             - name: REDIS_HOST
               value: {{ .Values.backend.env.REDIS_HOST }}
+            - name: OTEL_ENABLED
+              value: {{ .Values.secrets.otelEnabled | quote }}
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: {{ .Values.observability.otel.collectorEndpoint | quote }}
+            - name: OTEL_SERVICE_NAME
+              value: {{ .Values.observability.otel.serviceName | quote }}
           resources:
             {{- toYaml .Values.backend.resources | nindent 12 }}
