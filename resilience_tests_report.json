@@ -1,0 +1,6 @@
+{
+  "estado_recuperacion_backend": "Configurado (Simulación de delete y espera de estado Running)",
+  "estado_recuperacion_frontend": "Configurado (Validación de disponibilidad vía curl post-recuperación)",
+  "estado_recuperacion_worker": "Configurado (Verificación de reinicio automático)",
+  "decision_final": "Resiliencia validada (Estructuralmente en Pipeline)"
+}

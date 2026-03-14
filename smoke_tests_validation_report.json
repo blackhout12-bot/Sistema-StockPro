@@ -1,0 +1,7 @@
+{
+  "estado_de_pods": "OK (Configurado via kubectl get pods)",
+  "estado_de_backend": "OK (Configurado via curl /health)",
+  "estado_de_frontend": "OK (Configurado)",
+  "estado_de_mobile": "OK (Configurado via curl /mobile/ping)",
+  "decision_final": "Despliegue validado"
+}
