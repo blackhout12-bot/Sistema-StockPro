@@ -1,0 +1,12 @@
+{
+  "fase": 12,
+  "nombre": "Marketplace + API de ventas externas",
+  "estado": "COMPLETADO",
+  "detalles": {
+    "marketplace": "Módulo de plugins por rubro implementado en frontend (/marketplace) y backend (/api/v2/marketplace) con auditoría inmutable de instalación.",
+    "api_ventas_externas": "Endpoints POST /api/v2/ventas-externas/import y GET export implementados.",
+    "webhooks_seguridad": "Endpoint /api/v2/webhooks/secure/:tenant_id validado mediante firma HMAC-SHA256 (x-hub-signature-256) y con auditoría hacia la tabla IntegracionLogs."
+  },
+  "verificacion": "Endpoints V2 desplegados y protecciones criptográficas (HMAC) integradas.",
+  "conclusion": "Fase 12 completada, habilitada Fase 13 (SSO + Kubernetes + Helm)."
+}

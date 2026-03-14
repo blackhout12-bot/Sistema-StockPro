@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
@@ -16,6 +16,9 @@ import Clientes from './pages/Clientes';
 import Facturacion from './pages/Facturacion';
 import ResetPassword from './pages/ResetPassword';
 import AuditLogs from './pages/AuditLogs';
+import PaymentsDashboard from './pages/PaymentsDashboard';
+import AlertsPanel from './pages/AlertsPanel';
+import Marketplace from './pages/Marketplace';
 
 // ─── Rutas protegidas con AuthContext ───────────────────────────
 function AppRoutes() {
@@ -58,6 +61,9 @@ function AppRoutes() {
         <Route path="usuarios" element={isAdmin ? <Users /> : <Navigate to="/" replace />} />
         <Route path="empresa" element={isAdmin ? <Empresa /> : <Navigate to="/" replace />} />
         <Route path="auditoria" element={isAdmin ? <AuditLogs /> : <Navigate to="/" replace />} />
+        <Route path="pagos-externos" element={isAdmin ? <PaymentsDashboard /> : <Navigate to="/" replace />} />
+        <Route path="alertas-ia" element={isAdmin ? <AlertsPanel /> : <Navigate to="/" replace />} />
+        <Route path="marketplace" element={isAdmin ? <Marketplace /> : <Navigate to="/" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

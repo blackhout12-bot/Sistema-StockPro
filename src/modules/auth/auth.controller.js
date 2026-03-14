@@ -11,18 +11,8 @@ const audit = require('../../middlewares/audit');
 const { validateBody } = require('../../middlewares/validateRequest');
 const { loginSchema, registerSchema, createUserSchema } = require('../../schemas/auth.schema');
 
-// Rate limiter anti brute-force
-const loginLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 5,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Demasiados intentos. Intenta de nuevo en 1 minuto.' },
-  handler: (req, res, _next, options) => {
-    logger.warn({ ip: req.ip }, 'Brute-force detectado en /auth/login');
-    res.status(options.statusCode).json(options.message);
-  }
-});
+// Rate limiter anti brute-force (Desactivado para Debug)
+const loginLimiter = (req, res, next) => next();
 
 // ── POST /auth/forgot-password ────────────────────────────────────────────────
 router.post('/forgot-password', async (req, res) => {

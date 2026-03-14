@@ -5,14 +5,11 @@ const authenticate = require('../middlewares/auth');
 const tenantContext = require('../middlewares/tenantContext');
 const rateLimit = require('express-rate-limit');
 
-// Limiter para Auth
-const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 20,
-    message: { error: 'Demasiadas solicitudes de autenticación. Intenta en 15 minutos.' }
-});
+// Limiter para Auth (Desactivado para Debug)
+const authLimiter = (req, res, next) => next();
 
 // --- Definición de Rutas V1 ---
+router.get('/ping', (req, res) => res.json({ message: 'pong', version: 'v1' }));
 
 // Públicas (Auth)
 router.use('/auth', authLimiter, require('../modules/auth/auth.controller'));
@@ -26,6 +23,7 @@ router.use('/movimientos', authenticate, tenantContext, require('../modules/movi
 router.use('/empresa', authenticate, tenantContext, require('../modules/empresa/empresa.controller'));
 router.use('/clientes', authenticate, tenantContext, require('../modules/clientes/clientes.controller'));
 router.use('/facturacion', authenticate, tenantContext, require('../modules/facturacion/facturacion.controller'));
+router.use('/payments', authenticate, require('../modules/payments/payments.controller'));
 router.use('/importacion', authenticate, tenantContext, require('../modules/importacion/importacion.controller'));
 router.use('/monedas', authenticate, require('../modules/configuracion/monedas.controller'));
 

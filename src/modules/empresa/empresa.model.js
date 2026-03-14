@@ -253,6 +253,8 @@ class EmpresaModel {
                     (SELECT COUNT(*) FROM Clientes WHERE empresa_id = @empresa_id) AS total_clientes,
                     (SELECT COUNT(*) FROM Facturas WHERE empresa_id = @empresa_id) AS total_facturas,
                     (SELECT ISNULL(SUM(total * ISNULL(tipo_cambio, 1)), 0) FROM Facturas WHERE empresa_id = @empresa_id AND estado != 'anulada') AS ventas_totales,
+                    (SELECT COUNT(*) FROM Pagos WHERE empresa_id = @empresa_id AND estado = 'approved') AS pagos_aprobados,
+                    (SELECT ISNULL(SUM(monto), 0) FROM Pagos WHERE empresa_id = @empresa_id AND estado = 'approved') AS monto_pagos,
                     (SELECT COUNT(*) FROM Movimientos WHERE empresa_id = @empresa_id) AS total_movimientos,
                     (SELECT COUNT(*) FROM Movimientos WHERE empresa_id = @empresa_id AND tipo = 'entrada') AS total_entradas,
                     (SELECT COUNT(*) FROM Movimientos WHERE empresa_id = @empresa_id AND tipo = 'salida') AS total_salidas

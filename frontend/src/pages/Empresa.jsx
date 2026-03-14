@@ -135,7 +135,11 @@ const Empresa = () => {
     const [integraciones, setIntegraciones] = useState({
         email_host: '',
         email_port: 587,
-        afip_cert_path: '',
+        afip_cuit: '',
+        afip_punto_venta: 1,
+        afip_tipo_responsable: 'Responsable Inscripto',
+        afip_certificado_path: '',
+        afip_key_path: '',
         mercadopago_token: '',
         mercadolibre_token: '',
         ecommerce_url: '',
@@ -168,7 +172,8 @@ const Empresa = () => {
         { id: 'valor_inventario', label: 'Valorización', desc: 'Total monetario en stock' },
         { id: 'ventas_mes', label: 'Ventas Mensuales', desc: 'Total facturado este mes' },
         { id: 'clientes_nuevos', label: 'Clientes', desc: 'Nuevos usuarios registrados' },
-        { id: 'movimientos', label: 'Movimientos', desc: 'Flujo de stock reciente' }
+        { id: 'movimientos', label: 'Movimientos', desc: 'Flujo de stock reciente' },
+        { id: 'pagos_externos', label: 'Pagos Externos', desc: 'Pasarelas Stripe/MercadoPago' }
     ];
 
     const toggleKpi = (id) => {
@@ -246,7 +251,11 @@ const Empresa = () => {
             setIntegraciones({
                 email_host: d.int_email_host || '',
                 email_port: d.int_email_port || 587,
-                afip_cert_path: d.int_afip_cert_path || '',
+                afip_cuit: d.afip_cuit || '',
+                afip_punto_venta: d.afip_punto_venta || 1,
+                afip_tipo_responsable: d.afip_tipo_responsable || 'Responsable Inscripto',
+                afip_certificado_path: d.afip_certificado_path || '',
+                afip_key_path: d.afip_key_path || '',
                 mercadopago_token: d.int_mercadopago_token || '',
                 mercadolibre_token: d.int_mercadolibre_token || '',
                 ecommerce_url: d.int_ecommerce_url || '',
@@ -325,8 +334,7 @@ const Empresa = () => {
         setSaving(true);
         try {
             const regionalPayload = {
-                moneda: config.moneda,
-                simbolo_moneda: config.simbolo_moneda,
+                moneda_base_id: config.moneda,
                 zona_horaria: config.zona_horaria,
                 regional_formato_fecha: config.formato_fecha,
                 regional_formato_hora: config.formato_hora,
@@ -341,7 +349,8 @@ const Empresa = () => {
 
             const integracionesPayload = {
                 ...integraciones,
-                email_port: integraciones.email_port === '' ? null : integraciones.email_port
+                email_port: integraciones.email_port === '' ? null : Number(integraciones.email_port),
+                afip_punto_venta: integraciones.afip_punto_venta === '' ? null : Number(integraciones.afip_punto_venta)
             };
 
             const dashboardPayload = {
@@ -1057,10 +1066,33 @@ const Empresa = () => {
                                             onChange={e => setIntegraciones(i => ({ ...i, email_port: parseInt(e.target.value) || '' }))}
                                             placeholder="587" />
                                     </Field>
+                                    <Field label="NIT / CUIT AFIP">
+                                        <input className={inputCls} value={integraciones.afip_cuit}
+                                            onChange={e => setIntegraciones(i => ({ ...i, afip_cuit: e.target.value }))}
+                                            placeholder="20-12345678-9" />
+                                    </Field>
+                                    <Field label="Punto de Venta AFIP">
+                                        <input type="number" className={inputCls} value={integraciones.afip_punto_venta}
+                                            onChange={e => setIntegraciones(i => ({ ...i, afip_punto_venta: e.target.value }))}
+                                            placeholder="1" />
+                                    </Field>
+                                    <Field label="Tipo Responsable">
+                                        <select className={inputCls} value={integraciones.afip_tipo_responsable}
+                                            onChange={e => setIntegraciones(i => ({ ...i, afip_tipo_responsable: e.target.value }))}>
+                                            <option value="Responsable Inscripto">Responsable Inscripto</option>
+                                            <option value="Monotributo">Monotributo</option>
+                                            <option value="Exento">Exento</option>
+                                        </select>
+                                    </Field>
                                     <Field label="Certificado AFIP (Path)">
-                                        <input className={inputCls} value={integraciones.afip_cert_path}
-                                            onChange={e => setIntegraciones(i => ({ ...i, afip_cert_path: e.target.value }))}
+                                        <input className={inputCls} value={integraciones.afip_certificado_path}
+                                            onChange={e => setIntegraciones(i => ({ ...i, afip_certificado_path: e.target.value }))}
                                             placeholder="/certificados/afip.crt" />
+                                    </Field>
+                                    <Field label="Clave Privada AFIP (Path)">
+                                        <input className={inputCls} value={integraciones.afip_key_path}
+                                            onChange={e => setIntegraciones(i => ({ ...i, afip_key_path: e.target.value }))}
+                                            placeholder="/certificados/privada.key" />
                                     </Field>
                                     <Field label="MercadoPago Access Token">
                                         <input type="password" className={inputCls} value={integraciones.mercadopago_token}

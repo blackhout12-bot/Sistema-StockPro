@@ -42,5 +42,19 @@ router.post('/registrar', checkPermiso('movimientos', 'crear'), validateBody(mov
 router.post('/transferir', checkPermiso('movimientos', 'crear'), audit('crear', 'Transferencia'), transferenciasController.transferir);
 router.get('/transferencias/historial', checkPermiso('movimientos', 'leer'), transferenciasController.historial);
 
+// Sincronizar movimientos offline
+router.post('/sync', authenticate, async (req, res) => {
+    const { movimientos } = req.body;
+    if (!Array.isArray(movimientos)) {
+        return res.status(400).json({ error: 'Se requiere un array de movimientos' });
+    }
+    try {
+        const result = await movimientosService.syncMovimientosOffline(movimientos, req.user.id, req.user.empresa_id);
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
 

@@ -1,37 +1,50 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, ArrowRightLeft, LogOut, FileText, Users as UsersIcon, Building2, Users as CustomersIcon, ShoppingCart, Menu, History } from 'lucide-react';
+import { LayoutDashboard, Package, ArrowRightLeft, LogOut, FileText, Users as UsersIcon, Building2, Users as CustomersIcon, ShoppingCart, Menu, History, Zap, Bell, Store } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import NotificationsDropdown from '../components/NotificationsDropdown';
 
-const MainLayout = ({ onLogout }) => {
-    const location = useLocation();
+const MainLayout = () => {
     const { user, logout, misEmpresas, switchEmpresa } = useAuth();
-
-    const handleLogout = () => {
-        logout();
-        if (onLogout) onLogout();
-    };
-
+    const [isSidebarOpen, setSidebarOpen] = useState(false);
+    const location = useLocation();
+    
     const currentEmpresaId = user?.empresa_id;
-    const currentEmpresa = misEmpresas.find(e => e.empresa_id === currentEmpresaId);
+    const currentEmpresa = misEmpresas?.find(e => e.empresa_id === currentEmpresaId);
 
     const baseNavItems = [
-        { name: 'Panel', path: '/', icon: <LayoutDashboard size={18} /> },
+        { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={18} /> },
+        { name: 'Facturación / POS', path: '/facturacion', icon: <ShoppingCart size={18} /> },
+        { name: 'Inventario', path: '/inventario', icon: <ArrowRightLeft size={18} /> },
         { name: 'Productos', path: '/productos', icon: <Package size={18} /> },
-        { name: 'Movimientos', path: '/movimientos', icon: <ArrowRightLeft size={18} /> },
-        { name: 'Facturación', path: '/facturacion', icon: <ShoppingCart size={18} /> },
         { name: 'Clientes', path: '/clientes', icon: <CustomersIcon size={18} /> },
+        { name: 'Proveedores', path: '/proveedores', icon: <UsersIcon size={18} /> },
         { name: 'Reportes', path: '/reportes', icon: <FileText size={18} /> }
     ];
 
-    const navItems = user?.rol === 'admin'
-        ? [...baseNavItems,
-        { name: 'Usuarios', path: '/usuarios', icon: <UsersIcon size={18} /> },
-        { name: 'Auditoría', path: '/auditoria', icon: <History size={18} /> },
-        { name: 'Empresa', path: '/empresa', icon: <Building2 size={18} /> }
-        ]
-        : baseNavItems;
+    const adminAndGerenteNavItems = [
+        { name: 'Integraciones', path: '/pagos-externos', icon: <Zap size={18} /> },
+        { name: 'Marketplace', path: '/marketplace', icon: <Store size={18} /> },
+        { name: 'Alertas & IA', path: '/alertas-ia', icon: <Bell size={18} /> },
+    ];
+
+    let navItems = [...baseNavItems];
+
+    if (user?.rol === 'admin') {
+        navItems = [
+            ...baseNavItems,
+            { name: 'Usuarios', path: '/usuarios', icon: <UsersIcon size={18} /> },
+            ...adminAndGerenteNavItems,
+            { name: 'Auditoría', path: '/auditoria', icon: <History size={18} /> },
+            { name: 'Empresa', path: '/empresa', icon: <Building2 size={18} /> }
+        ];
+    } else if (user?.rol === 'gerente') {
+        navItems = [
+            ...baseNavItems,
+            ...adminAndGerenteNavItems,
+        ];
+    }
+
 
     return (
         <div className="flex h-screen bg-surface-50">
@@ -42,7 +55,7 @@ const MainLayout = ({ onLogout }) => {
                 </div>
 
                 {/* Selector de Empresa — Refined */}
-                {misEmpresas.length > 1 && (
+                {misEmpresas?.length > 1 && (
                     <div className="px-6 py-4">
                         <label className="block text-[10px] font-bold uppercase text-slate-400 tracking-widest mb-2 ml-1">
                             Sucursal Activa
@@ -53,7 +66,7 @@ const MainLayout = ({ onLogout }) => {
                                 onChange={(e) => switchEmpresa(Number(e.target.value))}
                                 className="w-full appearance-none bg-surface-50 border border-slate-100 rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-primary-500/10 focus:border-primary-500 transition-all cursor-pointer"
                             >
-                                {misEmpresas.map(emp => (
+                                {misEmpresas?.map(emp => (
                                     <option key={emp.id || emp.empresa_id} value={emp.empresa_id}>
                                         {emp.empresa_nombre}
                                     </option>
@@ -98,7 +111,7 @@ const MainLayout = ({ onLogout }) => {
                         </div>
                     </div>
                     <button
-                        onClick={handleLogout}
+                        onClick={logout}
                         className="w-full flex items-center justify-center px-4 py-2.5 text-xs font-bold text-rose-500 bg-rose-50 hover:bg-rose-100 rounded-xl transition-all active:scale-95"
                     >
                         <LogOut size={14} className="mr-2" />

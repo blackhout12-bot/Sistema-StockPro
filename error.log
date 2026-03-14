@@ -1,9 +1,24 @@
+ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+    at Object.keyGeneratorIpFallback (C:\Users\egar0\stock-system\node_modules\express-rate-limit\dist\index.cjs:642:13)
+    at wrappedValidations.<computed> [as keyGeneratorIpFallback] (C:\Users\egar0\stock-system\node_modules\express-rate-limit\dist\index.cjs:685:22)
+    at parseOptions (C:\Users\egar0\stock-system\node_modules\express-rate-limit\dist\index.cjs:755:16)
+    at rateLimit (C:\Users\egar0\stock-system\node_modules\express-rate-limit\dist\index.cjs:836:18)
+    at Object.<anonymous> (C:\Users\egar0\stock-system\src\routes\public.routes.js:9:26)
+    at Module._compile (node:internal/modules/cjs/loader:1804:14)
+    at Object..js (node:internal/modules/cjs/loader:1936:10)
+    at Module.load (node:internal/modules/cjs/loader:1525:32)
+    at Module._load (node:internal/modules/cjs/loader:1327:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14) {
+  code: 'ERR_ERL_KEY_GEN_IPV6',
+  help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+}
 node:internal/modules/cjs/loader:1451
   throw err;
   ^
 
-Error: Cannot find module './modules/lotes/lote.controller'
+Error: Cannot find module '../middlewares/role'
 Require stack:
+- C:\Users\egar0\stock-system\src\routes\ai.routes.js
 - C:\Users\egar0\stock-system\src\server.js
     at Module._resolveFilename (node:internal/modules/cjs/loader:1448:15)
     at defaultResolveImpl (node:internal/modules/cjs/loader:1059:19)
@@ -13,10 +28,13 @@ Require stack:
     at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
     at Module.require (node:internal/modules/cjs/loader:1548:12)
     at require (node:internal/modules/helpers:152:16)
-    at Object.<anonymous> (C:\Users\egar0\stock-system\src\server.js:78:55)
+    at Object.<anonymous> (C:\Users\egar0\stock-system\src\routes\ai.routes.js:6:20)
     at Module._compile (node:internal/modules/cjs/loader:1804:14) {
   code: 'MODULE_NOT_FOUND',
-  requireStack: [ 'C:\\Users\\egar0\\stock-system\\src\\server.js' ]
+  requireStack: [
+    'C:\\Users\\egar0\\stock-system\\src\\routes\\ai.routes.js',
+    'C:\\Users\\egar0\\stock-system\\src\\server.js'
+  ]
 }
 
 Node.js v24.13.1

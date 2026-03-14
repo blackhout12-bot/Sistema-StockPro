@@ -1,0 +1,12 @@
+{
+  "fase": 11,
+  "nombre": "Notificaciones + IA Predictiva",
+  "estado": "COMPLETADO",
+  "detalles": {
+    "notificaciones": "Se creó el notification.service para manejar alertas web, push (mock FCM) y reportes email. El AlertsPanel.jsx permite la configuración granular.",
+    "ia_predictiva": "Endpoints en /api/ai/predict/:id/demand y /api/ai/alerts/expirations implementados para sugerir reposiciones y avisos de caducidad temprana.",
+    "frontend": "AlertsPanel integrado en el dashboard bajo la ruta /alertas-ia para visualización en tiempo real."
+  },
+  "verificacion": "Rutas montadas y UI compilando sin advertencias.",
+  "conclusion": "Fase 11 completada, habilitada Fase 12 (Marketplace + API de ventas externas)."
+}

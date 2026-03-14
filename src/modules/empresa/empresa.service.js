@@ -1,6 +1,6 @@
 const { connectDB, connectReadOnlyDB } = require('../../config/db');
 const empresaModel = require('./empresa.model');
-const { getCache, setCache } = require('../../config/redis');
+const { getCache, setCache, delCache } = require('../../config/redis');
 const logger = require('../../utils/logger');
 
 class EmpresaService {
@@ -14,37 +14,51 @@ class EmpresaService {
         const pool = await connectDB();
         // Siempre forzar el id del tenant — no puede actualizar otra empresa
         empresaData.id = empresa_id;
-        return await empresaModel.updateEmpresa(pool, empresaData);
+        const res = await empresaModel.updateEmpresa(pool, empresaData);
+        await delCache(`stats:tenant_${empresa_id}`);
+        return res;
     }
 
     async updateConfiguracion(empresa_id, config) {
         const pool = await connectDB();
-        return await empresaModel.updateConfiguracion(pool, empresa_id, config);
+        const res = await empresaModel.updateConfiguracion(pool, empresa_id, config);
+        await delCache(`stats:tenant_${empresa_id}`);
+        return res;
     }
 
     async updateBranding(empresa_id, branding) {
         const pool = await connectDB();
-        return await empresaModel.updateBranding(pool, empresa_id, branding);
+        const res = await empresaModel.updateBranding(pool, empresa_id, branding);
+        await delCache(`stats:tenant_${empresa_id}`);
+        return res;
     }
 
     async updateInventarioConfig(empresa_id, inv) {
         const pool = await connectDB();
-        return await empresaModel.updateInventarioConfig(pool, empresa_id, inv);
+        const res = await empresaModel.updateInventarioConfig(pool, empresa_id, inv);
+        await delCache(`stats:tenant_${empresa_id}`);
+        return res;
     }
 
     async updateImpuestosConfig(empresa_id, imp) {
         const pool = await connectDB();
-        return await empresaModel.updateImpuestosConfig(pool, empresa_id, imp);
+        const res = await empresaModel.updateImpuestosConfig(pool, empresa_id, imp);
+        await delCache(`stats:tenant_${empresa_id}`);
+        return res;
     }
 
     async updateIntegracionesConfig(empresa_id, intConfig) {
         const pool = await connectDB();
-        return await empresaModel.updateIntegracionesConfig(pool, empresa_id, intConfig);
+        const res = await empresaModel.updateIntegracionesConfig(pool, empresa_id, intConfig);
+        await delCache(`stats:tenant_${empresa_id}`);
+        return res;
     }
 
     async updateDashboardConfig(empresa_id, dash) {
         const pool = await connectDB();
-        return await empresaModel.updateDashboardConfig(pool, empresa_id, dash);
+        const res = await empresaModel.updateDashboardConfig(pool, empresa_id, dash);
+        await delCache(`stats:tenant_${empresa_id}`);
+        return res;
     }
 
     async getComprobantes(empresa_id) {

@@ -4,6 +4,7 @@ const { notifyEvent } = require('../../utils/webhook.service');
 const meliService = require('../../utils/mercadolibre.service');
 const { connectDB, sql } = require('../../config/db');
 const logger = require('../../utils/logger');
+const { notifyStockChange } = require('../../config/socket');
 
 async function listarMovimientos(empresa_id) {
   return await movimientoRepository.getAll(empresa_id);
@@ -31,15 +32,19 @@ async function agregarMovimiento(data, usuarioId, empresa_id) {
       
       const product = prodRes.recordset[0];
       if (product && product.meli_item_id) {
-          meliService.syncStock({
-              meli_item_id: product.meli_item_id,
-              availability: product.stock,
-              empresa_id
-          }).catch(e => logger.error({ err: e.message }, 'Failed background MeLi sync'));
+      meliService.syncStock({
+                  meli_item_id: product.meli_item_id,
+                  availability: product.stock,
+                  empresa_id
+              }).catch(e => logger.error({ err: e.message }, 'Failed background MeLi sync'));
+          }
+          
+          // 4. Notificar vía WebSocket (Real-time Cloud Sync)
+          notifyStockChange(empresa_id, data.productoId, product ? product.stock : null);
+
+      } catch (error) {
+          logger.error({ err: error.message }, 'Error triggering MeLi sync/Socket notify in service');
       }
-  } catch (error) {
-      logger.error({ err: error.message }, 'Error triggering MeLi sync in service');
-  }
 
   return result;
 }
@@ -48,4 +53,17 @@ async function obtenerMovimientosRecientes(empresa_id, limite = 5) {
   return await movimientoRepository.getRecent(empresa_id, limite);
 }
 
-module.exports = { listarMovimientos, obtenerMovimientosRecientes, agregarMovimiento };
+async function syncMovimientosOffline(movimientos, usuarioId, empresa_id) {
+    const results = [];
+    for (const mov of movimientos) {
+        try {
+            const res = await agregarMovimiento(mov, usuarioId, empresa_id);
+            results.push({ success: true, localId: mov.localId, movement: res });
+        } catch (err) {
+            results.push({ success: false, localId: mov.localId, error: err.message });
+        }
+    }
+    return results;
+}
+
+module.exports = { listarMovimientos, obtenerMovimientosRecientes, agregarMovimiento, syncMovimientosOffline };

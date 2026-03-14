@@ -1,0 +1,15 @@
+
+> frontend@1.0.0 build
+> vite build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32m✓[39m 53 modules transformed.
+✗ Build failed in 801ms
+error during build:
+Could not resolve "./pages/DebugPagos" from "src/App.jsx"
+file: C:/Users/egar0/stock-system/frontend/src/App.jsx
+    at getRollupError (file:///C:/Users/egar0/stock-system/frontend/node_modules/vite/node_modules/rollup/dist/es/shared/parseAst.js:402:41)
+    at error (file:///C:/Users/egar0/stock-system/frontend/node_modules/vite/node_modules/rollup/dist/es/shared/parseAst.js:398:42)
+    at ModuleLoader.handleInvalidResolvedId (file:///C:/Users/egar0/stock-system/frontend/node_modules/vite/node_modules/rollup/dist/es/shared/node-entry.js:21710:24)
+    at file:///C:/Users/egar0/stock-system/frontend/node_modules/vite/node_modules/rollup/dist/es/shared/node-entry.js:21670:26

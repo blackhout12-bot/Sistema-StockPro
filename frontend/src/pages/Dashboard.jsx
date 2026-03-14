@@ -108,7 +108,9 @@ const Dashboard = () => {
     const lowStockItems = Array.isArray(products) ? products.filter(p => p.stock <= 5 && p.stock >= 0) : [];
     const criticalItems = stats?.productos_sin_stock ?? (Array.isArray(products) ? products.filter(p => p.stock === 0).length : 0);
     const totalValue = stats?.valor_inventario ?? (Array.isArray(products) ? products.reduce((s, p) => s + (p.precio || 0) * (p.stock || 0), 0) : 0);
-    const totalSales = stats?.ventas_totales ?? (Array.isArray(recentFacturas) ? recentFacturas.reduce((s, f) => s + Number(f.total || 0), 0) : 0);
+    const totalFacturasSales = stats?.ventas_totales ?? (Array.isArray(recentFacturas) ? recentFacturas.reduce((s, f) => s + Number(f.total || 0), 0) : 0);
+    const totalPagosSales = stats?.monto_pagos ?? 0;
+    const totalSales = totalFacturasSales + totalPagosSales;
     const totalClientes = stats?.total_clientes ?? 0;
     const totalMovimientos = stats?.total_movimientos ?? (Array.isArray(recentActivity) ? recentActivity.length : 0);
 
@@ -139,8 +141,16 @@ const Dashboard = () => {
                 {(() => {
                     const visibleKpis = (() => {
                         try {
-                            return JSON.parse(localStorage.getItem('dash_kpis') || '["total_productos", "stock_bajo", "valor_inventario", "ventas_mes"]');
-                        } catch { return ["total_productos", "stock_bajo"]; }
+                            const stored = localStorage.getItem('dash_kpis');
+                            if (!stored) return ["total_productos", "stock_bajo", "valor_inventario", "ventas_mes", "pagos_externos"];
+                            let parsed = JSON.parse(stored);
+                            // Migración automática: asegurar que pagos_externos aparezca si es una instalación activa
+                            if (Array.isArray(parsed) && !parsed.includes('pagos_externos')) {
+                                parsed.push('pagos_externos');
+                                localStorage.setItem('dash_kpis', JSON.stringify(parsed));
+                            }
+                            return parsed;
+                        } catch { return ["total_productos", "stock_bajo", "pagos_externos"]; }
                     })();
 
                     const kpiMap = {
@@ -208,6 +218,17 @@ const Dashboard = () => {
                                 sub="Operaciones recientes"
                                 colorClass="bg-slate-100"
                                 iconColor="text-slate-600"
+                            />
+                        ),
+                        pagos_externos: (
+                            <KpiCard
+                                key="pext"
+                                icon={Zap}
+                                label="Pagos Externos"
+                                value={stats?.pagos_aprobados || 0}
+                                sub={`${config?.simbolo_moneda || '$'}${totalPagosSales.toLocaleString('es-AR')} aprobados`}
+                                colorClass="bg-amber-100"
+                                iconColor="text-amber-600"
                             />
                         )
                     };
