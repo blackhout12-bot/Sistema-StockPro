@@ -59,7 +59,20 @@ app.use(rateLimit({
 }));
 
 // ─── Health Check ───────────────────────────────────────────────
-app.get('/health', (_req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
+const { getRedisStatus, getBullmqStatus } = require('./config/redis');
+
+app.get('/health', (_req, res) => {
+  const status = getRedisStatus();
+  const bullmq = getBullmqStatus();
+  
+  res.status(status === 'OK' ? 200 : 207).json({ 
+    status: 'ok', 
+    http_server: 'OK',
+    redis_connection: status,
+    bullmq: bullmq,
+    time: new Date().toISOString() 
+  });
+});
 
 // ─── Prometheus Metrics ──────────────────────────────────────────
 const collectDefaultMetrics = promClient.collectDefaultMetrics;
@@ -90,14 +103,8 @@ app.use((_req, res) => res.status(404).json({ error: 'Recurso no encontrado' }))
 app.use(require('./middlewares/errorHandler'));
 
 // ─── Background Workers & Cron Jobs (BullMQ) ─────────────────────
-// Al importar los workers, estos comienzan a escuchar automáticamente las colas de Redis
-require('./workers/emailWorker');
-require('./workers/cronWorker');
-require('./workers/webhookWorker');
-require('./workers/afipWorker');
-
-const { initAlertJobs } = require('./modules/reportes/alertWorker');
-initAlertJobs(); // Registra el trabajo recurrente en la cola al iniciar
+const initQueues = require('./queues/initQueues');
+initQueues();
 
 // ─── Arranque ────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;

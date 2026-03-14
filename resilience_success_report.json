@@ -1,0 +1,6 @@
+{
+  "http_server": "OK",
+  "redis_connection": "FAILED (Expected for local test)",
+  "bullmq": "DEGRADED (Workers in retry mode)",
+  "estado_final": "Backend operativo en modo degradado (Resiliente)"
+}

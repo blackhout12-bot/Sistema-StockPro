@@ -2,21 +2,44 @@
 const Redis = require('ioredis');
 const logger = require('../utils/logger');
 
+// Status indicators for monitoring
+let redisStatus = 'INITIALIZING';
+let bullmqStatus = 'WAITING';
+
 const redisConfig = {
     host: process.env.REDIS_HOST || 'localhost',
     port: parseInt(process.env.REDIS_PORT) || 6379,
     password: process.env.REDIS_PASSWORD || 'tu_password_local_seguro',
-    maxRetriesPerRequest: null // Requerido por BullMQ
+    maxRetriesPerRequest: null, // Requerido por BullMQ
+    retryStrategy(times) {
+        const delay = Math.min(times * 100, 3000);
+        return delay;
+    }
 };
 
 // Instancia global principal para Caché general
 const redisClient = new Redis(redisConfig);
 
-redisClient.on('connect', () => logger.info('Conectado a Redis Exitosamente'));
-redisClient.on('error', (err) => logger.error({ err: err.message }, 'Error conectando a Redis'));
+redisClient.on('connect', () => {
+    redisStatus = 'OK';
+    logger.info('Conectado a Redis Exitosamente');
+});
+
+redisClient.on('reconnecting', () => {
+    redisStatus = 'RECONNECTING';
+    logger.warn('Reconectando a Redis...');
+});
+
+redisClient.on('error', (err) => {
+    redisStatus = 'FAILED';
+    if (err.code === 'ECONNREFUSED') {
+        logger.warn('Redis no disponible en ' + redisConfig.host + ':' + redisConfig.port + '. Operando en modo degradado.');
+    } else {
+        logger.error({ err: err.message }, 'Error en cliente Redis');
+    }
+});
 
 // Para BullMQ se recomienda reutilizar conexiones o crear exclusivas.
-// BullMQ usa 3 conexiones: cliente, subscriber y bclient.
 const redisConnectionParams = redisConfig;
 
 /**
@@ -34,9 +57,6 @@ async function getCache(key) {
 
 /**
  * Función helper para Cache (SET)
- * @param {string} key 
- * @param {any} value 
- * @param {number} ttlSeconds Expiración (Default: 5 mins)
  */
 async function setCache(key, value, ttlSeconds = 300) {
     try {
@@ -48,7 +68,6 @@ async function setCache(key, value, ttlSeconds = 300) {
 
 /**
  * Elimina llave(s) de la caché.
- * Soporta patron con asterisco * (Invalida masivamente, OJO en prod).
  */
 async function deleteCache(keyPattern) {
     try {
@@ -68,5 +87,8 @@ module.exports = {
     redisConnectionParams,
     getCache,
     setCache,
-    deleteCache
+    deleteCache,
+    getRedisStatus: () => redisStatus,
+    getBullmqStatus: () => bullmqStatus,
+    setBullmqStatus: (status) => { bullmqStatus = status; }
 };
