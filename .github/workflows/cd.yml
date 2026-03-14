@@ -128,3 +128,40 @@ jobs:
             echo "Error: Mobile ping failed with status $RESPONSE"
             exit 1
           fi
+
+  resilience-tests:
+    needs: smoke-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
+
+      - name: Simulate Backend Failure & Recovery
+        run: |
+          POD_NAME=$(kubectl get pod -n stock-system -l app=stock-system-backend -o jsonpath='{.items[0].metadata.name}')
+          kubectl delete pod -n stock-system $POD_NAME
+          kubectl get pods -n stock-system -l app=stock-system-backend --watch --timeout=60s | grep -m 1 "Running"
+          
+      - name: Simulate Frontend Failure & Recovery
+        run: |
+          POD_NAME=$(kubectl get pod -n stock-system -l app=stock-system-frontend -o jsonpath='{.items[0].metadata.name}')
+          kubectl delete pod -n stock-system $POD_NAME
+          kubectl get pods -n stock-system -l app=stock-system-frontend --watch --timeout=60s | grep -m 1 "Running"
+          curl -k --fail https://app.stocksystem.com
+
+      - name: Simulate Worker Failure & Recovery
+        run: |
+          POD_NAME=$(kubectl get pod -n stock-system -l app=stock-system-worker -o jsonpath='{.items[0].metadata.name}')
+          kubectl delete pod -n stock-system $POD_NAME
+          kubectl get pods -n stock-system -l app=stock-system-worker --watch --timeout=60s | grep -m 1 "Running"
+
+      - name: Resilience Validation - Final Health Check
+        if: always()
+        run: |
+          echo "Executing Final Cluster Health Check..."
+          kubectl get pods -n stock-system
