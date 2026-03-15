@@ -290,7 +290,7 @@ const Empresa = () => {
     const fetchStats = useCallback(async () => {
         setStatsLoading(true);
         try {
-            const res = await api.get('/empresa/estadisticas');
+            const res = await api.get('/empresa/resumen');
             setStats(res.data);
         } catch {
             toast.error('Error al cargar estadísticas');
