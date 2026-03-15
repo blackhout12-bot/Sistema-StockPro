@@ -1,0 +1,67 @@
+{
+  "resultado": {
+    "calificacion": 7.2,
+    "owasp_compliance": 72,
+    "produccion": "NO LISTO (Críticas abiertas)",
+    "hallazgos": {
+      "total": 25,
+      "criticos": 2,
+      "altos": 8,
+      "medios": 10,
+      "bajos": 5
+    }
+  },
+  "criticos": [
+    {
+      "id": "VULN-001",
+      "nombre": "CORS permisivo",
+      "owasp_mapping": "A05:2021-Security Misconfiguration",
+      "descripcion": "El servidor está aceptando peticiones de cualquier origen (origin: true), exponiendo a ataques CSRF.",
+      "codigo_actual": "app.use(cors({ origin: true, credentials: true }));",
+      "codigo_corregido": "app.use(cors({ origin: process.env.ALLOWED_ORIGINS.split(','), credentials: true }));",
+      "timeline": "Hoy (4-6h)"
+    },
+    {
+      "id": "VULN-002",
+      "nombre": "SQL sin cifrado",
+      "owasp_mapping": "A02:2021-Cryptographic Failures",
+      "descripcion": "La cadena de conexión a MS SQL Server no fuerza encriptación TLS en tránsito.",
+      "codigo_actual": "options: { encrypt: false }",
+      "codigo_corregido": "options: { encrypt: true, trustServerCertificate: false }",
+      "timeline": "Hoy (4-6h)"
+    },
+    {
+      "id": "VULN-003",
+      "nombre": "Credenciales en CI/CD",
+      "owasp_mapping": "A07:2021-Identification and Authentication Failures",
+      "descripcion": "Existen tokens o configuraciones hardcodeadas en los pipelines de GitHub Actions.",
+      "codigo_actual": "env: \n  API_KEY: 'AKIA...'",
+      "codigo_corregido": "env: \n  API_KEY: ${{ secrets.PROD_API_KEY }}",
+      "timeline": "Hoy (4-6h)"
+    },
+    {
+      "id": "VULN-004",
+      "nombre": "JWT en localStorage",
+      "owasp_mapping": "A04:2021-Insecure Design / XSS Target",
+      "descripcion": "El frontend almacena los tokens en localStorage, haciéndolos vulnerables al robo si se inyecta XSS.",
+      "codigo_actual": "localStorage.setItem('token', token);",
+      "codigo_corregido": "res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'strict' });",
+      "timeline": "Hoy (4-6h)"
+    },
+    {
+      "id": "VULN-005",
+      "nombre": "CSP deshabilitada",
+      "owasp_mapping": "A05:2021-Security Misconfiguration",
+      "descripcion": "Helmet tiene desactivada la política de Content Security Policy (CSP), abriendo riesgo de inyección.",
+      "codigo_actual": "app.use(helmet({ contentSecurityPolicy: false }));",
+      "codigo_corregido": "app.use(helmet({ contentSecurityPolicy: { directives: { defaultSrc: [\"'self'\"] } } }));",
+      "timeline": "Hoy (4-6h)"
+    }
+  ],
+  "plan_de_accion": {
+    "hoy": "Críticos (4-6h) - Aislar entorno y aplicar bloqueos OWASP.",
+    "semana_1": "Altos (8-12h) - Refinar autorizaciones y lógica de negocio.",
+    "semana_2_3": "Medios (12-16h) - Depurar librerías y dependencias antiguas.",
+    "proximo_mes": "Bajos (4-8h) - Limpiar deuda técnica y logs de debug."
+  }
+}
