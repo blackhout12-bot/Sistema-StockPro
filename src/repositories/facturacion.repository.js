@@ -15,7 +15,7 @@ class FacturacionModel {
         const query = hasSnapshots
             ? `SELECT f.id, f.nro_factura, f.fecha_emision, f.total, f.estado,
                    ${hasTipo ? 'f.tipo_comprobante,' : "'' as tipo_comprobante,"}
-                   f.moneda_id, f.tipo_cambio,
+                   f.moneda, f.tasa_cambio,
                    ISNULL(f.cliente_nombre_snapshot, c.nombre) as cliente_nombre, 
                    ISNULL(f.vendedor_nombre_snapshot, u.nombre) as vendedor_nombre
                FROM Facturas f
@@ -24,7 +24,7 @@ class FacturacionModel {
                WHERE f.empresa_id = @empresa_id ORDER BY f.fecha_emision DESC`
             : `SELECT f.id, f.nro_factura, f.fecha_emision, f.total, f.estado,
                    ${hasTipo ? 'f.tipo_comprobante,' : "'' as tipo_comprobante,"}
-                   f.moneda_id, f.tipo_cambio,
+                   f.moneda, f.tasa_cambio,
                    c.nombre as cliente_nombre, u.nombre as vendedor_nombre
                FROM Facturas f
                LEFT JOIN Clientes c ON f.cliente_id = c.id
@@ -261,8 +261,8 @@ class FacturacionModel {
             addFactCol('empresa_telefono_snapshot', emp.telefono || '', sql.VarChar(50));
             addFactCol('tipo_comprobante', conf?.tipo_comprobante || 'Factura', sql.NVarChar);
             addFactCol('metodo_pago', facturaData.metodo_pago || 'Efectivo', sql.NVarChar);
-            addFactCol('moneda_id', facturaData.moneda_id || 'ARS', sql.NVarChar(3));
-            addFactCol('tipo_cambio', facturaData.tipo_cambio || 1.0, sql.Decimal(18, 4));
+            addFactCol('moneda', facturaData.moneda || 'ARS', sql.NVarChar(10));
+            addFactCol('tasa_cambio', facturaData.tasa_cambio || 1.0, sql.Decimal(18, 4));
 
             const insertFactQuery = `INSERT INTO Facturas (${factFields.join(', ')}) OUTPUT INSERTED.id VALUES (${factValues.join(', ')})`;
             const resultFact = await reqFact.query(insertFactQuery);

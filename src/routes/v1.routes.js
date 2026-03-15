@@ -27,4 +27,8 @@ router.use('/payments', authenticate, require('../modules/payments/payments.cont
 router.use('/importacion', authenticate, tenantContext, require('../modules/importacion/importacion.controller'));
 router.use('/monedas', authenticate, require('../modules/configuracion/monedas.controller'));
 
+// Analítica y Business Intelligence (Fase 14)
+router.use('/bi', authenticate, tenantContext, require('./bi.routes'));
+router.use('/olap', authenticate, tenantContext, require('./olap.routes'));
+
 module.exports = router;
