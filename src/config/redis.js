@@ -21,8 +21,8 @@ const redisConfig = {
     }
 };
 
-// Instancia global principal para Caché general
-const redisClient = new Redis(redisConfig);
+// Instancia global principal para Caché general (No encolar si está offline para evitar bloqueos de HTTP)
+const redisClient = new Redis({ ...redisConfig, enableOfflineQueue: false });
 
 redisClient.on('connect', () => {
     redisStatus = 'OK';

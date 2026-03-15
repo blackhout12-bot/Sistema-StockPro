@@ -66,8 +66,8 @@ router.post('/', checkPermiso('facturacion', 'emitir'), validateBody(facturacion
             return res.status(400).json({ error: 'Falta contexto de empresa (empresa_id) para generar la venta.' });
         }
 
-        const { cliente_id, items, metodo_pago, sucursal, total, subtotal, impuestos, descuento, observaciones } = req.body;
-        const cleanBody = { cliente_id, items, metodo_pago, sucursal, total, subtotal, impuestos, descuento, observaciones };
+        const { clienteId, items, metodoPago, sucursal, total, subtotal, impuestos, descuento, observaciones } = req.body;
+        const cleanBody = { cliente_id: clienteId, items, metodo_pago: metodoPago, sucursal, total, subtotal, impuestos, descuento, observaciones };
 
         const newFactura = await facturacionService.createFactura(cleanBody, req.user.id, req.tenant_id);
         res.locals.insertedId = newFactura.id;

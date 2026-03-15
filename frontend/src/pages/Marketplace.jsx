@@ -11,7 +11,7 @@ const Marketplace = () => {
     const fetchModulos = async () => {
         setLoading(true);
         try {
-            const res = await api.get('/v2/marketplace');
+            const res = await api.get('/ecosistema', { baseURL: '/api/v2' });
             setModulos(res.data);
         } catch (error) {
             console.error('Error cargando marketplace:', error);
@@ -28,7 +28,7 @@ const Marketplace = () => {
     const handleInstall = async (moduloId) => {
         setInstalling(moduloId);
         try {
-            const res = await api.post('/v2/marketplace/install', { modulo_id: moduloId });
+            const res = await api.post('/ecosistema/install', { modulo_id: moduloId }, { baseURL: '/api/v2' });
             toast.success(res.data.message);
             fetchModulos(); // Refrescar estado para ver el check verde
         } catch (error) {

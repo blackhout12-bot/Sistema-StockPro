@@ -62,4 +62,8 @@ webhookWorker.on('failed', (job, err) => {
     logger.error({ jobId: job.id, err: err.message }, 'Entrega de webhook falló definitivamente tras reintentos');
 });
 
+webhookWorker.on('error', (err) => {
+    // Silenced for graceful degradation when Redis is offline.
+});
+
 module.exports = webhookWorker;

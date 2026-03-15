@@ -43,20 +43,16 @@ const SectionHeader = ({ icon: Icon, title, subtitle }) => (
 );
 
 // ─── Main Dashboard ──────────────────────────────────────────
+import { useQuery } from '@tanstack/react-query';
+
 const Dashboard = () => {
     const { token } = useAuth();
-    const [products, setProducts] = useState([]);
-    const [recentActivity, setRecentActivity] = useState([]);
-    const [recentFacturas, setRecentFacturas] = useState([]);
-    const [topProducts, setTopProducts] = useState([]);
-    const [config, setConfig] = useState(null);
-    const [stats, setStats] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [lastUpdated, setLastUpdated] = useState(null);
-
-    const fetchAll = async () => {
-        setLoading(true);
-        try {
+    
+    const { data: dashData, isLoading: loading, refetch: fetchAll } = useQuery({
+        queryKey: ['dashboard', 'main-stats'],
+        enabled: !!token,
+        staleTime: 5 * 60 * 1000, // Hace caché por 5 minutos, garantizando carga instantánea al cambiar pestañas
+        queryFn: async () => {
             const now = new Date();
             const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
             const today = now.toISOString().slice(0, 10);
@@ -67,42 +63,42 @@ const Dashboard = () => {
                 api.get('/facturacion'),
                 api.get(`/reportes/ventas-producto?fechaInicio=${monthStart}&fechaFin=${today}`),
                 api.get('/empresa/configuracion/completa'),
-                api.get('/empresa/estadisticas')
+                api.get('/empresa/resumen')
             ]);
 
-            if (prodRes.status === 'fulfilled') setProducts(prodRes.value.data);
-            if (actRes.status === 'fulfilled') setRecentActivity(actRes.value.data.slice(0, 8));
-            if (factRes.status === 'fulfilled') setRecentFacturas(factRes.value.data.slice(0, 6));
-            if (topRes.status === 'fulfilled') {
-                setTopProducts(topRes.value.data.sort((a, b) => b.total_ventas - a.total_ventas).slice(0, 5));
+            const configPayload = confRes.status === 'fulfilled' ? confRes.value.data : null;
+            if (configPayload) {
+                const pendingData = configPayload.dash_kpis_visibles || configPayload.dash_widgets_visibles || '[]';
+                if (localStorage.getItem('dash_kpis') !== pendingData) {
+                    localStorage.setItem('dash_kpis', pendingData);
+                }
             }
-            if (confRes.status === 'fulfilled') {
-                setConfig(confRes.value.data);
-                localStorage.setItem('dash_kpis', confRes.value.data.dash_kpis_visibles || '[]');
-            }
-            if (statsRes.status === 'fulfilled') setStats(statsRes.value.data);
-            setLastUpdated(new Date().toLocaleTimeString());
-        } catch (e) {
-            console.error('Dashboard fetch error', e);
-        } finally {
-            setLoading(false);
+
+            return {
+                products: prodRes.status === 'fulfilled' ? prodRes.value.data : [],
+                recentActivity: actRes.status === 'fulfilled' ? actRes.value.data.slice(0, 8) : [],
+                recentFacturas: factRes.status === 'fulfilled' ? factRes.value.data.slice(0, 6) : [],
+                topProducts: topRes.status === 'fulfilled' ? topRes.value.data.sort((a, b) => b.total_ventas - a.total_ventas).slice(0, 5) : [],
+                config: configPayload,
+                stats: statsRes.status === 'fulfilled' ? statsRes.value.data : null,
+                lastUpdated: new Date().toLocaleTimeString()
+            };
         }
-    };
+    });
+
+    // Desestructurar datos cacheados con valores por defecto
+    const { products = [], recentActivity = [], recentFacturas = [], topProducts = [], config = null, stats = null, lastUpdated = null } = dashData || {};
 
     useEffect(() => {
-        if (token) fetchAll();
-        
         const handleStorage = () => {
-            const kpis = localStorage.getItem('dash_kpis');
-            if (kpis) {
-                // Forzar re-render cargando de nuevo los datos o actualizando estado local
+            if (localStorage.getItem('dash_kpis')) {
                 fetchAll(); 
             }
         };
 
         window.addEventListener('storage', handleStorage);
         return () => window.removeEventListener('storage', handleStorage);
-    }, [token]);
+    }, [fetchAll]);
 
     const totalProducts = stats?.total_productos ?? (Array.isArray(products) ? products.length : 0);
     const lowStockItems = Array.isArray(products) ? products.filter(p => p.stock <= 5 && p.stock >= 0) : [];
@@ -181,7 +177,7 @@ const Dashboard = () => {
                                 key="vi"
                                 icon={DollarSign}
                                 label="Valor Almacén"
-                                value={`${config?.simbolo_moneda || '$'}${totalValue.toLocaleString('es-AR', { minimumFractionDigits: 0 })}`}
+                                value={`${config?.simbolo_moneda || '$'}${Number(totalValue || 0).toLocaleString('es-AR', { minimumFractionDigits: 0 })}`}
                                 sub="Estimación de capital activo"
                                 colorClass="bg-emerald-100"
                                 iconColor="text-emerald-600"
@@ -192,7 +188,7 @@ const Dashboard = () => {
                                 key="vm"
                                 icon={ShoppingCart}
                                 label="Ingresos de Mes"
-                                value={`${config?.simbolo_moneda || '$'}${totalSales.toLocaleString('es-AR', { minimumFractionDigits: 0 })}`}
+                                value={`${config?.simbolo_moneda || '$'}${Number(totalSales || 0).toLocaleString('es-AR', { minimumFractionDigits: 0 })}`}
                                 sub={`${recentFacturas.length} ventas procesadas`}
                                 colorClass="bg-violet-100"
                                 iconColor="text-violet-600"

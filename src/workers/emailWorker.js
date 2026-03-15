@@ -51,4 +51,8 @@ emailWorker.on('failed', (job, err) => {
     logger.error({ jobId: job.id, err: err.message }, 'Job email falló');
 });
 
+emailWorker.on('error', (err) => {
+    // Silenced for graceful degradation when Redis is offline.
+});
+
 module.exports = emailWorker;

@@ -15,10 +15,9 @@ const MainLayout = () => {
     const baseNavItems = [
         { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={18} /> },
         { name: 'Facturación / POS', path: '/facturacion', icon: <ShoppingCart size={18} /> },
-        { name: 'Inventario', path: '/inventario', icon: <ArrowRightLeft size={18} /> },
+        { name: 'Movimientos', path: '/movimientos', icon: <ArrowRightLeft size={18} /> },
         { name: 'Productos', path: '/productos', icon: <Package size={18} /> },
         { name: 'Clientes', path: '/clientes', icon: <CustomersIcon size={18} /> },
-        { name: 'Proveedores', path: '/proveedores', icon: <UsersIcon size={18} /> },
         { name: 'Reportes', path: '/reportes', icon: <FileText size={18} /> }
     ];
 

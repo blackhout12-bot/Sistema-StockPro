@@ -108,8 +108,8 @@ const server = http.createServer(app);
 initSocket(server);
 
 if (require.main === module) {
-  server.listen(PORT, () => {
-    logger.info({ port: PORT, env: process.env.NODE_ENV || 'development' }, '🚀 Servidor backend iniciado con WebSockets');
+  server.listen(PORT, '0.0.0.0', () => {
+    logger.info({ port: PORT, env: process.env.NODE_ENV || 'development' }, '🚀 Servidor backend iniciado con WebSockets (IPv4)');
   });
 }
 

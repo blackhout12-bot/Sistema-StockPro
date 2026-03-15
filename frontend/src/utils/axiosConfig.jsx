@@ -3,7 +3,7 @@ import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
 const api = axios.create({
-    baseURL: 'http://127.0.0.1:5000/api/v1',
+    baseURL: '/api/v1',
     timeout: 15000,
 });
 
@@ -68,7 +68,7 @@ api.interceptors.response.use(
             }
         } else if (error.request) {
             console.error('Network Error Detail:', error.request);
-            toast.error('Sin conexión al servidor. Verificá que el backend esté activo.');
+            toast.error('Sin conexión al servidor. Ruta caída: ' + (error.config?.url || 'Desconocida'));
         } else {
             console.error('Error de configuración:', error.message);
         }

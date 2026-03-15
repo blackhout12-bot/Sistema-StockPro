@@ -171,3 +171,19 @@
 [20:28:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
 [20:28:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
 [20:28:42] [33mWARN[39m: [36mReconectando a Redis...[39m
+[20:29:42] [33mWARN[39m: [36mRedis no disponible en 127.0.0.1:6379. Operando en modo degradado.[39m
+[20:29:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:29:42] [33mWARN[39m: [36mReconectando a Redis...[39m
+[20:29:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:29:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:29:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:29:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:29:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:29:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:29:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:29:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:29:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:29:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:29:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:29:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m
+[20:29:42] [33mWARN[39m: [36mRedis retry limit reached. Using 60s lazy retry interval.[39m

@@ -15,7 +15,7 @@ const AlertsPanel = () => {
     const fetchAITasks = async () => {
         setLoading(true);
         try {
-            const expRes = await api.get('/ai/alerts/expirations');
+            const expRes = await api.get('/sugerencias/expiraciones', { baseURL: '/api/ai' });
             setAlerts(prev => ({ ...prev, checks: expRes.data.analisis || [] }));
         } catch (error) {
             console.error('Error fetching AI tasks', error);

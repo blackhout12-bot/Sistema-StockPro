@@ -38,8 +38,8 @@ router.get('/configuracion/completa', checkPermiso('empresa', 'leer'), async (re
     }
 });
 
-// ── GET /empresa/estadisticas — Métricas del tenant (Dashboard RBAC) ─────────────
-router.get('/estadisticas', checkPermiso('dashboard', 'ver'), async (req, res, next) => {
+// ── GET /empresa/resumen — Métricas del tenant (Dashboard RBAC, renamed to avoid AdBlockers) ─────────────
+router.get('/resumen', checkPermiso('dashboard', 'ver'), async (req, res, next) => {
     try {
         const stats = await empresaService.getEstadisticas(req.tenant_id);
         res.json(stats);
@@ -87,8 +87,8 @@ router.put('/configuracion/inventario', checkPermiso('empresa', 'editar'), valid
 // ── PUT /empresa/configuracion/impuestos ──────────────────────────────────────
 router.put('/configuracion/impuestos', checkPermiso('empresa', 'editar'), validateBody(impuestosConfigSchema), audit('actualizar_impuestos', 'Empresa'), async (req, res, next) => {
     try {
-        const { iva_por_defecto, incluir_impuestos_precio } = req.body;
-        const cleanBody = { iva_por_defecto, incluir_impuestos_precio };
+        const { iva_defecto, cuit, condicion_fiscal, percepciones_json, retenciones_json } = req.body;
+        const cleanBody = { iva_defecto, cuit, condicion_fiscal, percepciones_json, retenciones_json };
         const empresa = await empresaService.updateImpuestosConfig(req.tenant_id, cleanBody);
         res.json(empresa);
     } catch (error) {
@@ -109,8 +109,8 @@ router.put('/configuracion/integraciones', checkPermiso('empresa', 'editar'), va
 // ── PUT /empresa/configuracion/dashboard ─────────────────────────────────────
 router.put('/configuracion/dashboard', checkPermiso('empresa', 'editar'), validateBody(dashboardConfigSchema), audit('actualizar_dashboard', 'Empresa'), async (req, res, next) => {
     try {
-        const { widgets_activos, tema } = req.body;
-        const cleanBody = { widgets_activos, tema };
+        const { kpis_visibles, rango_default, refresco_segundos, widgets_visibles } = req.body;
+        const cleanBody = { kpis_visibles, rango_default, refresco_segundos, widgets_visibles };
         const empresa = await empresaService.updateDashboardConfig(req.tenant_id, cleanBody);
         res.json(empresa);
     } catch (error) {

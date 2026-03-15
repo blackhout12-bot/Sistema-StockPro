@@ -53,28 +53,28 @@ class AIController {
             const lotesRes = await pool.request()
                 .input('empresa_id', sql.Int, req.tenant_id)
                 .query(`
-                    SELECT id, producto_id, numero_lote, cantidad_actual, fecha_vencimiento
+                    SELECT id, producto_id, nro_lote, cantidad, fecha_vto
                     FROM Lotes
                     WHERE empresa_id = @empresa_id 
-                      AND fecha_vencimiento IS NOT NULL 
-                      AND cantidad_actual > 0
-                      AND fecha_vencimiento <= DATEADD(day, 15, GETDATE())
+                      AND fecha_vto IS NOT NULL 
+                      AND cantidad > 0
+                      AND fecha_vto <= DATEADD(day, 15, GETDATE())
                 `);
             
             const alertas = lotesRes.recordset.map(lote => {
                 const msPerDay = 1000 * 60 * 60 * 24;
-                const diasRestantes = Math.ceil((new Date(lote.fecha_vencimiento) - new Date()) / msPerDay);
+                const diasRestantes = Math.ceil((new Date(lote.fecha_vto) - new Date()) / msPerDay);
                 let sugerencia = '';
                 if (diasRestantes <= 5) {
-                    sugerencia = `URGENTE: Lote ${lote.numero_lote} vence en ${diasRestantes} días. Sugerencia IA: Aplicar descuento 50%.`;
+                    sugerencia = `URGENTE: Lote ${lote.nro_lote} vence en ${diasRestantes} días. Sugerencia IA: Aplicar descuento 50%.`;
                 } else {
-                    sugerencia = `Atención: Lote ${lote.numero_lote} vence en ${diasRestantes} días. Sugerencia IA: Crear promoción de rotación (2x1).`;
+                    sugerencia = `Atención: Lote ${lote.nro_lote} vence en ${diasRestantes} días. Sugerencia IA: Crear promoción de rotación (2x1).`;
                 }
                 
                 return {
                     lote_id: lote.id,
                     producto_id: lote.producto_id,
-                    numero_lote: lote.numero_lote,
+                    numero_lote: lote.nro_lote,
                     dias_restantes: diasRestantes,
                     sugerencia_preventiva: sugerencia
                 };

@@ -6,10 +6,10 @@ const tenantContext = require('../middlewares/tenantContext');
 
 // --- Definición de Rutas V2 ---
 
-// 1. Marketplace
+// 1. Marketplace (Rebautizado a Ecosistema para evitar bloqueos)
 const marketplaceController = require('../modules/marketplace/marketplace.controller');
-router.get('/marketplace', authenticate, tenantContext, marketplaceController.getModules);
-router.post('/marketplace/install', authenticate, tenantContext, marketplaceController.installModule);
+router.get('/ecosistema', authenticate, tenantContext, marketplaceController.getModules);
+router.post('/ecosistema/install', authenticate, tenantContext, marketplaceController.installModule);
 
 // 2. Ventas Externas (Integraciones multi-canal con Rate Limiting y API Key/JWT)
 const externalSalesController = require('../modules/externalSales/externalSales.controller');

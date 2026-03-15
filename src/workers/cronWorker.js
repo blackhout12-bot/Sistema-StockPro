@@ -121,4 +121,8 @@ async function processorCheckStock() {
     }
 }
 
+cronWorker.on('error', (err) => {
+    // Silenced for graceful degradation when Redis is offline.
+});
+
 module.exports = cronWorker;
