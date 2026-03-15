@@ -25,14 +25,38 @@ app.use((req, res, next) => {
   next();
 });
 
-// ─── Rate Limiters (Desactivados para Debug Local) ──────────────
-const authLimiter = (req, res, next) => next();
+// ─── Metrics (Prometheus) ───────────────────────────────────────
+promClient.collectDefaultMetrics();
+app.get('/metrics', async (req, res) => {
+    try {
+        res.set('Content-Type', promClient.register.contentType);
+        res.end(await promClient.register.metrics());
+    } catch (ex) {
+        res.status(500).end(ex);
+    }
+});
+
+// ─── Rate Limiters ──────────────
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per `window`
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: 'Demasiadas solicitudes, por favor intente nuevamente más tarde'
+});
 
 // ─── HTTP Request Logger ────────────────────────────────────────
-app.use(pinoHttp({ logger, autoLogging: { ignore: (req) => req.url === '/health' } }));
+app.use(pinoHttp({ logger, autoLogging: { ignore: (req) => req.url === '/health' || req.url === '/metrics' } }));
 
-// ─── Security Headers ───────────────────────────────────────────
-// app.use(helmet()); // Desactivado temporalmente para Debug
+// ─── Security Headers (OWASP) ───────────────────────────────────
+app.use(helmet({
+    contentSecurityPolicy: false, // Leave CSP loosely coupled for React dev servers
+    hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true // Strict TLS/HTTPS compliance
+    }
+}));
 
 // ─── CORS ───────────────────────────────────────────────────────
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || process.env.FRONTEND_URL || 'http://localhost:3000')

@@ -1,0 +1,84 @@
+replicaCount: 2
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+api:
+  image:
+    repository: stock-system-api
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 5000
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  # Readiness and Liveness probes
+  healthCheck:
+    path: /api/v1/ping
+  env:
+    NODE_ENV: production
+    PORT: 5000
+
+frontend:
+  image:
+    repository: stock-system-frontend
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+
+redis:
+  image:
+    repository: redis
+    tag: "7.0-alpine"
+  service:
+    type: ClusterIP
+    port: 6379
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+  hosts:
+    - host: stocksystem.local
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: frontend
+              port:
+                number: 80
+        - path: /api
+          pathType: Prefix
+          backend:
+            service:
+              name: api
+              port:
+                number: 5000
+  tls: []
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+metrics:
+  enabled: true
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/metrics"
+    prometheus.io/port: "5000"
