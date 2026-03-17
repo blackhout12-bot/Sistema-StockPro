@@ -4,12 +4,55 @@ const router = express.Router();
 const authenticate = require('../middlewares/auth');
 const tenantContext = require('../middlewares/tenantContext');
 const rateLimit = require('express-rate-limit');
+const { connectDB } = require('../config/db');
+const { redisClient, getRedisStatus } = require('../config/redis');
+const rabbitMQ = require('../config/rabbitmq');
 
 // Limiter para Auth (Desactivado para Debug)
 const authLimiter = (req, res, next) => next();
 
 // --- Definición de Rutas V1 ---
-router.get('/ping', (req, res) => res.json({ message: 'pong', version: 'v1' }));
+router.get('/ping', async (req, res) => {
+    try {
+        const health = {
+            status: 'Healthy',
+            version: 'v1',
+            timestamp: new Date().toISOString(),
+            checks: {}
+        };
+
+        // 1. Database Check
+        const pool = await connectDB();
+        await pool.query('SELECT 1 as is_alive');
+        health.checks.database = 'OK';
+
+        // 2. Redis Check
+        if (getRedisStatus() === 'OK') {
+            await redisClient.ping();
+            health.checks.redis = 'OK';
+        } else {
+            throw new Error(`Redis status is ${getRedisStatus()}`);
+        }
+
+        // 3. RabbitMQ Check
+        if (rabbitMQ.connection && rabbitMQ.channel) {
+            health.checks.rabbitmq = 'OK';
+        } else {
+            throw new Error('RabbitMQ channel not open');
+        }
+
+        res.json(health);
+    } catch (error) {
+        if (req.log) req.log.error({ err: error.message }, 'Liveness probe failed');
+        else console.error('Liveness probe failed:', error.message);
+        
+        res.status(503).json({
+            status: 'Unhealthy',
+            version: 'v1',
+            error: error.message
+        });
+    }
+});
 
 // Públicas (Auth)
 router.use('/auth', authLimiter, require('../modules/auth/auth.controller'));

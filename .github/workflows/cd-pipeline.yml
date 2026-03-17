@@ -128,7 +128,7 @@ jobs:
           REDIS_PASSWORD: ${{ secrets['REDIS_PASSWORD'] }}
         run: |
           echo "Ejecutando Despliegue con Helm..."
-          helm upgrade --install stock-system ./k8s/charts/stock-system \
+          helm upgrade --install stock-system ./k8s/helm/stock-system \
             --namespace stock-system \
             --create-namespace \
             --set backend.image.repository=${{ secrets.DOCKER_USERNAME }}/stock-system-backend \

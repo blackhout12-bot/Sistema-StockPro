@@ -76,6 +76,7 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 // ─── Health Check ───────────────────────────────────────────────
 const { getRedisStatus, getBullmqStatus } = require('./config/redis');
 const { connectDB } = require('./config/db');
+const rabbitMQ = require('./config/rabbitmq');
 
 app.get('/health', async (_req, res) => {
   try {
@@ -86,12 +87,16 @@ app.get('/health', async (_req, res) => {
     const pool = await connectDB();
     await pool.request().query('SELECT 1 AS ping');
 
-    res.status(status === 'OK' ? 200 : 207).json({ 
+    // Ping RabbitMQ
+    const rabbitMQStatus = (rabbitMQ.connection && rabbitMQ.channel) ? 'OK' : 'OFFLINE';
+
+    res.status((status === 'OK' && rabbitMQStatus === 'OK') ? 200 : 207).json({ 
       status: 'ok', 
       http_server: 'OK',
       db_connection: 'OK',
       redis_connection: status,
       bullmq: bullmq,
+      rabbitmq: rabbitMQStatus,
       time: new Date().toISOString() 
     });
   } catch(e) {

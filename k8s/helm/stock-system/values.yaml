@@ -21,7 +21,7 @@ api:
       memory: 256Mi
   # Readiness and Liveness probes
   healthCheck:
-    path: /api/v1/ping
+    path: /health
   env:
     NODE_ENV: production
     PORT: 5000

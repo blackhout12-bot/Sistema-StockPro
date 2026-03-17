@@ -156,7 +156,7 @@ const AuditLogs = () => {
                                                 </div>
                                                 {log.payload && log.payload !== '{}' && (
                                                     <button
-                                                        onClick={() => console.log(JSON.parse(log.payload))}
+                                                        onClick={() => console.info(JSON.parse(log.payload))}
                                                         className="text-xs text-indigo-600 hover:text-indigo-800 font-medium text-left"
                                                         title={log.payload}
                                                     >
