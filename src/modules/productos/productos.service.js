@@ -2,6 +2,7 @@
 const { connectDB } = require('../../config/db');
 const productoRepository = require('../../repositories/producto.repository');
 const loteRepository = require('../../repositories/lote.repository');
+const eventBus = require('../../events/eventBus');
 
 async function listarProductos(empresa_id) {
   const pool = await connectDB();
@@ -16,8 +17,18 @@ async function listarProductosPaginados({ empresa_id, page, limit, search, categ
 async function agregarProducto(nombre, descripcion, precio, stock, categoria, empresa_id, sku, moneda_id, custom_fields) {
   const pool = await connectDB();
   const insertId = await productoRepository.create(pool, { nombre, descripcion, precio, stock, categoria, sku, moneda_id, custom_fields }, empresa_id);
-  // Opcionalmente retornar el producto insertado si el controlador lo requiere
-  return await productoRepository.getById(pool, insertId, empresa_id);
+  
+  const createdProduct = await productoRepository.getById(pool, insertId, empresa_id);
+  
+  // Despacho asíncrono para observabilidad y suscripciones futuras
+  await eventBus.publish('producto.creado', { 
+    empresa_id, 
+    producto_id: insertId, 
+    categoria, 
+    sku 
+  });
+
+  return createdProduct;
 }
 
 async function editarProducto(id, nombre, descripcion, precio, stock, categoria, empresa_id, sku, moneda_id, custom_fields) {

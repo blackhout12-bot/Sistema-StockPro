@@ -8,3 +8,68 @@ services:
       - "6379:6379"
     command: redis-server --requirepass ${REDIS_PASSWORD:-tu_password_local_seguro}
     restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: stock_rabbitmq
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: stock_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./observability/prometheus/alerts.yml:/etc/prometheus/alerts.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: stock_alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./observability/alertmanager/config.yml:/etc/alertmanager/config.yml
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: stock_grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:latest
+    container_name: stock_loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./observability/loki/loki-local-config.yaml:/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yaml
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: stock_promtail
+    volumes:
+      - ./observability/loki/promtail-local-config.yaml:/etc/promtail/config.yml
+      # Mount the logs directory from the backend
+      - ./backend_logs:/app/logs
+    command: -config.file=/etc/promtail/config.yml
+    restart: unless-stopped

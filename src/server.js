@@ -137,13 +137,25 @@ app.use(require('./middlewares/errorHandler'));
 const initQueues = require('./queues/initQueues');
 initQueues();
 
+// ─── Event Bus & Asynchronous Subscribers (RabbitMQ) ─────────────
+const rabbitMQ = require('./config/rabbitmq');
+const eventBus = require('./events/eventBus');
+const setupAuditSubscribers = require('./events/subscribers/auditSubscriber');
+
 // ─── Arranque ────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 const server = http.createServer(app);
 initSocket(server);
 
 if (require.main === module) {
-  server.listen(PORT, '0.0.0.0', () => {
+  server.listen(PORT, '0.0.0.0', async () => {
+    try {
+        await rabbitMQ.connect();
+        await eventBus.init();
+        await setupAuditSubscribers();
+    } catch (err) {
+        logger.error({ err }, 'Failed to initialize Event Driven Architecture');
+    }
     logger.info({ port: PORT, env: process.env.NODE_ENV || 'development' }, '🚀 Servidor backend iniciado con WebSockets (IPv4)');
   });
 }
