@@ -1,42 +1,82 @@
-// src/modules/ai/ai.controller.js
 const { connectDB } = require('../../config/db');
 const sql = require('mssql');
 const notificationService = require('../../services/notification.service');
+const { linearRegression, linearRegressionLine } = require('simple-statistics');
 
 class AIController {
 
-    // 1. Predicción de demanda
+    // 1. Predicción de demanda (Machine Learning)
     async predictDemand(req, res, next) {
         try {
             const product_id = parseInt(req.params.id);
             if (isNaN(product_id)) return res.status(400).json({ error: 'ID inválido' });
 
             const pool = await connectDB();
-            // Analizar historial de ventas (Movimientos salida por Venta)
+            
+            // Extraer la serie temporal cronológica (ventas agrupadas por día de los últimos 60 días)
             const historialRes = await pool.request()
                 .input('empresa_id', sql.Int, req.tenant_id)
                 .input('producto_id', sql.Int, product_id)
                 .query(`
-                    SELECT ISNULL(SUM(ABS(cantidad)), 0) as total_vendido_30_dias 
+                    SELECT 
+                        DATEDIFF(day, MIN(fecha) OVER(), fecha) as dia_relativo,
+                        ISNULL(SUM(ABS(cantidad)), 0) as vendidos 
                     FROM Movimientos 
                     WHERE empresa_id = @empresa_id 
                       AND producto_id = @producto_id 
                       AND tipo = 'salida' 
                       AND motivo = 'Venta'
-                      AND fecha >= DATEADD(day, -30, GETDATE())
+                      AND fecha >= DATEADD(day, -60, GETDATE())
+                    GROUP BY fecha
+                    ORDER BY fecha ASC
                 `);
             
-            const vendidos = historialRes.recordset[0].total_vendido_30_dias;
+            const registros = historialRes.recordset;
+
+            if (registros.length < 3) {
+                 return res.json({
+                    producto_id: product_id,
+                    demanda_esperada_proximo_mes: 0,
+                    sugerencia: 'Datos insuficientes para que la IA elabore una predicción confiable (se requieren más de 3 días de ventas).'
+                });
+            }
+
+            // Preparar tuple array para simple-statistics: [x (dia relativo), y (ventas)]
+            const trainingData = registros.map(r => [r.dia_relativo, r.vendidos]);
+
+            // ML Training: Mínimos cuadrados (Linear Regression)
+            const regressionModel = linearRegression(trainingData);
+            const prediccionLinea = linearRegressionLine(regressionModel);
+
+            // Proyectar el consumo de los próximos 30 días
+            const ultimoDiaConocido = registros[registros.length - 1].dia_relativo;
+            let ventasProyectadas30Dias = 0;
             
-            // Algoritmo predictivo simple (Media móvil simple)
-            const sugerencia_reposicion = Math.ceil(vendidos * 1.2); // Proyectar 20% más por factor de seguridad
+            for (let i = 1; i <= 30; i++) {
+                const prediccionDiaria = prediccionLinea(ultimoDiaConocido + i);
+                // No predecir ventas negativas
+                if (prediccionDiaria > 0) ventasProyectadas30Dias += prediccionDiaria; 
+            }
+
+            const ventasPasadas = registros.reduce((sum, r) => sum + r.vendidos, 0);
+            const pendiente = regressionModel.m;
+
+            let sugerencia_negocio = '';
+            if (pendiente > 0.5) {
+                sugerencia_negocio = `TENDENCIA ALCISTA CRÍTICA: La IA proyecta vender ${Math.ceil(ventasProyectadas30Dias)} uds. Aumente el reabastecimiento habitual.`;
+            } else if (pendiente < -0.2) {
+                sugerencia_negocio = `TENDENCIA BAJISTA: El consumo se está estancando. Se sugieren pautas de Marketing para rotar stock. Predicción a 30 días: ${Math.ceil(ventasProyectadas30Dias)} uds.`;
+            } else {
+                sugerencia_negocio = `ESTABLE: Mantener el reabastecimiento normal para cubrir la proyección IA de ${Math.ceil(ventasProyectadas30Dias)} uds en 30 días.`;
+            }
             
             res.json({
                 producto_id: product_id,
-                analisis_dias: 30,
-                ventas_pasadas: vendidos,
-                demanda_esperada_proximo_mes: sugerencia_reposicion,
-                sugerencia: sugerencia_reposicion > 0 ? `Recomendamos reabastecer ${sugerencia_reposicion} unidades para cubrir la demanda proyectada.` : 'Stock estable, no requiere reposición inminente.'
+                analisis_dias: 60,
+                ventas_pasadas_60dias: ventasPasadas,
+                tendencia_crecimiento_diario: parseFloat(pendiente.toFixed(2)),
+                demanda_esperada_proximo_mes: Math.ceil(ventasProyectadas30Dias),
+                sugerencia: sugerencia_negocio
             });
 
         } catch (error) {
