@@ -1,0 +1,13 @@
+{
+  "fase": "B - Mobile",
+  "problemas_detectados": [
+    "Error de compilación en settings.gradle al enlazar manualmente el plugin de react-native apuntando a node_modules.",
+    "Falta de archivo local.properties, impidiendo que Gradle encuentre el path del SDK de Android para compilar."
+  ],
+  "soluciones_aplicadas": [
+    "Se refactorizó settings.gradle para usar el autolinking provisto de forma nativa por React Native.",
+    "Se creó el archivo local.properties con la variable sdk.dir apuntando al SDK por defecto en Windows."
+  ],
+  "estado": "Corregido y validado",
+  "rollback": "Borrar el archivo `mobile/android/local.properties` y agregar la línea `includeBuild('../node_modules/@react-native/gradle-plugin')` nuevamente en `settings.gradle`."
+}

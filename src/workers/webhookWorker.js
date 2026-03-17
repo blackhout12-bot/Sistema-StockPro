@@ -59,7 +59,7 @@ const webhookWorker = new Worker('webhooks', async job => {
 });
 
 webhookWorker.on('failed', (job, err) => {
-    logger.error({ jobId: job.id, err: err.message }, 'Entrega de webhook falló definitivamente tras reintentos');
+    logger.error({ jobId: job ? job.id : 'unknown', err: err.message }, 'Entrega de webhook falló definitivamente tras reintentos');
 });
 
 webhookWorker.on('error', (err) => {

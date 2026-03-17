@@ -1,0 +1,11 @@
+{
+  "fase": "D - Frontend",
+  "problemas_detectados": [
+    "Interpolación dinámica de clases de Tailwind (ej. `text-${color}-600`) en Empresa.jsx. Esta sintaxis no es compilable por el JIT Compiler de Tailwind de Vite, causando que las clases desaparezcan en Producción."
+  ],
+  "soluciones_aplicadas": [
+    "Refactorización del componente `StatCard` en `Empresa.jsx`. Se creó una constante `COLOR_MAP` con los nombres estáticos y enteros de las clases de Tailwind predefinidas para `indigo`, `emerald`, `amber`, `rose`, `blue` y `gray`, asegurando su preservación post-build."
+  ],
+  "estado": "Corregido y Validador en UI",
+  "rollback": "Quitar `COLOR_MAP` y restaurar la sintaxis literal en el Componente `StatCard` de `Empresa.jsx`."
+}

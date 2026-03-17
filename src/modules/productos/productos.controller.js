@@ -37,9 +37,9 @@ router.get('/', checkPermiso('productos', 'leer'), async (req, res, next) => {
 
 // Crear producto (solo admin)
 router.post('/crear', checkPermiso('productos', 'crear'), validateBody(productoSchema), audit('crear', 'Producto'), async (req, res, next) => {
-  const { nombre, descripcion, precio, stock, categoria, sku, stock_min, stock_max, moneda_id } = req.body;
+  const { nombre, descripcion, precio, stock, categoria, sku, stock_min, stock_max, moneda_id, custom_fields } = req.body;
   try {
-    const producto = await productosService.agregarProducto(nombre, descripcion, precio, stock, categoria, req.tenant_id, sku, moneda_id);
+    const producto = await productosService.agregarProducto(nombre, descripcion, precio, stock, categoria, req.tenant_id, sku, moneda_id, custom_fields);
     res.locals.insertedId = producto.id; // Para el audit log
     res.status(201).json(producto);
   } catch (err) {
@@ -50,9 +50,9 @@ router.post('/crear', checkPermiso('productos', 'crear'), validateBody(productoS
 // Actualizar producto (solo admin)
 router.put('/editar/:id', checkPermiso('productos', 'editar'), validateBody(productoSchema), audit('actualizar', 'Producto'), async (req, res, next) => {
   const { id } = req.params;
-  const { nombre, descripcion, precio, stock, categoria, sku, moneda_id } = req.body;
+  const { nombre, descripcion, precio, stock, categoria, sku, moneda_id, custom_fields } = req.body;
   try {
-    const producto = await productosService.editarProducto(parseInt(id), nombre, descripcion, precio, stock, categoria, req.tenant_id, sku, moneda_id);
+    const producto = await productosService.editarProducto(parseInt(id), nombre, descripcion, precio, stock, categoria, req.tenant_id, sku, moneda_id, custom_fields);
     res.json(producto);
   } catch (err) {
     next(err);

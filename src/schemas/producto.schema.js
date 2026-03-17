@@ -11,7 +11,8 @@ const productoSchema = z.object({
     stock_min: z.number().int().min(0).optional().default(0),
     stock_max: z.number().int().min(0).optional(),
     categoria: z.string().max(100).optional(),
-    moneda_id: z.string().max(3).optional().default('ARS')
+    moneda_id: z.string().max(3).optional().default('ARS'),
+    custom_fields: z.union([z.string(), z.record(z.string(), z.any())]).optional()
 }).strict();
 
 module.exports = {

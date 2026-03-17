@@ -75,18 +75,29 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // ─── Health Check ───────────────────────────────────────────────
 const { getRedisStatus, getBullmqStatus } = require('./config/redis');
+const { connectDB } = require('./config/db');
 
-app.get('/health', (_req, res) => {
-  const status = getRedisStatus();
-  const bullmq = getBullmqStatus();
-  
-  res.status(status === 'OK' ? 200 : 207).json({ 
-    status: 'ok', 
-    http_server: 'OK',
-    redis_connection: status,
-    bullmq: bullmq,
-    time: new Date().toISOString() 
-  });
+app.get('/health', async (_req, res) => {
+  try {
+    const status = getRedisStatus();
+    const bullmq = getBullmqStatus();
+    
+    // Ping DB
+    const pool = await connectDB();
+    await pool.request().query('SELECT 1 AS ping');
+
+    res.status(status === 'OK' ? 200 : 207).json({ 
+      status: 'ok', 
+      http_server: 'OK',
+      db_connection: 'OK',
+      redis_connection: status,
+      bullmq: bullmq,
+      time: new Date().toISOString() 
+    });
+  } catch(e) {
+    logger.error({ err: e.message }, 'Healthcheck falló. Conexión a BD caída');
+    res.status(500).json({ status: 'error', message: 'Database offline' });
+  }
 });
 
 // ─── Prometheus Metrics ──────────────────────────────────────────

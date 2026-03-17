@@ -48,7 +48,7 @@ emailWorker.on('completed', job => {
 });
 
 emailWorker.on('failed', (job, err) => {
-    logger.error({ jobId: job.id, err: err.message }, 'Job email falló');
+    logger.error({ jobId: job ? job.id : 'unknown', err: err.message }, 'Job email falló');
 });
 
 emailWorker.on('error', (err) => {

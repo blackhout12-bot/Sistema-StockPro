@@ -10,10 +10,16 @@ class ProductoRepository {
             .input('empresa_id', sql.Int, empresa_id)
             .query(`
         SELECT p.*,
-               ISNULL((SELECT SUM(cantidad) FROM Movimientos m WHERE m.productoId = p.id AND m.tipo = 'salida'), 0) as num_ventas,
+               ISNULL(m.num_ventas, 0) as num_ventas,
                -- check dinámico de sku si la columna existe (usado en la refactorización para retrocompatibilidad)
                CASE WHEN COL_LENGTH('Productos', 'sku') IS NOT NULL THEN (SELECT sku FROM Productos x WHERE x.id = p.id) ELSE NULL END as sku
         FROM Productos p
+        LEFT JOIN (
+            SELECT productoId, SUM(cantidad) as num_ventas
+            FROM Movimientos
+            WHERE tipo = 'salida'
+            GROUP BY productoId
+        ) m ON m.productoId = p.id
         WHERE p.empresa_id = @empresa_id
         ORDER BY p.creado_en DESC
       `);
@@ -26,8 +32,14 @@ class ProductoRepository {
         // Base Query
         let queryStr = `
             SELECT p.*,
-                ISNULL((SELECT SUM(cantidad) FROM Movimientos m WHERE m.productoId = p.id AND m.tipo = 'salida'), 0) as num_ventas
+                ISNULL(m.num_ventas, 0) as num_ventas
             FROM Productos p
+            LEFT JOIN (
+                SELECT productoId, SUM(cantidad) as num_ventas
+                FROM Movimientos
+                WHERE tipo = 'salida'
+                GROUP BY productoId
+            ) m ON m.productoId = p.id
             WHERE p.empresa_id = @empresa_id
         `;
         let countQueryStr = `SELECT COUNT(*) as total FROM Productos p WHERE p.empresa_id = @empresa_id`;
@@ -90,9 +102,26 @@ class ProductoRepository {
       SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'stock_min'
     `).then(r => r.recordset.length > 0);
 
+        const hasCustomFieldsColumn = await pool.request().query(`
+      SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'custom_fields'
+    `).then(r => r.recordset.length > 0);
+
+        const cFieldsStr = typeof data.custom_fields === 'object' ? JSON.stringify(data.custom_fields) : (data.custom_fields || '{}');
+
         let newProductId;
         if (hasSkuColumn && hasStockMinColumn) {
-            const result = await pool.request()
+            let queryStr = `
+          INSERT INTO Productos (sku, nombre, descripcion, precio, stock, stock_min, stock_max, moneda_id, empresa_id`;
+            let valStr = `VALUES (@sku, @nombre, @descripcion, @precio, @stock, @stock_min, @stock_max, @moneda_id, @empresa_id`;
+
+            if (hasCustomFieldsColumn) {
+                queryStr += `, custom_fields`;
+                valStr += `, @custom_fields`;
+            }
+
+            queryStr += `) OUTPUT INSERTED.id ${valStr})`;
+
+            const request = pool.request()
                 .input('sku', sql.NVarChar, sku || null)
                 .input('nombre', sql.NVarChar, nombre)
                 .input('descripcion', sql.NVarChar, descripcion)
@@ -101,12 +130,11 @@ class ProductoRepository {
                 .input('stock_min', sql.Int, stock_min)
                 .input('stock_max', sql.Int, stock_max || null)
                 .input('moneda_id', sql.NVarChar(3), data.moneda_id || 'ARS')
-                .input('empresa_id', sql.Int, empresa_id)
-                .query(`
-          INSERT INTO Productos (sku, nombre, descripcion, precio, stock, stock_min, stock_max, moneda_id, empresa_id)
-          OUTPUT INSERTED.id
-          VALUES (@sku, @nombre, @descripcion, @precio, @stock, @stock_min, @stock_max, @moneda_id, @empresa_id)
-        `);
+                .input('empresa_id', sql.Int, empresa_id);
+
+            if (hasCustomFieldsColumn) request.input('custom_fields', sql.NVarChar(sql.MAX), cFieldsStr);
+
+            const result = await request.query(queryStr);
             newProductId = result.recordset[0].id;
         } else {
             // Fallback a columnas originales (con SKU dinámicamente insertado si es q solo existe SKU)
@@ -117,18 +145,25 @@ class ProductoRepository {
                 queryStr += `, sku`;
                 valStr += `, @sku`;
             }
+
+            if (hasCustomFieldsColumn) {
+                queryStr += `, custom_fields`;
+                valStr += `, @custom_fields`;
+            }
+
             queryStr += `) OUTPUT INSERTED.id ${valStr})`;
 
-            const req = pool.request()
+            const request = pool.request()
                 .input('nombre', sql.NVarChar, nombre)
                 .input('descripcion', sql.NVarChar, descripcion)
                 .input('precio', sql.Decimal(12, 2), precio)
                 .input('stock', sql.Int, stock || 0)
                 .input('empresa_id', sql.Int, empresa_id);
 
-            if (hasSkuColumn) req.input('sku', sql.NVarChar, sku || null);
+            if (hasSkuColumn) request.input('sku', sql.NVarChar, sku || null);
+            if (hasCustomFieldsColumn) request.input('custom_fields', sql.NVarChar(sql.MAX), cFieldsStr);
 
-            const result = await req.query(queryStr);
+            const result = await request.query(queryStr);
             newProductId = result.recordset[0].id;
         }
 
@@ -150,11 +185,17 @@ class ProductoRepository {
     }
 
     async update(pool, id, data, empresa_id) {
-        const { nombre, descripcion, precio, stock, sku } = data;
+        const { nombre, descripcion, precio, stock, sku, custom_fields } = data;
 
         const hasSkuColumn = await pool.request().query(`
       SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'sku'
     `).then(r => r.recordset.length > 0);
+
+        const hasCustomFieldsColumn = await pool.request().query(`
+      SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'custom_fields'
+    `).then(r => r.recordset.length > 0);
+
+        const cFieldsStr = typeof custom_fields === 'object' ? JSON.stringify(custom_fields) : (custom_fields || '{}');
 
         let queryStr = `
       UPDATE Productos
@@ -167,6 +208,10 @@ class ProductoRepository {
 
         if (hasSkuColumn && sku !== undefined) {
             queryStr += `, sku = @sku `;
+        }
+        
+        if (hasCustomFieldsColumn && custom_fields !== undefined) {
+            queryStr += `, custom_fields = @custom_fields `;
         }
 
         queryStr += ` WHERE id = @id AND empresa_id = @empresa_id`;
@@ -182,6 +227,10 @@ class ProductoRepository {
 
         if (hasSkuColumn && sku !== undefined) {
             request.input('sku', sql.NVarChar, sku || null);
+        }
+
+        if (hasCustomFieldsColumn && custom_fields !== undefined) {
+            request.input('custom_fields', sql.NVarChar(sql.MAX), cFieldsStr);
         }
 
         await request.query(queryStr);

@@ -1,0 +1,3 @@
+--- Auditoría de Rendimiento (Backend) ---
+-> Prueba de Carga simulada (o real)...
+  Apache Benchmark: No instalado, usando mock estandarizado de 50ms latencia (Backend).

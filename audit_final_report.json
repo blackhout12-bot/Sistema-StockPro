@@ -1,0 +1,67 @@
+{
+  "problemas_detectados": [
+    {
+      "archivo": ".github/workflows/ci.yml",
+      "linea": 30,
+      "descripcion": "Versión de Node.js configurada en 24.x la cual es inestable/experimental actualmente para producción. Debería ser LTS (20.x o 22.x)."
+    },
+    {
+      "archivo": ".github/workflows/ci.yml",
+      "linea": "44-51",
+      "descripcion": "Las variables de entorno en el job 'Run Tests' (DB_HOST, DB_PASSWORD, JWT_SECRET, etc.) están hardcodeadas en texto plano, lo que representa un riesgo crítico de seguridad OWASP."
+    },
+    {
+      "archivo": ".github/workflows/cd.yml",
+      "linea": "89-97",
+      "descripcion": "Falta mapear los secretos completos (ej. KUBE_CONFIG, REDIS_PASSWORD) en el despliegue de Helm y el acceso inter-dependencias (GHCR_TOKEN). Esto interrumpe la resiliencia en CD."
+    },
+    {
+      "archivo": "mobile/android/settings.gradle",
+      "linea": 1,
+      "descripcion": "Sintaxis errónea/duplicada en pluginManagement para '@react-native/gradle-plugin' apuntando directamente a node_modules, lo cual causa fallos en la resolución de build en React Native."
+    },
+    {
+      "archivo": "mobile/android/local.properties",
+      "linea": "N/A",
+      "descripcion": "Falta el archivo local.properties para definir la ruta del SDK de Android (sdk.dir), provocando fallos inmediatos al intentar compilar en Android Studio o CLI de React Native."
+    },
+    {
+      "archivo": "src/server.js",
+      "linea": "86-88",
+      "descripcion": "CORS policy configurada con dominios hardcodeados de localhost. El frontend en Kubernetes necesitará acceso al Ingress Controller con el Origin validado de forma más robusta."
+    },
+    {
+      "archivo": "frontend/src/pages/Empresa.jsx",
+      "linea": 59,
+      "descripcion": "Riesgo de falla gráfica en Producción: Uso de interpolación de strings dinámica en clases de Tailwind (ej. 'text-${color}-600'). El JIT Compiler de Tailwind purgará estas clases y romperá la UI del Dashboard."
+    }
+  ],
+  "soluciones_propuestas": [
+    {
+      "archivo": ".github/workflows/ci.yml",
+      "solucion": "Cambiar `node-version: '24.x'` a `node-version: '20.x'` o `22.x` (LTS)."
+    },
+    {
+      "archivo": ".github/workflows/ci.yml",
+      "solucion": "Reemplazar los valores hardcodeados por la notación de secretos de GH: `DB_PASSWORD: ${{ secrets.DB_PASSWORD }}` y `JWT_SECRET: ${{ secrets.JWT_SECRET }}`."
+    },
+    {
+      "archivo": ".github/workflows/cd.yml",
+      "solucion": "Añadir los seteos faltantes en helm upgrade: `--set secrets.redisPassword=${{ secrets.REDIS_PASSWORD }}` y revisar la sintaxis de context/env."
+    },
+    {
+      "archivo": "mobile/android/settings.gradle",
+      "solucion": "Reemplazar las configuraciones de pluginManagement y autolinking por las recomendadas en React Native 0.73+ eliminando inclusiones manuales a node_modules que fallan."
+    },
+    {
+      "archivo": "mobile/android/local.properties",
+      "solucion": "Crear el archivo `mobile/android/local.properties` con el contenido `sdk.dir=C:\\Users\\<TuUsuario>\\AppData\\Local\\Android\\Sdk` o pasar la variable global."
+    },
+    {
+      "archivo": "frontend/src/pages/Empresa.jsx",
+      "solucion": "Crear un mapa estático de colores en React en lugar de la concatenación, por ejemplo: `const COLOR_MAP = { indigo: 'text-indigo-600 bg-indigo-50', amber: 'text-amber-600 bg-amber-50' }`."
+    }
+  ],
+  "prioridad": "ALTA",
+  "estado": "Pendiente de Corrección"
+}

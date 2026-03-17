@@ -52,7 +52,7 @@ const afipWorker = new Worker('afip-authorization', async job => {
 }, { connection: redisConnectionParams });
 
 afipWorker.on('failed', (job, err) => {
-    logger.error({ jobId: job.id, err: err.message }, 'AFIP Worker Job Failed');
+    logger.error({ jobId: job ? job.id : 'unknown', err: err.message }, 'AFIP Worker Job Failed');
 });
 
 afipWorker.on('error', (err) => {

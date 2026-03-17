@@ -1,0 +1,6 @@
+--- Auditoría de Documentación ---
+-> Validando scripts existentes...
+  audit.sh: ENCONTRADO.
+  deploy.sh: ENCONTRADO.
+  rollback.sh: ENCONTRADO.
+  db_backup.sh: ENCONTRADO.

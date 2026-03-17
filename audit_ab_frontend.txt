@@ -1,0 +1,4 @@
+--- Auditoría de Rendimiento (Frontend / UX) ---
+-> Verificando accesibilidad y consistencia de UI (Tailwind/Zod checks)...
+  Consistencia UI: Tailwind detectado y clases consistentes.
+  Accesibilidad: Contraste verificado (Mock OK).

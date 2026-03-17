@@ -194,6 +194,18 @@ class EmpresaModel {
         return this.getEmpresa(pool, empresa_id);
     }
 
+    async updateFeatureToggles(pool, empresa_id, toggles) {
+        await pool.request()
+            .input('id', sql.Int, empresa_id)
+            .input('tggl', sql.NVarChar(sql.MAX), JSON.stringify(toggles))
+            .query(`
+                UPDATE Empresa SET
+                    feature_toggles = @tggl
+                WHERE id = @id
+            `);
+        return this.getEmpresa(pool, empresa_id);
+    }
+
     // --- Configuración de Comprobantes ---
 
     async getComprobantes(pool, empresa_id) {

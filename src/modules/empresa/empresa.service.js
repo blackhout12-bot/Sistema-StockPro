@@ -61,6 +61,13 @@ class EmpresaService {
         return res;
     }
 
+    async updateFeatureToggles(empresa_id, toggles) {
+        const pool = await connectDB();
+        const res = await empresaModel.updateFeatureToggles(pool, empresa_id, toggles);
+        await delCache(`stats:tenant_${empresa_id}`);
+        return res;
+    }
+
     async getComprobantes(empresa_id) {
         const pool = await connectDB();
         return await empresaModel.getComprobantes(pool, empresa_id);

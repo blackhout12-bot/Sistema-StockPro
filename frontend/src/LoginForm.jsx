@@ -89,7 +89,7 @@ const LoginForm = () => {
                     {/* Top line accent */}
                     <div className="absolute top-0 left-0 w-full h-1 bg-black"></div>
 
-                    <form className="space-y-5 mt-2" onSubmit={handleSubmit}>
+                    <form className="space-y-5 mt-2" onSubmit={handleSubmit(onSubmit)}>
                         {!isLogin && (
                             <div className="space-y-5">
                                 <div>
@@ -255,10 +255,7 @@ const LoginForm = () => {
                                     } else {
                                         setIsLogin(!isLogin);
                                     }
-                                    setEmail('');
-                                    setPassword('');
-                                    setNombre('');
-                                    setEmpresaNombre('');
+                                    reset();
                                 }}
                                 className="text-sm font-semibold text-gray-900 hover:text-gray-700 transition-colors"
                             >

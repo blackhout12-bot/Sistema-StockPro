@@ -1,0 +1,15 @@
+{
+  "fase": "A - CI/CD",
+  "problemas_detectados": [
+    "Versión de Node.js 24.x (inestable/experimental) en ci.yml.",
+    "Secretos DB_PASSWORD, JWT_SECRET hardcodeados en texto plano en ci.yml.",
+    "Falta de mapeo de REDIS_PASSWORD en el paso de helm upgrade en cd.yml."
+  ],
+  "soluciones_aplicadas": [
+    "Actualizada la versión de Node.js a 20.x (LTS) en ci.yml.",
+    "Reemplazados los valores hardcodeados por referencias seguras `${{ secrets.DB_PASSWORD }}` y `${{ secrets.JWT_SECRET }}` en ci.yml.",
+    "Inyectado `REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}` como variable de entorno y argumento `--set` en cd.yml."
+  ],
+  "estado": "Corregido",
+  "rollback": "Revertir los commits recientes en `.github/workflows/ci.yml` y `.github/workflows/cd.yml` usando `git revert HEAD`."
+}

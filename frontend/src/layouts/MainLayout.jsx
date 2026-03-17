@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, ArrowRightLeft, LogOut, FileText, Users as UsersIcon, Building2, Users as CustomersIcon, ShoppingCart, Menu, History, Zap, Bell, Store } from 'lucide-react';
+import { LayoutDashboard, Package, ArrowRightLeft, LogOut, FileText, Users as UsersIcon, Building2, Users as CustomersIcon, ShoppingCart, Menu, History, Zap, Bell, Store, ChevronRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import NotificationsDropdown from '../components/NotificationsDropdown';
 
@@ -43,7 +43,48 @@ const MainLayout = () => {
             ...adminAndGerenteNavItems,
         ];
     }
+    // ─── Breadcrumbs Generator ───────────────────────────────────
+    const generateBreadcrumbs = () => {
+        const pathnames = location.pathname.split('/').filter((x) => x);
+        const formatName = (name) => {
+            const mapped = {
+                '': 'Dashboard',
+                'facturacion': 'Punto de Venta',
+                'movimientos': 'Movimientos',
+                'productos': 'Productos',
+                'clientes': 'Clientes',
+                'reportes': 'Reportes',
+                'pagos-externos': 'Integraciones',
+                'marketplace': 'Marketplace',
+                'alertas-ia': 'Alertas IA',
+                'auditoria': 'Auditoría',
+                'empresa': 'Mi Empresa',
+                'usuarios': 'Usuarios'
+            };
+            return mapped[name] || name.charAt(0).toUpperCase() + name.slice(1);
+        };
 
+        return (
+            <div className="flex items-center gap-2 text-sm">
+                <Link to="/" className="text-slate-400 font-bold hover:text-primary-600 transition-colors">StockPro</Link>
+                {pathnames.length > 0 && <ChevronRight size={14} className="text-slate-300" />}
+                {pathnames.map((value, index) => {
+                    const isLast = index === pathnames.length - 1;
+                    const to = `/${pathnames.slice(0, index + 1).join('/')}`;
+                    return isLast ? (
+                        <span key={to} className="text-primary-600 font-black tracking-tight">{formatName(value)}</span>
+                    ) : (
+                        <React.Fragment key={to}>
+                            <Link to={to} className="text-slate-400 font-bold hover:text-primary-600 transition-colors">
+                                {formatName(value)}
+                            </Link>
+                            <ChevronRight size={14} className="text-slate-300" />
+                        </React.Fragment>
+                    );
+                })}
+            </div>
+        );
+    };
 
     return (
         <div className="flex h-screen bg-surface-50">
@@ -127,7 +168,10 @@ const MainLayout = () => {
                         <button className="p-2 text-slate-400 hover:text-primary-600 transition-colors">
                             <Menu size={24} />
                         </button>
-                        <h1 className="text-lg font-black text-primary-600 tracking-tighter">Stock Pro</h1>
+                    </div>
+
+                    <div className="hidden md:flex items-center mr-auto">
+                        {generateBreadcrumbs()}
                     </div>
 
                     <NotificationsDropdown />

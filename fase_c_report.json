@@ -1,0 +1,13 @@
+{
+  "fase": "C - Backend",
+  "problemas_detectados": [
+    "CORS excesivamente permisivo en su formato inicial con solo validaciones para localhost.",
+    "Falta de validación estricta de variables críticas de entorno (JWT_SECRET, DB_PASSWORD) durante el arranque del servidor en Producción, lo cual podría llevar a comportamientos inesperados de seguridad o caídas tardías por conexiones incompletas."
+  ],
+  "soluciones_aplicadas": [
+    "La política CORS fue actualizada para soportar `https://app.stocksystem.com` adicional a los localhosts o dominios dinámicos.",
+    "Se agregó un validador en `if (require.main === module)` en `server.js` que verifica que `JWT_SECRET` y `DB_PASSWORD` existan si `NODE_ENV === 'production'`. De lo contrario el proceso hace un exit preventivo (Fail Fast)."
+  ],
+  "estado": "Corregido",
+  "rollback": "Revertir los cambios en `src/server.js` quitando la validación del enviroment y removiendo el dominio `https://app.stocksystem.com` del fallback de origin cors."
+}

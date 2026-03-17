@@ -1,6 +1,7 @@
 const { connectDB, sql } = require('../../config/db');
 const authRepo = require('../../repositories/auth.repository');
 const jwt = require('jsonwebtoken');
+const logger = require('../../utils/logger');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret_para_desarrollo_cambiar_en_produccion';
 
@@ -20,7 +21,7 @@ class SSOController {
                     VALUES (@email, @proveedor, @ip, @exito, @detalles)
                 `);
         } catch (e) {
-            console.error('Error logging SSO attempt:', e);
+            logger.error({ error: e.message }, 'Error logging SSO attempt');
         }
     }
 

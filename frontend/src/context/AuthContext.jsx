@@ -21,28 +21,16 @@ export function AuthProvider({ children }) {
         } catch { return null; }
     });
 
+    const [featureToggles, setFeatureToggles] = useState(() => {
+        try { return JSON.parse(localStorage.getItem('featureToggles')) || {}; } catch { return {}; }
+    });
+
     // Estado para el flujo de selección de empresa (multi-empresa)
     const [empresaSelector, setEmpresaSelector] = useState(null);
     const [misEmpresas, setMisEmpresas] = useState(() => {
         try { return JSON.parse(localStorage.getItem('misEmpresas')) || []; } catch { return []; }
     });
     // { usuario_id, empresas[] } — cuando el login devuelve requires_empresa_select
-
-    // Validar token expirado al montar
-    useEffect(() => {
-        if (!token) return;
-        try {
-            const decoded = jwtDecode(token);
-            if (decoded.exp * 1000 < Date.now()) {
-                logout();
-                toast.error('Tu sesión expiró. Iniciá sesión nuevamente.');
-                return;
-            }
-            if (!user) setUser(decoded);
-        } catch {
-            logout();
-        }
-    }, [token]); // eslint-disable-line
 
     // ── Acciones ──────────────────────────────────────────────────
     const _setSession = useCallback((jwtToken, userData) => {
@@ -62,6 +50,21 @@ export function AuthProvider({ children }) {
             console.error('Error cargando membresías:', err);
         }
     }, []);
+
+    const fetchConfiguracionGlobal = useCallback(async () => {
+        if (!user || !token) return;
+        try {
+            const res = await api.get('/empresa/configuracion/completa');
+            let parsed = {};
+            if (res.data?.feature_toggles) {
+                parsed = typeof res.data.feature_toggles === 'string' ? JSON.parse(res.data.feature_toggles) : res.data.feature_toggles;
+            }
+            setFeatureToggles(parsed);
+            localStorage.setItem('featureToggles', JSON.stringify(parsed));
+        } catch (err) {
+            console.error('Error cargando configuración global:', err);
+        }
+    }, [user, token]);
 
     /**
      * login() — acepta la respuesta del backend.
@@ -94,6 +97,7 @@ export function AuthProvider({ children }) {
             setEmpresaSelector(null);
             _setSession(res.data.token, res.data.user);
             fetchMisEmpresas();
+            // La configuración global se llamará por el useEffect al cambiar el user/token emitido por _setSession
             toast.success('¡Bienvenido!');
         } catch (err) {
             toast.error(err.response?.data?.error || 'Error al seleccionar empresa');
@@ -121,14 +125,39 @@ export function AuthProvider({ children }) {
         setUser(null);
         setEmpresaSelector(null);
         setMisEmpresas([]);
+        setFeatureToggles({});
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         localStorage.removeItem('misEmpresas');
+        localStorage.removeItem('featureToggles');
     }, []);
+
+    // Validar token expirado al montar
+    useEffect(() => {
+        if (!token) return;
+        try {
+            const decoded = jwtDecode(token);
+            if (decoded.exp * 1000 < Date.now()) {
+                logout();
+                toast.error('Tu sesión expiró. Iniciá sesión nuevamente.');
+                return;
+            }
+            if (!user) setUser(decoded);
+        } catch {
+            logout();
+        }
+    }, [token, user, logout]);
+
+    useEffect(() => {
+        if (user && token) {
+            fetchConfiguracionGlobal();
+        }
+    }, [user, token, fetchConfiguracionGlobal]);
 
     const value = {
         token,
         user,
+        featureToggles,
         login,
         logout,
         selectEmpresa,

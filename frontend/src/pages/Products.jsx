@@ -214,16 +214,34 @@ const Products = () => {
                 </button>
             </div>
 
-            {/* Estado de carga */}
+            {/* Estado de carga - Skeletons */}
             {loading && (
-                <div className="premium-card flex flex-col items-center justify-center py-24 gap-4">
-                    <div className="relative">
-                        <div className="w-12 h-12 border-4 border-primary-100 border-t-primary-600 rounded-full animate-spin"></div>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-2 h-2 bg-primary-600 rounded-full animate-pulse"></div>
-                        </div>
+                <div className="premium-card !p-0 overflow-hidden">
+                    <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <div className="w-1/3 h-5 bg-slate-200 rounded animate-pulse"></div>
+                        <div className="w-1/4 h-5 bg-slate-200 rounded animate-pulse"></div>
                     </div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sincronizando Almacén...</p>
+                    <div className="divide-y divide-slate-100">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                            <div key={i} className="p-6 flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-4 flex-1">
+                                    <div className="w-12 h-12 bg-slate-200 rounded-xl animate-pulse"></div>
+                                    <div className="space-y-2 flex-1 max-w-sm">
+                                        <div className="h-4 bg-slate-200 rounded animate-pulse w-3/4"></div>
+                                        <div className="h-3 bg-slate-200 rounded animate-pulse w-1/2"></div>
+                                    </div>
+                                </div>
+                                <div className="hidden md:flex flex-col gap-2 w-32">
+                                    <div className="h-4 bg-slate-200 rounded animate-pulse w-full"></div>
+                                    <div className="h-3 bg-slate-200 rounded animate-pulse w-2/3"></div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-20 h-8 bg-slate-200 rounded-lg animate-pulse"></div>
+                                    <div className="w-8 h-8 bg-slate-200 rounded-lg animate-pulse"></div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
 

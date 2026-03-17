@@ -14,7 +14,8 @@ const {
     impuestosConfigSchema,
     comprobanteSchema,
     integracionesSchema,
-    dashboardConfigSchema
+    dashboardConfigSchema,
+    featureTogglesSchema
 } = require('../../schemas/empresa.schema');
 
 // ── GET /empresa — Datos de la empresa (Cualquier usuario con permiso) ──────────
@@ -112,6 +113,16 @@ router.put('/configuracion/dashboard', checkPermiso('empresa', 'editar'), valida
         const { kpis_visibles, rango_default, refresco_segundos, widgets_visibles } = req.body;
         const cleanBody = { kpis_visibles, rango_default, refresco_segundos, widgets_visibles };
         const empresa = await empresaService.updateDashboardConfig(req.tenant_id, cleanBody);
+        res.json(empresa);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// ── PUT /empresa/configuracion/features ───────────────────────────────────────
+router.put('/configuracion/features', checkPermiso('empresa', 'editar'), validateBody(featureTogglesSchema), audit('actualizar_features', 'Empresa'), async (req, res, next) => {
+    try {
+        const empresa = await empresaService.updateFeatureToggles(req.tenant_id, req.body);
         res.json(empresa);
     } catch (error) {
         next(error);

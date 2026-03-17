@@ -15,6 +15,7 @@ const TABS = [
     { id: 'identidad', label: 'Identidad', icon: Image },
     { id: 'estadisticas', label: 'Estadísticas', icon: BarChart3 },
     { id: 'configuracion', label: 'Configuración', icon: Settings },
+    { id: 'modulos', label: 'Módulos Extra', icon: Package },
     { id: 'depositos', label: 'Depósitos', icon: MapPin },
 ];
 
@@ -154,6 +155,14 @@ const Empresa = () => {
         widgets_visibles: '[]'
     });
 
+    // Módulos (Feature Toggles)
+    const [modulos, setModulos] = useState({
+        mod_lotes: false,
+        mod_produccion: false,
+        mod_fidelizacion: false,
+        mod_marketplace: false
+    });
+
     const [showAddCompModal, setShowAddCompModal] = useState(false);
     const [newComp, setNewComp] = useState({
         tipo_comprobante: '',
@@ -270,6 +279,20 @@ const Empresa = () => {
                 widgets_visibles: d.dash_widgets_visibles || '[]'
             });
 
+            // Parse Feature Toggles safely
+            let togglesParsed = {};
+            if (d.feature_toggles) {
+                try {
+                    togglesParsed = typeof d.feature_toggles === 'string' ? JSON.parse(d.feature_toggles) : d.feature_toggles;
+                } catch (e) { console.error('Error parsing feature toggles:', e); }
+            }
+            setModulos({
+                mod_lotes: !!togglesParsed.mod_lotes,
+                mod_produccion: !!togglesParsed.mod_produccion,
+                mod_fidelizacion: !!togglesParsed.mod_fidelizacion,
+                mod_marketplace: !!togglesParsed.mod_marketplace
+            });
+
             setComprobantes(d.comprobantes || []);
         } catch (err) {
             toast.error('Error al cargar datos de la empresa');
@@ -368,7 +391,8 @@ const Empresa = () => {
                     localStorage.setItem('dash_kpis', dashboard.kpis_visibles);
                     // Disparar evento para que el Dashboard se entere en tiempo real
                     window.dispatchEvent(new Event('storage'));
-                })
+                }),
+                api.put('/empresa/configuracion/features', modulos)
             ]);
             toast.success('Configuración guardada correctamente');
         } catch (err) {
@@ -1177,6 +1201,102 @@ const Empresa = () => {
                                             className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-xl hover:bg-indigo-700 disabled:opacity-50 shadow-md">
                                             <Save size={16} />
                                             {saving ? 'Guardando...' : 'Guardar Ajustes'}
+                                        </button>
+                                    </div>
+                                )}
+                            </form>
+                        </div>
+                    )}
+                    
+                    {/* ══ TAB: MÓDULOS (Feature Toggles) ═══════════════════════ */}
+                    {tab === 'modulos' && (
+                        <div className="space-y-8">
+                            <div>
+                                <h2 className="text-base font-semibold text-gray-900">Módulos Extra (Business Features)</h2>
+                                <p className="text-sm text-gray-500 mt-0.5">Activa o desactiva funcionalidades avanzadas según las necesidades operativas de la empresa.</p>
+                            </div>
+
+                            <form onSubmit={saveConfig} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Lotes y Vencimientos */}
+                                <div className={`p-5 rounded-2xl border-2 transition-all ${modulos.mod_lotes ? 'border-primary-500 bg-primary-50/30' : 'border-slate-100 bg-white'}`}>
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex gap-4">
+                                            <div className={`p-3 rounded-xl ${modulos.mod_lotes ? 'bg-primary-100 text-primary-600' : 'bg-slate-100 text-slate-400'}`}>
+                                                <Package size={24} />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-sm font-bold text-slate-800">Lotes y Vencimientos</h3>
+                                                <p className="text-xs text-slate-500 mt-1 max-w-[200px]">Trazabilidad de productos por número de lote y gestión de fechas de caducidad en el inventario.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <input type="checkbox" className="w-5 h-5 text-primary-600 bg-white border-slate-300 rounded focus:ring-primary-500 focus:ring-2" 
+                                                checked={modulos.mod_lotes} onChange={e => setModulos(m => ({ ...m, mod_lotes: e.target.checked }))} />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Producción */}
+                                <div className={`p-5 rounded-2xl border-2 transition-all ${modulos.mod_produccion ? 'border-primary-500 bg-primary-50/30' : 'border-slate-100 bg-white'}`}>
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex gap-4">
+                                            <div className={`p-3 rounded-xl ${modulos.mod_produccion ? 'bg-primary-100 text-primary-600' : 'bg-slate-100 text-slate-400'}`}>
+                                                <Settings size={24} />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-sm font-bold text-slate-800">Órdenes de Producción</h3>
+                                                <p className="text-xs text-slate-500 mt-1 max-w-[200px]">Manejo de recetas, ensamblaje de kits comerciales y transformación de materia prima.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <input type="checkbox" className="w-5 h-5 text-primary-600 bg-white border-slate-300 rounded focus:ring-primary-500 focus:ring-2" 
+                                                checked={modulos.mod_produccion} onChange={e => setModulos(m => ({ ...m, mod_produccion: e.target.checked }))} />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Fidelización VIP */}
+                                <div className={`p-5 rounded-2xl border-2 transition-all ${modulos.mod_fidelizacion ? 'border-primary-500 bg-primary-50/30' : 'border-slate-100 bg-white'}`}>
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex gap-4">
+                                            <div className={`p-3 rounded-xl ${modulos.mod_fidelizacion ? 'bg-primary-100 text-primary-600' : 'bg-slate-100 text-slate-400'}`}>
+                                                <Crown size={24} />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-sm font-bold text-slate-800">Fidelización de Clientes</h3>
+                                                <p className="text-xs text-slate-500 mt-1 max-w-[200px]">Programas de puntos, descuentos y promociones de membresía VIP.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <input type="checkbox" className="w-5 h-5 text-primary-600 bg-white border-slate-300 rounded focus:ring-primary-500 focus:ring-2" 
+                                                checked={modulos.mod_fidelizacion} onChange={e => setModulos(m => ({ ...m, mod_fidelizacion: e.target.checked }))} />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Marketplace Sync */}
+                                <div className={`p-5 rounded-2xl border-2 transition-all ${modulos.mod_marketplace ? 'border-primary-500 bg-primary-50/30' : 'border-slate-100 bg-white'}`}>
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex gap-4">
+                                            <div className={`p-3 rounded-xl ${modulos.mod_marketplace ? 'bg-primary-100 text-primary-600' : 'bg-slate-100 text-slate-400'}`}>
+                                                <Globe size={24} />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-sm font-bold text-slate-800">Catálogo Marketplace</h3>
+                                                <p className="text-xs text-slate-500 mt-1 max-w-[200px]">Publicación automática omnicanal B2C / B2B en e-commerce.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <input type="checkbox" className="w-5 h-5 text-primary-600 bg-white border-slate-300 rounded focus:ring-primary-500 focus:ring-2" 
+                                                checked={modulos.mod_marketplace} onChange={e => setModulos(m => ({ ...m, mod_marketplace: e.target.checked }))} />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {isAdmin && (
+                                    <div className="col-span-full flex justify-end mt-4">
+                                        <button type="submit" disabled={saving} className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-xl hover:bg-indigo-700 disabled:opacity-50 shadow-md">
+                                            <Save size={16} /> {saving ? 'Aplicando...' : 'Aplicar Módulos'}
                                         </button>
                                     </div>
                                 )}

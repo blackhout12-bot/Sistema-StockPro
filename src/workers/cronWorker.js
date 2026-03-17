@@ -27,7 +27,7 @@ const cronWorker = new Worker('cron-jobs', async job => {
 }, { connection: redisConnectionParams });
 
 cronWorker.on('failed', (job, err) => {
-    logger.error({ jobId: job.id, err: err.message }, 'Cron Job falló!');
+    logger.error({ jobId: job ? job.id : 'unknown', err: err.message }, 'Cron Job falló!');
 });
 
 // ─── LÓGICA DE ALERTAS MIGRADAS ──────────────────────────────────────────

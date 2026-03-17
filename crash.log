@@ -1,0 +1,49 @@
+[dotenv@17.3.1] injecting env (16) from .env -- tip: ÔÜÖ´©Å  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ÔÜÖ´©Å  enable debug logging with { debug: true }
+(node:37004) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:37004) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+[22:24:29] [32mINFO[39m: [36m­ƒÜÇ Iniciando infraestructura de BullMQ (Graceful Degradation Mode)...[39m
+[22:24:29] [32mINFO[39m: [36malertWorker (Legacy) importado. Las tareas ahora son administradas por BullMQ cronQueue.[39m
+[22:24:29] [32mINFO[39m: [36m­ƒÜÇ Socket.io inicializado con soporte multi-tenant[39m
+[22:24:29] [32mINFO[39m: [36m­ƒÜÇ Servidor backend iniciado con WebSockets (IPv4)[39m
+    [35mport[39m: "5000"
+    [35menv[39m: "development"
+[22:24:29] [32mINFO[39m: [36mConectado a Redis Exitosamente[39m
+[22:24:30] [32mINFO[39m: [36mCron Job [check-stock-vencimientos] registrado en BullMQ.[39m
+    [35mcronTime[39m: "*/5 * * * *"
+[22:24:30] [32mINFO[39m: [36mÔ£à BullMQ y Workers inicializados correctamente.[39m
+[22:25:00] [32mINFO[39m: [36mEjecutando Cron Job...[39m
+    [35mjobId[39m: "repeat:cce8fcc63a33900f8ed59e16271b89f7:1773710700000"
+    [35mtype[39m: "check-stock-vencimientos"
+[22:25:00] [32mINFO[39m: [36mConectado a SQL Server (Escritura)[39m
+[22:25:00] [32mINFO[39m: [36mProcesando tarea de Email en Background[39m
+    [35mjobId[39m: "82"
+    [35mtype[39m: "alerta-stock"
+[22:25:00] [31mERROR[39m: [36mError enviando email en Worker[39m
+    [35mto[39m: "edgardo@example.com"
+    error: "getaddrinfo ENOTFOUND smtp.example.com"
+[22:25:00] [31mERROR[39m: [36mJob email fall├│[39m
+    [35mjobId[39m: "82"
+    err: "getaddrinfo ENOTFOUND smtp.example.com"
+[22:25:05] [32mINFO[39m: [36mProcesando tarea de Email en Background[39m
+    [35mjobId[39m: "82"
+    [35mtype[39m: "alerta-stock"
+[22:25:05] [31mERROR[39m: [36mError enviando email en Worker[39m
+    [35mto[39m: "edgardo@example.com"
+    error: "getaddrinfo ENOTFOUND smtp.example.com"
+[22:25:05] [31mERROR[39m: [36mJob email fall├│[39m
+    [35mjobId[39m: "82"
+    err: "getaddrinfo ENOTFOUND smtp.example.com"
+[22:25:15] [32mINFO[39m: [36mProcesando tarea de Email en Background[39m
+    [35mjobId[39m: "82"
+    [35mtype[39m: "alerta-stock"
+[22:25:15] [31mERROR[39m: [36mError enviando email en Worker[39m
+    [35mto[39m: "edgardo@example.com"
+    error: "getaddrinfo ENOTFOUND smtp.example.com"
+[22:25:15] [31mERROR[39m: [36mJob email fall├│[39m
+    [35mjobId[39m: "82"
+    err: "getaddrinfo ENOTFOUND smtp.example.com"
+[22:26:49] [32mINFO[39m: [36mIncoming Request[39m
+    [35mmethod[39m: "GET"
+    [35murl[39m: "/health"

@@ -19,14 +19,24 @@ async function run() {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Check if user exists
-        let result = await pool.request().query(`SELECT * FROM Usuarios WHERE email = '${email}'`);
+        let result = await pool.request()
+            .input('email', sql.NVarChar, email)
+            .query(`SELECT * FROM Usuarios WHERE email = @email`);
         if (result.recordset.length === 0) {
             console.log('El usuario no existe. Creándolo...');
-            await pool.request().query(`INSERT INTO Usuarios (nombre, email, password_hash, rol) VALUES ('Edgardo', '${email}', '${hashedPassword}', 'admin')`);
+            await pool.request()
+                .input('nombre', sql.NVarChar, 'Edgardo')
+                .input('email', sql.NVarChar, email)
+                .input('password_hash', sql.NVarChar, hashedPassword)
+                .input('rol', sql.NVarChar, 'admin')
+                .query(`INSERT INTO Usuarios (nombre, email, password_hash, rol) VALUES (@nombre, @email, @password_hash, @rol)`);
             console.log('Usuario creado exitosamente con rol admin.');
         } else {
             console.log('Usuario encontrado. Actualizando contraseña y asegurando rol admin...');
-            await pool.request().query(`UPDATE Usuarios SET password_hash = '${hashedPassword}', rol = 'admin' WHERE email = '${email}'`);
+            await pool.request()
+                .input('password_hash', sql.NVarChar, hashedPassword)
+                .input('email', sql.NVarChar, email)
+                .query(`UPDATE Usuarios SET password_hash = @password_hash, rol = 'admin' WHERE email = @email`);
             console.log('Usuario actualizado exitosamente.');
         }
 

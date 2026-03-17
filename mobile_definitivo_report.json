@@ -1,0 +1,15 @@
+{
+  "fase": "Configuración Definitiva del Proyecto Móvil",
+  "problemas_detectados": [
+    "La carpeta Base del Android SDK no existe o está vacía en 'C:\\Users\\egar0\\AppData\\Local\\Android\\Sdk'.",
+    "El archivo 'mobile/android/local.properties' carecía de la ruta estandarizada.",
+    "Las variables de entorno globales de Windows 'ANDROID_HOME' y sus binarios en el PATH ('tools', 'platform-tools') no estaban configuradas."
+  ],
+  "soluciones_aplicadas": [
+    "Se creó automáticamente el archivo 'mobile/android/local.properties' y se inyectó la directiva mandatoria: 'sdk.dir=C:\\\\Users\\\\egar0\\\\AppData\\\\Local\\\\Android\\\\Sdk'.",
+    "Usando scripts globales de PowerShell, se registró la variable de entorno maestra 'ANDROID_HOME' con el valor 'C:\\Users\\egar0\\AppData\\Local\\Android\\Sdk'.",
+    "Se actualizaron los registros del PATH del usuario para incluir '%ANDROID_HOME%\\tools' y '%ANDROID_HOME%\\platform-tools', permitiendo el acceso directo a comandos como 'adb', 'sdkmanager' o 'emulator'."
+  ],
+  "estado_final": "Pendiente de Acción Manual (SDK no instalado). La ejecución de './gradlew clean' y 'run-android' fallaron expulsando excepciones relacionadas a la falta de binarios base (ej. adb).",
+  "rollback": "Abre Android Studio, dirígete al menú de configuración (SDK Manager) y descarga el Android SDK 'Plataformas (API 34/35)' y 'Build Tools' asegurándote de usar la ruta predeterminada 'C:\\Users\\egar0\\AppData\\Local\\Android\\Sdk'. Luego cierra y re-abre tu terminal de VS Code y ejecuta nuevamente 'npx react-native run-android'. No es necesario deshacer ('rollback') ninguna de las variables ni el archivo properties aplicados en este paso, la arquitectura ahora está correcta."
+}

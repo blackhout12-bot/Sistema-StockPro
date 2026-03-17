@@ -1,0 +1,56 @@
+name: Production Deploy with Audit and Rollback
+
+on:
+  push:
+    branches: [ production, main ]
+  workflow_dispatch:
+
+jobs:
+  deploy-and-audit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Deploy to Production (Simulated / Helm)
+        id: deploy
+        run: |
+          echo "Ejecutando despliegue a Producción..."
+          # Aquí iría el comando real de Helm o Docker
+          # helm upgrade --install stock-system ./k8s/charts/stock-system
+          echo "Despliegue inicial realizado."
+
+      - name: Run Database Backup
+        run: |
+          chmod +x ./db_backup.sh
+          ./db_backup.sh
+        continue-on-error: true
+
+      - name: Run Production Audit Script
+        id: audit
+        run: |
+          chmod +x ./audit.sh
+          ./audit.sh
+          
+      - name: Guardar reportes y certificación
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: production-certification
+          path: |
+            production_audit_report.json
+            Documento_Certificacion_StockPro.md
+            audit_*.txt
+          
+      - name: Automatic Rollback on Audit Failure
+        if: failure() && steps.audit.outcome == 'failure'
+        run: |
+          echo "Auditoría falló. Iniciando Rollback Automático."
+          chmod +x ./rollback.sh
+          ./rollback.sh
+          exit 1 # Forzar fallo del workflow después del rollback

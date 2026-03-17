@@ -7,6 +7,7 @@ const sql = require('mssql');
 const { connectDB } = require('../../config/db');
 const checkPermiso = require('../../middlewares/rbac');
 const audit = require('../../middlewares/audit');
+const logger = require('../../utils/logger');
 
 const upload = multer({
     storage: multer.memoryStorage(),
@@ -145,7 +146,7 @@ router.post('/productos', checkPermiso('productos', 'crear'), audit('crear', 'Im
                 res.status(200).json({ message: 'Importación completada', creados: rowsInserted, actualizados: rowsUpdated });
             } catch (err) {
                 if (transaction) await transaction.rollback();
-                console.error('Error importando productos', err);
+                logger.error({ error: err.message }, 'Error importando productos');
                 res.status(500).json({ error: 'Error interno o formato CSV inválido. Consulte soporte.' });
             }
         });
@@ -221,7 +222,7 @@ router.post('/clientes', checkPermiso('clientes', 'crear'), audit('crear', 'Impo
                 res.status(200).json({ message: 'Importación completada', creados: rowsInserted, actualizados: rowsUpdated });
             } catch (err) {
                 if (transaction) await transaction.rollback();
-                console.error('Error importando clientes', err);
+                logger.error({ error: err.message }, 'Error importando clientes');
                 res.status(500).json({ error: 'Error interno o formato CSV inválido.' });
             }
         });

@@ -449,7 +449,25 @@ const Facturacion = () => {
 
     return (
         <div className="max-w-[1600px] mx-auto space-y-12 animate-in fade-in duration-700 pb-20">
+            {/* Loading Skeletons for POS */}
+            {isLoadingMaestros && (
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 animate-pulse mt-8">
+                     <div className="xl:col-span-8 space-y-8">
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                             <div className="h-40 bg-surface-50 border border-slate-100 rounded-[2rem]"></div>
+                             <div className="h-40 bg-surface-50 border border-slate-100 rounded-[2rem]"></div>
+                         </div>
+                         <div className="h-[500px] bg-surface-50 border border-slate-100 rounded-[2rem]"></div>
+                     </div>
+                     <div className="xl:col-span-4 space-y-6">
+                         <div className="h-64 bg-surface-50 border border-slate-100 rounded-[2.5rem]"></div>
+                         <div className="h-80 bg-surface-50 border border-slate-100 rounded-[2.5rem]"></div>
+                     </div>
+                </div>
+            )}
+
             {/* Header POS */}
+            {!isLoadingMaestros && (
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
                 <div className="flex items-center gap-6">
                     <div className="w-16 h-16 bg-gradient-to-br from-primary-600 to-indigo-600 rounded-3xl flex items-center justify-center text-white shadow-premium">
@@ -474,8 +492,10 @@ const Facturacion = () => {
                     </div>
                 </div>
             </div>
+            )}
 
             {/* Layout Principal */}
+            {!isLoadingMaestros && (
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
                 {/* 🛒 Column 1: Selector y Carrito */}
                 <div className="xl:col-span-8 space-y-8">
@@ -690,8 +710,10 @@ const Facturacion = () => {
                     </div>
                 </div>
             </div>
+            )}
 
             {/* Panel Auditoría */}
+            {!isLoadingMaestros && (
             <div className="premium-card !p-0 overflow-hidden shadow-2xl">
                 <div className="px-12 py-10 bg-surface-50 flex flex-col md:flex-row md:items-center justify-between gap-8 border-b border-slate-100">
                     <div>
@@ -748,6 +770,7 @@ const Facturacion = () => {
                     </table>
                 </div>
             </div>
+            )}
 
             {/* Modal de Cliente Rápido */}
             {showQuickClient && (

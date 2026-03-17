@@ -1,40 +1,58 @@
-ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
-    at Object.keyGeneratorIpFallback (C:\Users\egar0\stock-system\node_modules\express-rate-limit\dist\index.cjs:642:13)
-    at wrappedValidations.<computed> [as keyGeneratorIpFallback] (C:\Users\egar0\stock-system\node_modules\express-rate-limit\dist\index.cjs:685:22)
-    at parseOptions (C:\Users\egar0\stock-system\node_modules\express-rate-limit\dist\index.cjs:755:16)
-    at rateLimit (C:\Users\egar0\stock-system\node_modules\express-rate-limit\dist\index.cjs:836:18)
-    at Object.<anonymous> (C:\Users\egar0\stock-system\src\routes\public.routes.js:9:26)
-    at Module._compile (node:internal/modules/cjs/loader:1804:14)
-    at Object..js (node:internal/modules/cjs/loader:1936:10)
-    at Module.load (node:internal/modules/cjs/loader:1525:32)
-    at Module._load (node:internal/modules/cjs/loader:1327:12)
-    at TracingChannel.traceSync (node:diagnostics_channel:328:14) {
-  code: 'ERR_ERL_KEY_GEN_IPV6',
-  help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
-}
-node:internal/modules/cjs/loader:1451
-  throw err;
-  ^
 
-Error: Cannot find module '../middlewares/role'
-Require stack:
-- C:\Users\egar0\stock-system\src\routes\ai.routes.js
-- C:\Users\egar0\stock-system\src\server.js
-    at Module._resolveFilename (node:internal/modules/cjs/loader:1448:15)
-    at defaultResolveImpl (node:internal/modules/cjs/loader:1059:19)
-    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1064:22)
-    at Module._load (node:internal/modules/cjs/loader:1234:25)
-    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
-    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
-    at Module.require (node:internal/modules/cjs/loader:1548:12)
-    at require (node:internal/modules/helpers:152:16)
-    at Object.<anonymous> (C:\Users\egar0\stock-system\src\routes\ai.routes.js:6:20)
-    at Module._compile (node:internal/modules/cjs/loader:1804:14) {
-  code: 'MODULE_NOT_FOUND',
-  requireStack: [
-    'C:\\Users\\egar0\\stock-system\\src\\routes\\ai.routes.js',
-    'C:\\Users\\egar0\\stock-system\\src\\server.js'
-  ]
-}
+> stock-system@1.0.0 dev
+> concurrently --names "BACKEND,FRONTEND" --prefix-colors "cyan,magenta" "npm run dev:backend" "npm run dev:frontend"
 
-Node.js v24.13.1
+[BACKEND] 
+[BACKEND] > stock-system@1.0.0 dev:backend
+[BACKEND] > nodemon src/server.js
+[BACKEND] 
+[FRONTEND] 
+[FRONTEND] > stock-system@1.0.0 dev:frontend
+[FRONTEND] > cd frontend && npm start
+[FRONTEND] 
+[BACKEND] [33m[nodemon] 3.1.14[39m
+[BACKEND] [33m[nodemon] to restart at any time, enter `rs`[39m
+[BACKEND] [33m[nodemon] watching path(s): *.*[39m
+[BACKEND] [33m[nodemon] watching extensions: js,mjs,cjs,json[39m
+[BACKEND] [32m[nodemon] starting `node src/server.js`[39m
+[FRONTEND] 
+[FRONTEND] > frontend@1.0.0 start
+[FRONTEND] > vite
+[FRONTEND] 
+[BACKEND] [dotenv@17.3.1] injecting env (16) from .env -- tip: ­ƒøá´©Å  run anywhere with `dotenvx run -- yourcommand`
+[FRONTEND] Port 5173 is in use, trying another one...
+[FRONTEND] Port 5174 is in use, trying another one...
+[FRONTEND] Port 5175 is in use, trying another one...
+[FRONTEND] 
+[FRONTEND]   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m345[22m[2m[0m ms[22m
+[FRONTEND] 
+[FRONTEND]   [32mÔ×£[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5176[22m/[39m
+[FRONTEND] [2m  [32mÔ×£[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+[BACKEND] [dotenv@17.3.1] injecting env (0) from .env -- tip: ÔÜÖ´©Å  write to custom object with { processEnv: myObject }
+[BACKEND] (node:14764) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+[BACKEND] (Use `node --trace-deprecation ...` to show where the warning was created)
+[BACKEND] (node:14764) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+[BACKEND] [22:15:32] [32mINFO[39m: [36m­ƒÜÇ Iniciando infraestructura de BullMQ (Graceful Degradation Mode)...[39m
+[BACKEND] [22:15:32] [32mINFO[39m: [36malertWorker (Legacy) importado. Las tareas ahora son administradas por BullMQ cronQueue.[39m
+[BACKEND] [22:15:32] [32mINFO[39m: [36m­ƒÜÇ Socket.io inicializado con soporte multi-tenant[39m
+[BACKEND] node:events:486
+[BACKEND]       throw er; // Unhandled 'error' event
+[BACKEND]       ^
+[BACKEND] 
+[BACKEND] Error: listen EADDRINUSE: address already in use 0.0.0.0:5000
+[BACKEND]     at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[BACKEND]     at listenInCluster (node:net:1997:12)
+[BACKEND]     at node:net:2206:7
+[BACKEND]     at process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+[BACKEND] Emitted 'error' event on Server instance at:
+[BACKEND]     at emitErrorNT (node:net:1976:8)
+[BACKEND]     at process.processTicksAndRejections (node:internal/process/task_queues:89:21) {
+[BACKEND]   code: 'EADDRINUSE',
+[BACKEND]   errno: -4091,
+[BACKEND]   syscall: 'listen',
+[BACKEND]   address: '0.0.0.0',
+[BACKEND]   port: 5000
+[BACKEND] }
+[BACKEND] 
+[BACKEND] Node.js v24.13.1
+[BACKEND] [31m[nodemon] app crashed - waiting for file changes before starting...[39m

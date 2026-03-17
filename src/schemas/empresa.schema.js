@@ -66,6 +66,16 @@ const dashboardConfigSchema = z.object({
 }).strict();
 
 /**
+ * Esquema de Feature Toggles (Arquitectura de Negocio)
+ */
+const featureTogglesSchema = z.object({
+    mod_lotes: z.boolean().optional(),
+    mod_produccion: z.boolean().optional(),
+    mod_fidelizacion: z.boolean().optional(),
+    mod_marketplace: z.boolean().optional()
+}).strict();
+
+/**
  * Esquema para Branding extendido
  */
 const brandingSchema = z.object({
@@ -95,5 +105,6 @@ module.exports = {
     impuestosConfigSchema,
     comprobanteSchema,
     integracionesSchema,
-    dashboardConfigSchema
+    dashboardConfigSchema,
+    featureTogglesSchema
 };

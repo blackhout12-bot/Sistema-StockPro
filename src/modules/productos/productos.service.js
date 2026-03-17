@@ -13,16 +13,16 @@ async function listarProductosPaginados({ empresa_id, page, limit, search, categ
   return await productoRepository.getPaginated(pool, { empresa_id, page, limit, search, categoria });
 }
 
-async function agregarProducto(nombre, descripcion, precio, stock, categoria, empresa_id, sku, moneda_id) {
+async function agregarProducto(nombre, descripcion, precio, stock, categoria, empresa_id, sku, moneda_id, custom_fields) {
   const pool = await connectDB();
-  const insertId = await productoRepository.create(pool, { nombre, descripcion, precio, stock, categoria, sku, moneda_id }, empresa_id);
+  const insertId = await productoRepository.create(pool, { nombre, descripcion, precio, stock, categoria, sku, moneda_id, custom_fields }, empresa_id);
   // Opcionalmente retornar el producto insertado si el controlador lo requiere
   return await productoRepository.getById(pool, insertId, empresa_id);
 }
 
-async function editarProducto(id, nombre, descripcion, precio, stock, categoria, empresa_id, sku, moneda_id) {
+async function editarProducto(id, nombre, descripcion, precio, stock, categoria, empresa_id, sku, moneda_id, custom_fields) {
   const pool = await connectDB();
-  await productoRepository.update(pool, id, { nombre, descripcion, precio, stock, categoria, sku, moneda_id }, empresa_id);
+  await productoRepository.update(pool, id, { nombre, descripcion, precio, stock, categoria, sku, moneda_id, custom_fields }, empresa_id);
   return await productoRepository.getById(pool, id, empresa_id);
 }
 
