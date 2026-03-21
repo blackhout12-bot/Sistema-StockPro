@@ -2,17 +2,27 @@
 const { sql } = require('../config/db');
 
 class ProductoRepository {
-    /**
-     * Obtiene productos de la empresa con métricas adicionales como num_ventas.
-     */
-    async getAll(pool, empresa_id) {
-        const result = await pool.request()
-            .input('empresa_id', sql.Int, empresa_id)
-            .query(`
+    async getAll(pool, empresa_id, deposito_id) {
+        const reqDb = pool.request().input('empresa_id', sql.Int, empresa_id);
+        
+        let stockSelect = '';
+        if (deposito_id) {
+            reqDb.input('deposito_id', sql.Int, deposito_id);
+            stockSelect = ', ISNULL((SELECT SUM(cantidad) FROM ProductoDepositos pd WHERE pd.producto_id = p.id AND pd.deposito_id = @deposito_id), 0) as stock_deposito';
+        }
+
+        const result = await reqDb.query(`
         SELECT p.*,
-               ISNULL(m.num_ventas, 0) as num_ventas,
-               -- check dinámico de sku si la columna existe (usado en la refactorización para retrocompatibilidad)
-               CASE WHEN COL_LENGTH('Productos', 'sku') IS NOT NULL THEN (SELECT sku FROM Productos x WHERE x.id = p.id) ELSE NULL END as sku
+               ISNULL(m.num_ventas, 0) as num_ventas ${stockSelect},
+               (
+                   SELECT d.nombre as deposito, pd.cantidad as stock
+                   FROM ProductoDepositos pd
+                   INNER JOIN Depositos d ON pd.deposito_id = d.id
+                   WHERE pd.producto_id = p.id AND pd.cantidad > 0
+                   FOR JSON PATH
+               ) as desglose_depositos,
+               CASE WHEN COL_LENGTH('Productos', 'sku') IS NOT NULL THEN (SELECT sku FROM Productos x WHERE x.id = p.id) ELSE NULL END as sku,
+               CASE WHEN COL_LENGTH('Productos', 'image_url') IS NOT NULL THEN (SELECT image_url FROM Productos x WHERE x.id = p.id) ELSE NULL END as image_url
         FROM Productos p
         LEFT JOIN (
             SELECT productoId, SUM(cantidad) as num_ventas
@@ -29,10 +39,17 @@ class ProductoRepository {
     async getPaginated(pool, { empresa_id, page, limit, search, categoria }) {
         const offset = (page - 1) * limit;
 
-        // Base Query
         let queryStr = `
             SELECT p.*,
-                ISNULL(m.num_ventas, 0) as num_ventas
+                ISNULL(m.num_ventas, 0) as num_ventas,
+                (
+                    SELECT d.nombre as deposito, pd.cantidad as stock
+                    FROM ProductoDepositos pd
+                    INNER JOIN Depositos d ON pd.deposito_id = d.id
+                    WHERE pd.producto_id = p.id AND pd.cantidad > 0
+                    FOR JSON PATH
+                ) as desglose_depositos,
+                CASE WHEN COL_LENGTH('Productos', 'image_url') IS NOT NULL THEN (SELECT image_url FROM Productos x WHERE x.id = p.id) ELSE NULL END as image_url
             FROM Productos p
             LEFT JOIN (
                 SELECT productoId, SUM(cantidad) as num_ventas
@@ -50,7 +67,6 @@ class ProductoRepository {
         request.input('offset', sql.Int, offset);
 
         if (search) {
-            // Utilizamos el prefijo N para literales NVARCHAR, pero aquí inyectamos por parametro
             queryStr += ` AND (p.nombre LIKE @search OR p.sku LIKE @search OR p.descripcion LIKE @search)`;
             countQueryStr += ` AND (p.nombre LIKE @search OR p.sku LIKE @search OR p.descripcion LIKE @search)`;
             request.input('search', sql.NVarChar, `%${search}%`);
@@ -81,43 +97,27 @@ class ProductoRepository {
         const result = await pool.request()
             .input('id', sql.Int, id)
             .input('empresa_id', sql.Int, empresa_id)
-            .query(`
-        SELECT * FROM Productos 
-        WHERE id = @id AND empresa_id = @empresa_id
-      `);
+            .query(`SELECT * FROM Productos WHERE id = @id AND empresa_id = @empresa_id`);
         return result.recordset[0];
     }
 
     async create(pool, data, empresa_id) {
-        const { nombre, descripcion, precio, stock, sku, stock_min = 0, stock_max } = data;
+        const { nombre, descripcion, precio, stock, sku, stock_min = 0, stock_max, image_url } = data;
 
-        // Inserción considerando las nuevas columnas del roadmap, 
-        // pero haciendo fallback a la estructura vieja si la tabla no ha sido alterada aún en todas las BDs.
-        // Usamos el check dinámico del esquema que ya tenía el modelo previo.
-        const hasSkuColumn = await pool.request().query(`
-      SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'sku'
-    `).then(r => r.recordset.length > 0);
-
-        const hasStockMinColumn = await pool.request().query(`
-      SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'stock_min'
-    `).then(r => r.recordset.length > 0);
-
-        const hasCustomFieldsColumn = await pool.request().query(`
-      SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'custom_fields'
-    `).then(r => r.recordset.length > 0);
+        const hasSkuColumn = await pool.request().query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'sku'`).then(r => r.recordset.length > 0);
+        const hasStockMinColumn = await pool.request().query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'stock_min'`).then(r => r.recordset.length > 0);
+        const hasCustomFieldsColumn = await pool.request().query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'custom_fields'`).then(r => r.recordset.length > 0);
+        const hasImageUrlColumn = await pool.request().query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'image_url'`).then(r => r.recordset.length > 0);
 
         const cFieldsStr = typeof data.custom_fields === 'object' ? JSON.stringify(data.custom_fields) : (data.custom_fields || '{}');
 
         let newProductId;
         if (hasSkuColumn && hasStockMinColumn) {
-            let queryStr = `
-          INSERT INTO Productos (sku, nombre, descripcion, precio, stock, stock_min, stock_max, moneda_id, empresa_id`;
+            let queryStr = `INSERT INTO Productos (sku, nombre, descripcion, precio, stock, stock_min, stock_max, moneda_id, empresa_id`;
             let valStr = `VALUES (@sku, @nombre, @descripcion, @precio, @stock, @stock_min, @stock_max, @moneda_id, @empresa_id`;
 
-            if (hasCustomFieldsColumn) {
-                queryStr += `, custom_fields`;
-                valStr += `, @custom_fields`;
-            }
+            if (hasCustomFieldsColumn) { queryStr += `, custom_fields`; valStr += `, @custom_fields`; }
+            if (hasImageUrlColumn) { queryStr += `, image_url`; valStr += `, @image_url`; }
 
             queryStr += `) OUTPUT INSERTED.id ${valStr})`;
 
@@ -133,23 +133,17 @@ class ProductoRepository {
                 .input('empresa_id', sql.Int, empresa_id);
 
             if (hasCustomFieldsColumn) request.input('custom_fields', sql.NVarChar(sql.MAX), cFieldsStr);
+            if (hasImageUrlColumn) request.input('image_url', sql.NVarChar(255), image_url || null);
 
             const result = await request.query(queryStr);
             newProductId = result.recordset[0].id;
         } else {
-            // Fallback a columnas originales (con SKU dinámicamente insertado si es q solo existe SKU)
             let queryStr = `INSERT INTO Productos (nombre, descripcion, precio, stock, empresa_id`;
             let valStr = `VALUES (@nombre, @descripcion, @precio, @stock, @empresa_id`;
 
-            if (hasSkuColumn) {
-                queryStr += `, sku`;
-                valStr += `, @sku`;
-            }
-
-            if (hasCustomFieldsColumn) {
-                queryStr += `, custom_fields`;
-                valStr += `, @custom_fields`;
-            }
+            if (hasSkuColumn) { queryStr += `, sku`; valStr += `, @sku`; }
+            if (hasCustomFieldsColumn) { queryStr += `, custom_fields`; valStr += `, @custom_fields`; }
+            if (hasImageUrlColumn) { queryStr += `, image_url`; valStr += `, @image_url`; }
 
             queryStr += `) OUTPUT INSERTED.id ${valStr})`;
 
@@ -162,12 +156,12 @@ class ProductoRepository {
 
             if (hasSkuColumn) request.input('sku', sql.NVarChar, sku || null);
             if (hasCustomFieldsColumn) request.input('custom_fields', sql.NVarChar(sql.MAX), cFieldsStr);
+            if (hasImageUrlColumn) request.input('image_url', sql.NVarChar(255), image_url || null);
 
             const result = await request.query(queryStr);
             newProductId = result.recordset[0].id;
         }
 
-        // ── SINCRONIZAR STOCK INICIAL CON Depósito Principal ──
         const depRes = await pool.request()
             .input('empresa_id', sql.Int, empresa_id)
             .query('SELECT TOP 1 id FROM Depositos WHERE empresa_id = @empresa_id AND es_principal = 1 AND activo = 1');
@@ -185,15 +179,11 @@ class ProductoRepository {
     }
 
     async update(pool, id, data, empresa_id) {
-        const { nombre, descripcion, precio, stock, sku, custom_fields } = data;
+        const { nombre, descripcion, precio, stock, categoria, sku, custom_fields, image_url } = data;
 
-        const hasSkuColumn = await pool.request().query(`
-      SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'sku'
-    `).then(r => r.recordset.length > 0);
-
-        const hasCustomFieldsColumn = await pool.request().query(`
-      SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'custom_fields'
-    `).then(r => r.recordset.length > 0);
+        const hasSkuColumn = await pool.request().query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'sku'`).then(r => r.recordset.length > 0);
+        const hasCustomFieldsColumn = await pool.request().query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'custom_fields'`).then(r => r.recordset.length > 0);
+        const hasImageUrlColumn = await pool.request().query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'image_url'`).then(r => r.recordset.length > 0);
 
         const cFieldsStr = typeof custom_fields === 'object' ? JSON.stringify(custom_fields) : (custom_fields || '{}');
 
@@ -203,16 +193,13 @@ class ProductoRepository {
           descripcion = @descripcion,
           precio = @precio,
           stock = @stock,
+          categoria = @categoria,
           moneda_id = @moneda_id
     `;
 
-        if (hasSkuColumn && sku !== undefined) {
-            queryStr += `, sku = @sku `;
-        }
-        
-        if (hasCustomFieldsColumn && custom_fields !== undefined) {
-            queryStr += `, custom_fields = @custom_fields `;
-        }
+        if (hasSkuColumn && sku !== undefined) queryStr += `, sku = @sku `;
+        if (hasCustomFieldsColumn && custom_fields !== undefined) queryStr += `, custom_fields = @custom_fields `;
+        if (hasImageUrlColumn && image_url !== undefined) queryStr += `, image_url = @image_url `;
 
         queryStr += ` WHERE id = @id AND empresa_id = @empresa_id`;
 
@@ -222,28 +209,34 @@ class ProductoRepository {
             .input('descripcion', sql.NVarChar, descripcion)
             .input('precio', sql.Decimal(12, 2), precio)
             .input('stock', sql.Int, stock)
+            .input('categoria', sql.NVarChar, categoria || null)
             .input('moneda_id', sql.NVarChar(3), data.moneda_id || 'ARS')
             .input('empresa_id', sql.Int, empresa_id);
 
-        if (hasSkuColumn && sku !== undefined) {
-            request.input('sku', sql.NVarChar, sku || null);
-        }
-
-        if (hasCustomFieldsColumn && custom_fields !== undefined) {
-            request.input('custom_fields', sql.NVarChar(sql.MAX), cFieldsStr);
-        }
+        if (hasSkuColumn && sku !== undefined) request.input('sku', sql.NVarChar, sku || null);
+        if (hasCustomFieldsColumn && custom_fields !== undefined) request.input('custom_fields', sql.NVarChar(sql.MAX), cFieldsStr);
+        if (hasImageUrlColumn && image_url !== undefined) request.input('image_url', sql.NVarChar(255), image_url || null);
 
         await request.query(queryStr);
     }
 
     async delete(pool, id, empresa_id) {
-        await pool.request()
-            .input('id', sql.Int, id)
-            .input('empresa_id', sql.Int, empresa_id)
-            .query(`
-        DELETE FROM Productos 
-        WHERE id = @id AND empresa_id = @empresa_id
-      `);
+        const transaction = new sql.Transaction(pool);
+        try {
+            await transaction.begin();
+            await transaction.request().input('id', sql.Int, id).query('DELETE FROM ProductoDepositos WHERE producto_id = @id');
+            await transaction.request()
+                .input('id', sql.Int, id)
+                .input('empresa_id', sql.Int, empresa_id)
+                .query(`DELETE FROM Productos WHERE id = @id AND empresa_id = @empresa_id`);
+            await transaction.commit();
+        } catch (e) {
+            if (transaction) await transaction.rollback();
+            if (e.message.indexOf('REFERENCE') !== -1 || e.message.indexOf('FOREIGN KEY') !== -1) {
+                throw Object.assign(new Error('No se puede eliminar el producto porque tiene histórico de movimientos o ventas. Recomendación: marque el producto como inactivo.'), { statusCode: 400 });
+            }
+            throw e;
+        }
     }
 }
 
