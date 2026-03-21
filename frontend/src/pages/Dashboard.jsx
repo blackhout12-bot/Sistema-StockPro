@@ -4,48 +4,39 @@ import { useAuth } from '../context/AuthContext';
 import { useBranch } from '../context/BranchContext';
 import {
     Package, AlertTriangle, DollarSign, ShoppingCart,
-    TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight,
-    FileText, RefreshCw, BarChart2, Zap, Users, History, CheckCircle, ArrowRight, Building2
+    TrendingUp, FileText, RefreshCw, BarChart2, Zap, Users, History, CheckCircle, ArrowRight, Building2, ArrowDownRight, ArrowUpRight
 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, BarChart, Bar } from 'recharts';
+import { useQuery } from '@tanstack/react-query';
+import RubroShowcaseCard from '../components/RubroShowcaseCard';
 
-// ─── KPI Card Refresh ────────────────────────────────────────
-const KpiCard = ({ icon: Icon, label, value, sub, colorClass, iconColor }) => (
-    <div className="premium-card relative overflow-hidden group">
-        <div className="flex justify-between items-start">
-            <div>
-                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{label}</p>
-                <p className="text-2xl font-black text-slate-900 tracking-tight">{value}</p>
-            </div>
-            <div className={`p-2.5 rounded-xl ${colorClass} bg-opacity-10 transition-colors group-hover:bg-opacity-20`}>
-                <Icon size={20} className={iconColor} />
-            </div>
+// ─── Componentes Auxiliares ────────────────────────────────────────
+const MiniKpi = ({ icon: Icon, label, value, sub, colorClass, iconColor }) => (
+    <div className="flex items-center gap-4 bg-white/50 px-4 py-2 rounded-xl">
+        <div className={`p-3 rounded-2xl ${colorClass} bg-opacity-20`}>
+            <Icon size={24} className={iconColor} />
         </div>
-        {sub && (
-            <div className="mt-4 flex items-center gap-1.5">
-                <div className={`w-1.5 h-1.5 rounded-full ${colorClass.replace('bg-', 'bg-')}`}></div>
-                <p className="text-[11px] font-medium text-slate-500">{sub}</p>
-            </div>
-        )}
+        <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
+            <p className="text-xl font-black text-brand-dark tracking-tight leading-none my-1">{value}</p>
+            {sub && <p className="text-[10px] font-bold text-slate-500">{sub}</p>}
+        </div>
     </div>
 );
 
-// ─── Section Header Refresh ──────────────────────────────────
 const SectionHeader = ({ icon: Icon, title, subtitle }) => (
     <div className="flex flex-col mb-6">
         <div className="flex items-center gap-3">
-            <div className="bg-primary-50 p-2 rounded-xl text-primary-600">
+            <div className="bg-brand-50 p-2 rounded-xl text-brand-600 border border-brand-100">
                 <Icon size={18} />
             </div>
-            <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">{title}</h2>
+            <h2 className="text-lg font-extrabold text-brand-dark tracking-tight">{title}</h2>
         </div>
-        {subtitle && <p className="text-xs text-slate-400 mt-1 ml-11 font-medium">{subtitle}</p>}
+        {subtitle && <p className="text-xs text-slate-500 mt-1 ml-11 font-medium">{subtitle}</p>}
     </div>
 );
 
 // ─── Main Dashboard ──────────────────────────────────────────
-import { useQuery } from '@tanstack/react-query';
-
 const Dashboard = () => {
     const { token } = useAuth();
     const { sucursalActiva, sucursales } = useBranch();
@@ -54,7 +45,7 @@ const Dashboard = () => {
     const { data: dashData, isLoading: loading, refetch: fetchAll } = useQuery({
         queryKey: ['dashboard', 'main-stats'],
         enabled: !!token,
-        staleTime: 5 * 60 * 1000, // Hace caché por 5 minutos, garantizando carga instantánea al cambiar pestañas
+        staleTime: 5 * 60 * 1000, 
         queryFn: async () => {
             const now = new Date();
             const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
@@ -71,10 +62,8 @@ const Dashboard = () => {
 
             const configPayload = confRes.status === 'fulfilled' ? confRes.value.data : null;
             if (configPayload) {
-                const pendingData = configPayload.dash_kpis_visibles || configPayload.dash_widgets_visibles || '[]';
-                if (localStorage.getItem('dash_kpis') !== pendingData) {
-                    localStorage.setItem('dash_kpis', pendingData);
-                }
+                const pendingData = configPayload.dash_kpis_visibles || '[]';
+                if (localStorage.getItem('dash_kpis') !== pendingData) localStorage.setItem('dash_kpis', pendingData);
             }
 
             return {
@@ -89,7 +78,6 @@ const Dashboard = () => {
         }
     });
 
-    // Cargar métricas por sucursal
     useEffect(() => {
         if (!token || sucursales.length < 2) return;
         const now = new Date();
@@ -98,33 +86,16 @@ const Dashboard = () => {
         Promise.all(
             sucursales.map(s =>
                 api.get(`/facturacion?sucursal_id=${s.id}&fechaInicio=${monthStart}&fechaFin=${today}`)
-                    .then(r => ({
-                        sucursal: s.nombre,
-                        total: (r.data || []).reduce((sum, f) => sum + Number(f.total || 0), 0),
-                        cantidad: (r.data || []).length
-                    }))
+                    .then(r => ({ sucursal: s.nombre, total: (r.data || []).reduce((sum, f) => sum + Number(f.total || 0), 0), cantidad: (r.data || []).length }))
                     .catch(() => ({ sucursal: s.nombre, total: 0, cantidad: 0 }))
             )
         ).then(setBranchVentas);
     }, [token, sucursales]);
 
-    // Desestructurar datos cacheados con valores por defecto
     const { products = [], recentActivity = [], recentFacturas = [], topProducts = [], config = null, stats = null, lastUpdated = null } = dashData || {};
-
-    useEffect(() => {
-        const handleStorage = () => {
-            if (localStorage.getItem('dash_kpis')) {
-                fetchAll(); 
-            }
-        };
-
-        window.addEventListener('storage', handleStorage);
-        return () => window.removeEventListener('storage', handleStorage);
-    }, [fetchAll]);
 
     const totalProducts = stats?.total_productos ?? (Array.isArray(products) ? products.length : 0);
     const lowStockItems = Array.isArray(products) ? products.filter(p => p.stock <= 5 && p.stock >= 0) : [];
-    const criticalItems = stats?.productos_sin_stock ?? (Array.isArray(products) ? products.filter(p => p.stock === 0).length : 0);
     const totalValue = stats?.valor_inventario ?? (Array.isArray(products) ? products.reduce((s, p) => s + (p.precio || 0) * (p.stock || 0), 0) : 0);
     const totalFacturasSales = stats?.ventas_totales ?? (Array.isArray(recentFacturas) ? recentFacturas.reduce((s, f) => s + Number(f.total || 0), 0) : 0);
     const totalPagosSales = stats?.monto_pagos ?? 0;
@@ -132,303 +103,190 @@ const Dashboard = () => {
     const totalClientes = stats?.total_clientes ?? 0;
     const totalMovimientos = stats?.total_movimientos ?? (Array.isArray(recentActivity) ? recentActivity.length : 0);
 
-    const BAR_COLORS = ['#3b82f6', '#475569', '#6366f1', '#8b5cf6', '#cbd5e1'];
+    const formatMoney = (val) => `${config?.simbolo_moneda || '$'}${Number(val || 0).toLocaleString('es-AR', { minimumFractionDigits: 0 })}`;
 
     return (
-        <div className="space-y-10 animate-in fade-in duration-700">
-            {/* Page Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tighter">Panel de Gestión</h1>
-                    <p className="text-sm text-slate-400 mt-1 font-medium">
-                        {lastUpdated ? `Última sincronización: ${lastUpdated}` : 'Consultando almacén...'}
-                    </p>
-                </div>
-                <button
-                    onClick={fetchAll}
-                    disabled={loading}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white text-xs font-bold rounded-xl hover:bg-primary-700 transition shadow-soft disabled:opacity-60 active:scale-95"
-                >
-                    <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-                    Refrescar Datos
-                </button>
-            </div>
-
-            {/* KPI Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {(() => {
-                    const visibleKpis = (() => {
-                        try {
-                            const stored = localStorage.getItem('dash_kpis');
-                            if (!stored) return ["total_productos", "stock_bajo", "valor_inventario", "ventas_mes", "pagos_externos"];
-                            let parsed = JSON.parse(stored);
-                            // Migración automática: asegurar que pagos_externos aparezca si es una instalación activa
-                            if (Array.isArray(parsed) && !parsed.includes('pagos_externos')) {
-                                parsed.push('pagos_externos');
-                                localStorage.setItem('dash_kpis', JSON.stringify(parsed));
-                            }
-                            return parsed;
-                        } catch { return ["total_productos", "stock_bajo", "pagos_externos"]; }
-                    })();
-
-                    const kpiMap = {
-                        total_productos: (
-                            <KpiCard
-                                key="tp"
-                                icon={Package}
-                                label="Total Catálogo"
-                                value={totalProducts}
-                                sub={`${stats?.productos_sin_stock || 0} productos agotados`}
-                                colorClass="bg-primary-100"
-                                iconColor="text-primary-600"
-                            />
-                        ),
-                        stock_bajo: (
-                            <KpiCard
-                                key="sb"
-                                icon={AlertTriangle}
-                                label="Alertas de Stock"
-                                value={lowStockItems.length}
-                                sub={lowStockItems.length > 0 ? `${lowStockItems.length} requieren reposición` : 'Inventario saludable'}
-                                colorClass={lowStockItems.length > 0 ? "bg-amber-100" : "bg-emerald-100"}
-                                iconColor={lowStockItems.length > 0 ? "text-amber-600" : "text-emerald-600"}
-                            />
-                        ),
-                        valor_inventario: (
-                            <KpiCard
-                                key="vi"
-                                icon={DollarSign}
-                                label="Valor Almacén"
-                                value={`${config?.simbolo_moneda || '$'}${Number(totalValue || 0).toLocaleString('es-AR', { minimumFractionDigits: 0 })}`}
-                                sub="Estimación de capital activo"
-                                colorClass="bg-emerald-100"
-                                iconColor="text-emerald-600"
-                            />
-                        ),
-                        ventas_mes: (
-                            <KpiCard
-                                key="vm"
-                                icon={ShoppingCart}
-                                label="Ingresos de Mes"
-                                value={`${config?.simbolo_moneda || '$'}${Number(totalSales || 0).toLocaleString('es-AR', { minimumFractionDigits: 0 })}`}
-                                sub={`${recentFacturas.length} ventas procesadas`}
-                                colorClass="bg-violet-100"
-                                iconColor="text-violet-600"
-                            />
-                        ),
-                        clientes_nuevos: (
-                            <KpiCard
-                                key="cn"
-                                icon={Users}
-                                label="Base de Clientes"
-                                value={totalClientes}
-                                sub="Clientes registrados"
-                                colorClass="bg-blue-100"
-                                iconColor="text-blue-600"
-                            />
-                        ),
-                        movimientos: (
-                            <KpiCard
-                                key="mov"
-                                icon={History}
-                                label="Flujo de Stock"
-                                value={totalMovimientos}
-                                sub="Operaciones recientes"
-                                colorClass="bg-slate-100"
-                                iconColor="text-slate-600"
-                            />
-                        ),
-                        pagos_externos: (
-                            <KpiCard
-                                key="pext"
-                                icon={Zap}
-                                label="Pagos Externos"
-                                value={stats?.pagos_aprobados || 0}
-                                sub={`${config?.simbolo_moneda || '$'}${totalPagosSales.toLocaleString('es-AR')} aprobados`}
-                                colorClass="bg-amber-100"
-                                iconColor="text-amber-600"
-                            />
-                        )
-                    };
-
-                    return visibleKpis.map(id => kpiMap[id]);
-                })()}
-            </div>
-
-            {/* Middle Row: Bento Grid Style */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-                {/* Main Product Chart */}
-                <div className="lg:col-span-8 premium-card">
-                    <SectionHeader
-                        icon={BarChart2}
-                        title="Rendimiento de Ventas"
-                        subtitle="Top 5 productos con mayor rotación este mes."
-                    />
-                    {topProducts.length > 0 ? (
-                        <div className="h-[300px] w-full mt-4">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={topProducts} barCategoryGap="40%">
-                                    <XAxis
-                                        dataKey="nombre"
-                                        tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 600 }}
-                                        axisLine={false}
-                                        tickLine={false}
-                                        interval={0}
-                                        tickFormatter={v => v.length > 15 ? v.slice(0, 15) + '…' : v}
-                                    />
-                                    <YAxis hide />
-                                    <Tooltip
-                                        cursor={{ fill: '#f8fafc' }}
-                                        contentStyle={{ borderRadius: '16px', border: '1px solid #f1f5f9', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.05)', fontSize: '11px', padding: '12px' }}
-                                        itemStyle={{ fontWeight: '800' }}
-                                    />
-                                    <Bar dataKey="total_ventas" radius={[10, 10, 10, 10]}>
-                                        {topProducts.map((_, i) => (
-                                            <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    ) : (
-                        <div className="h-[300px] flex flex-col items-center justify-center text-slate-200 border-2 border-dashed border-slate-50 rounded-2xl">
-                            <TrendingUp size={48} strokeWidth={1} />
-                            <p className="text-xs mt-4 font-bold text-slate-400">Sin datos comerciales registrados</p>
-                        </div>
-                    )}
-                </div>
-
-                {/* ── Comparativo por Sucursal (sólo multi-sucursal) ── */}
-                {branchVentas.length >= 2 && (
-                    <div className="lg:col-span-8 premium-card">
-                        <SectionHeader
-                            icon={Building2}
-                            title="Estado de Sucursales"
-                            subtitle={`Ventas del mes actual por punto de venta.`}
-                        />
-                        <div className="h-[220px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={branchVentas} margin={{ top: 0, right: 10, bottom: 20, left: 0 }}>
-                                    <XAxis dataKey="sucursal" tick={{ fontSize: 11, fill: '#64748b' }} angle={-15} textAnchor="end" />
-                                    <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} hide />
-                                    <Tooltip
-                                        formatter={(v) => [`$${v.toLocaleString('es-AR')}`, 'Ventas']}
-                                        contentStyle={{ borderRadius: '12px', border: '1px solid #f1f5f9', fontSize: '11px' }}
-                                    />
-                                    <Bar dataKey="total" radius={[8, 8, 0, 0]}>
-                                        {branchVentas.map((entry, i) => (
-                                            <Cell key={i} fill={['#6366f1','#10b981','#f59e0b','#8b5cf6','#06b6d4'][i % 5]}
-                                                opacity={sucursalActiva?.nombre === entry.sucursal ? 1 : 0.6}
-                                            />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                        {/* Tabla resumen mini */}
-                        <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                            {branchVentas.map((b, i) => (
-                                <div key={i} className={`p-3 rounded-xl border transition-colors ${sucursalActiva?.nombre === b.sucursal ? 'border-primary-200 bg-primary-50' : 'border-slate-100 bg-slate-50'}`}>
-                                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 truncate">{b.sucursal}</p>
-                                    <p className="text-sm font-black text-slate-900 mt-1">${b.total.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</p>
-                                    <p className="text-[9px] text-slate-400 font-medium">{b.cantidad} ventas</p>
-                                </div>
-                            ))}
-                        </div>
+        <div className="h-full relative overflow-x-hidden min-h-screen">
+            {/* Scrollable Content Area. Pad bottom to make space for the fixed KPI dock */}
+            <div className="pb-44 animate-in fade-in duration-700">
+                
+                {/* Header */}
+                <div className="flex items-center justify-between mb-2">
+                    <div>
+                        <h1 className="text-3xl font-black text-brand-dark tracking-tighter drop-shadow-sm">Panel de Gestión</h1>
+                        <p className="text-sm text-slate-500 mt-1 font-bold">
+                            {lastUpdated ? `Última sincronización: ${lastUpdated}` : 'Consultando almacén...'}
+                        </p>
                     </div>
-                )}
-                <div className="lg:col-span-4 premium-card flex flex-col">
-                    <SectionHeader
-                        icon={Zap}
-                        title="Reposición Inmediata"
-                        subtitle="Prioridad alta por reserva insuficiente."
-                    />
-                    {lowStockItems.length === 0 ? (
-                        <div className="flex-1 flex flex-col items-center justify-center text-slate-200 py-10">
-                            <CheckCircle size={56} strokeWidth={1} className="text-emerald-400 mb-4 opacity-40" />
-                            <p className="text-xs text-slate-400 font-extrabold uppercase tracking-widest">Stock Asegurado</p>
-                        </div>
+                    <button
+                        onClick={fetchAll} disabled={loading}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-brand-base text-white text-[11px] font-black tracking-widest uppercase rounded-xl hover:bg-brand-dark transition shadow-lg shadow-brand-base/30 disabled:opacity-60"
+                    >
+                        <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+                        Refrescar
+                    </button>
+                </div>
+
+                {/* FASE 2: Tarjetas Dinámicas por Rubro (Showcase) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-10 mb-12">
+                    {topProducts.length > 0 ? (
+                        topProducts.slice(0, 3).map(prod => (
+                            <RubroShowcaseCard 
+                                key={prod.id} 
+                                producto={prod} 
+                                rubro={config?.rubro || 'general'} 
+                            />
+                        ))
                     ) : (
-                        <div className="space-y-2 overflow-y-auto pr-1 max-h-[300px] custom-scrollbar">
-                            {lowStockItems.map(p => (
-                                <div key={p.id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-primary-200 transition-colors group">
-                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-black ${p.stock === 0 ? 'bg-rose-500' : 'bg-primary-500'}`}>
-                                        {p.stock}
-                                    </div>
-                                    <div className="min-w-0 mr-2 flex-1">
-                                        <p className="text-xs font-bold text-slate-800 truncate">{p.nombre}</p>
-                                        <p className="text-[10px] text-slate-400 font-medium">{p.categoria || 'Sin categoría'}</p>
-                                    </div>
-                                    <ArrowRight size={14} className="text-slate-300 group-hover:text-primary-500 transition-all group-hover:translate-x-1" />
-                                </div>
-                            ))}
+                        <div className="col-span-full h-48 flex items-center justify-center border-2 border-dashed border-slate-300 rounded-2xl bg-white/50">
+                            <p className="text-sm font-bold text-slate-400">Sin productos comerciales suficientes para exhibición</p>
                         </div>
                     )}
                 </div>
-            </div>
 
-            {/* Bottom Row: Minimalist Tables */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Resto del contenido original (Tablas, Movimientos, Sucursales) */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                    {branchVentas.length >= 2 && (
+                        <div className="lg:col-span-8 bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-slate-100">
+                            <SectionHeader icon={Building2} title="Estado de Sucursales" subtitle="Ventas del mes por punto de venta." />
+                            <div className="h-[220px]">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={branchVentas} margin={{ top: 0, right: 10, bottom: 20, left: 0 }}>
+                                        <XAxis dataKey="sucursal" tick={{ fontSize: 11, fill: '#64748b', fontWeight: 700 }} angle={-15} textAnchor="end" axisLine={false} tickLine={false} />
+                                        <YAxis hide />
+                                        <Tooltip formatter={(v) => [formatMoney(v), 'Ventas']} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }} />
+                                        <Bar dataKey="total" radius={[8, 8, 0, 0]}>
+                                            {branchVentas.map((entry, i) => (
+                                                <Cell key={i} fill={sucursalActiva?.nombre === entry.sucursal ? '#2563eb' : '#94a3b8'} />
+                                            ))}
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+                    )}
 
-                {/* Recent Feed */}
-                <div className="premium-card">
-                    <SectionHeader icon={History} title="Actividad Reciente" subtitle="Trazabilidad de entradas y salidas." />
-                    <div className="space-y-4">
-                        {recentActivity.length === 0 ? (
-                            <p className="text-xs text-slate-300 font-bold py-10 text-center">Histororial vacío</p>
+                    {!branchVentas || branchVentas.length < 2 && (
+                        <div className="lg:col-span-8 bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-slate-100">
+                            <SectionHeader icon={History} title="Actividad Reciente" subtitle="Trazabilidad de entradas y salidas." />
+                            <div className="space-y-4">
+                                {recentActivity.length === 0 ? (
+                                    <p className="text-xs text-slate-300 font-bold py-10 text-center">Histororial vacío</p>
+                                ) : (
+                                    recentActivity.slice(0, 4).map((mov, i) => {
+                                        const isEntrada = mov.tipo?.toLowerCase() === 'entrada';
+                                        return (
+                                            <div key={mov.id || i} className="flex items-center gap-4 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isEntrada ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
+                                                    {isEntrada ? <ArrowDownRight size={16} /> : <ArrowUpRight size={16} />}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-xs font-extrabold text-slate-800 truncate uppercase tracking-tight">{mov.producto}</p>
+                                                    <p className="text-[10px] text-slate-400 font-medium">Cant: {isEntrada ? '+' : '-'}{mov.cantidad}</p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="lg:col-span-4 bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col">
+                        <SectionHeader icon={AlertTriangle} title="Reposición" subtitle="Prioridad alta por reserva." />
+                        {lowStockItems.length === 0 ? (
+                            <div className="flex-1 flex flex-col items-center justify-center text-slate-200 py-10">
+                                <CheckCircle size={56} className="text-emerald-400 mb-4 opacity-40" />
+                                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Stock Asegurado</p>
+                            </div>
                         ) : (
-                            recentActivity.map((mov, i) => {
-                                const isEntrada = mov.tipo?.toLowerCase() === 'entrada';
-                                return (
-                                    <div key={mov.id || i} className="flex items-center gap-4 group">
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isEntrada ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
-                                            {isEntrada ? <ArrowDownRight size={16} /> : <ArrowUpRight size={16} />}
+                            <div className="space-y-3 overflow-y-auto pr-1 max-h-[300px] custom-scrollbar">
+                                {lowStockItems.map(p => (
+                                    <div key={p.id} className="flex items-center gap-3 p-3 rounded-xl bg-amber-50 border border-amber-100/50">
+                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-black bg-rose-500`}>
+                                            {p.stock}
                                         </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-xs font-extrabold text-slate-800 truncate uppercase tracking-tight">{mov.producto}</p>
-                                            <p className="text-[10px] text-slate-400 font-medium">Hace un momento · Almacén Central</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className={`text-sm font-black ${isEntrada ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                                {isEntrada ? '+' : '-'}{mov.cantidad}
-                                            </p>
+                                        <div className="min-w-0 mr-2 flex-1">
+                                            <p className="text-[11px] font-bold text-slate-800 truncate">{p.nombre}</p>
+                                            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">{p.codigo || 'S/N'}</p>
                                         </div>
                                     </div>
-                                );
-                            })
+                                ))}
+                            </div>
                         )}
                     </div>
                 </div>
 
-                {/* Sales Feed */}
-                <div className="premium-card">
-                    <SectionHeader icon={FileText} title="Flujo de Caja" subtitle="Resumen de las últimas transacciones." />
-                    <div className="overflow-hidden bg-slate-50 border border-slate-100 rounded-2xl">
-                        <table className="w-full text-left">
-                            <thead className="bg-white border-b border-slate-100 font-extrabold text-[9px] uppercase tracking-widest text-slate-400">
-                                <tr>
-                                    <th className="px-5 py-3">Referencia</th>
-                                    <th className="px-5 py-3">Cliente</th>
-                                    <th className="px-5 py-3 text-right">Monto</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                {recentFacturas.map(f => (
-                                    <tr key={f.id} className="hover:bg-white transition-colors cursor-pointer group">
-                                        <td className="px-5 py-3.5 font-black text-[11px] text-primary-600 font-mono tracking-tighter">#{f.nro_factura}</td>
-                                        <td className="px-5 py-3.5 text-xs font-bold text-slate-700 truncate max-w-[150px]">{f.cliente_nombre}</td>
-                                        <td className="px-5 py-3.5 text-right font-black text-xs text-slate-900">{config?.simbolo_moneda || '$'}{Number(f.total).toFixed(0)}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+            </div>
+
+            {/* FASE 3: Fixed Footer Dock (KPIs y Gráfico Área Integrado) */}
+            <div className="fixed bottom-0 md:left-56 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-slate-200 z-40 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
+                {/* 1. KPIs Section */}
+                <div className="flex items-center justify-between px-8 py-4 z-20 relative">
+                    
+                    {/* User Mini Profile in Dock */}
+                    <div className="hidden lg:flex items-center gap-4 bg-slate-50 px-5 py-2.5 rounded-full border border-slate-100">
+                        <span className="w-8 h-8 bg-brand-dark rounded-full text-white flex items-center justify-center text-[10px] font-black shadow-inner">
+                            {config?.nombre?.[0] || 'A'}
+                        </span>
+                        <div>
+                            <p className="text-xs font-black text-brand-dark uppercase tracking-wide">{config?.nombre || 'Administración'}</p>
+                            <p className="text-[10px] font-bold text-slate-400">Panel Principal</p>
+                        </div>
                     </div>
+
+                    {/* Docked KPIs */}
+                    <div className="flex-1 flex items-center justify-around xl:justify-end gap-2 xl:gap-8 ml-8">
+                        <MiniKpi 
+                            icon={ShoppingCart} 
+                            label="Ventas Hoy" 
+                            value={formatMoney(totalSales)}
+                            colorClass="bg-brand-500" 
+                            iconColor="text-brand-600"
+                        />
+                        <MiniKpi 
+                            icon={Package} 
+                            label="Inventario" 
+                            value={`${totalProducts}`}
+                            sub="Unidades Totales"
+                            colorClass="bg-emerald-500" 
+                            iconColor="text-emerald-600"
+                        />
+                        <MiniKpi 
+                            icon={Users} 
+                            label="Clientes" 
+                            value={totalClientes}
+                            sub="Registrados"
+                            colorClass="bg-violet-500" 
+                            iconColor="text-violet-600"
+                        />
+                    </div>
+                </div>
+
+                {/* 2. Full-width Absolute Bottom AreaChart */}
+                <div className="absolute bottom-0 left-0 w-full h-16 opacity-30 pointer-events-none z-10">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={topProducts.length >= 2 ? topProducts : [...topProducts, { nombre: 'dummy', total_ventas: 0 }]}>
+                            <defs>
+                                <linearGradient id="glowColor" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.8}/>
+                                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                                </linearGradient>
+                            </defs>
+                            <Area 
+                                type="monotone" 
+                                dataKey="total_ventas" 
+                                stroke="#1e40af" 
+                                strokeWidth={2} 
+                                fill="url(#glowColor)" 
+                            />
+                        </AreaChart>
+                    </ResponsiveContainer>
                 </div>
             </div>
         </div>
     );
 };
-
 
 export default Dashboard;
