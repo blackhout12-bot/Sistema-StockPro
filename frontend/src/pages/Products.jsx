@@ -61,7 +61,7 @@ const Products = () => {
 
     // ── Mutaciones (TanStack Query) ──────────────────────────────
     const addMutation = useMutation({
-        mutationFn: (product) => api.post('/productos/crear', product),
+        mutationFn: (productFormData) => api.post('/productos/crear', productFormData, { headers: { 'Content-Type': 'multipart/form-data' }}),
         onSuccess: () => {
             queryClient.invalidateQueries(['productos']);
             setShowModal(false);
@@ -71,7 +71,7 @@ const Products = () => {
     });
 
     const updateMutation = useMutation({
-        mutationFn: ({ id, productData }) => api.put(`/productos/editar/${id}`, productData),
+        mutationFn: ({ id, productData }) => api.put(`/productos/editar/${id}`, productData, { headers: { 'Content-Type': 'multipart/form-data' }}),
         onSuccess: () => {
             queryClient.invalidateQueries(['productos']);
             setShowModal(false);
@@ -84,7 +84,7 @@ const Products = () => {
     const deleteMutation = useMutation({
         mutationFn: (id) => api.delete(`/productos/eliminar/${id}`),
         onSuccess: () => {
-            queryClient.invalidateQueries(['productos']);
+            queryClient.invalidateQueries({ queryKey: ['productos'] });
             toast.success('Producto eliminado exitosamente');
             if (products.length === 1 && currentPage > 1) {
                 setCurrentPage(p => p - 1);

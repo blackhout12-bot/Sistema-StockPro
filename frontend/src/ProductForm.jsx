@@ -3,10 +3,21 @@ import { toast } from 'react-hot-toast';
 import { ChevronRight, ChevronLeft, Save, Info, DollarSign, Layers } from 'lucide-react';
 import { useAuth } from './context/AuthContext';
 import { getRubroSchema } from './config/rubroSchemas';
+import { useQuery } from '@tanstack/react-query';
+import api from './utils/axiosConfig';
 
 const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
   const { featureToggles, empresaConfig } = useAuth();
-  const rubroSchema = useMemo(() => getRubroSchema(empresaConfig?.rubro || 'general'), [empresaConfig?.rubro]);
+  
+  const { data: schemasData } = useQuery({
+    queryKey: ['categorias-esquemas'],
+    queryFn: async () => {
+      const res = await api.get('/productos/categorias/esquemas');
+      return res.data;
+    }
+  });
+  const dynamicSchemas = schemasData || [];
+
   const [step, setStep] = useState(1);
   const [nombre, setNombre] = useState(initialData?.nombre || '');
   const [sku, setSku] = useState(initialData?.sku || '');
@@ -14,6 +25,19 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
   const [precio, setPrecio] = useState(initialData?.precio || '');
   const [stock, setStock] = useState(initialData?.stock || '');
   const [categoria, setCategoria] = useState(initialData?.categoria || '');
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(initialData?.image_url ? `${import.meta.env.VITE_API_URL || ''}${initialData.image_url}` : null);
+
+  const activeSchema = useMemo(() => {
+    // El esquema activo DEPENDE del rubro de la empresa, NUNCA de la categoría tipeada
+    const found = dynamicSchemas.find(s => s.nombre_rubro === empresaConfig?.rubro);
+    if (found && found.esquema_json) {
+       const parsed = typeof found.esquema_json === 'string' ? JSON.parse(found.esquema_json) : found.esquema_json;
+       if (!parsed.productFields) parsed.productFields = [];
+       return parsed;
+    }
+    return getRubroSchema(empresaConfig?.rubro || 'general');
+  }, [dynamicSchemas, empresaConfig?.rubro]);
   
   // Rubro dynamic fields state — lee custom_fields excluyendo keys del sistema
   const SYSTEM_KEYS = ['es_materia_prima', 'publicar_ecommerce'];
@@ -22,7 +46,7 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
     try {
       const parsed = typeof initialData.custom_fields === 'string' ? JSON.parse(initialData.custom_fields) : initialData.custom_fields;
       return Object.entries(parsed)
-          .filter(([key]) => !SYSTEM_KEYS.includes(key) && !rubroSchema.productFields.find(f => f.key === key))
+          .filter(([key]) => !SYSTEM_KEYS.includes(key) && !(activeSchema.productFields || []).find(f => f.key === key))
           .map(([key, val]) => ({ key, value: String(val) }));
     } catch { return []; }
   });
@@ -34,7 +58,7 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
       catch { return {}; }
     })();
     const initial = {};
-    (rubroSchema.productFields || []).forEach(f => { initial[f.key] = parsed[f.key] ?? ''; });
+    (activeSchema.productFields || []).forEach(f => { initial[f.key] = parsed[f.key] ?? ''; });
     return initial;
   });
 
@@ -87,20 +111,25 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
     if (featureToggles?.mod_produccion) custom_fields.es_materia_prima = esMateriaPrima ? 'true' : 'false';
     if (featureToggles?.mod_marketplace) custom_fields.publicar_ecommerce = publicarEcommerce ? 'true' : 'false';
 
-    const productData = {
-      nombre,
-      sku: sku.trim() || null,
-      descripcion,
-      precio: parseFloat(precio),
-      stock: parseInt(stock) || 0,
-      categoria,
-      custom_fields
-    };
+    const formData = new FormData();
+    formData.append('nombre', nombre);
+    if (sku.trim()) formData.append('sku', sku.trim());
+    formData.append('descripcion', descripcion);
+    formData.append('precio', parseFloat(precio));
+    formData.append('stock', parseInt(stock) || 0);
+    if (categoria) formData.append('categoria', categoria);
+    formData.append('custom_fields', JSON.stringify(custom_fields));
+    
+    if (imageFile) {
+        formData.append('imagen', imageFile);
+    } else if (initialData?.image_url) {
+        formData.append('image_url', initialData.image_url);
+    }
 
     if (initialData?.id) {
-      onUpdate(initialData.id, productData);
+      onUpdate(initialData.id, formData);
     } else {
-      onAdd(productData);
+      onAdd(formData);
     }
 
     if (!isModal) {
@@ -113,9 +142,11 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
       setCustomFieldsList([]);
       setEsMateriaPrima(false);
       setPublicarEcommerce(false);
+      setImageFile(null);
+      setImagePreview(null);
       // Reset rubro fields
       const emptyRubro = {};
-      (rubroSchema.productFields || []).forEach(f => { emptyRubro[f.key] = ''; });
+      (activeSchema.productFields || []).forEach(f => { emptyRubro[f.key] = ''; });
       setRubroFields(emptyRubro);
       setStep(1);
     }
@@ -138,7 +169,7 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
         </div>
       </div>
 
-      <div className="min-h-[220px]">
+      <div className="min-h-[220px] max-h-[55vh] overflow-y-auto pr-2 custom-scrollbar overflow-x-hidden">
           {/* PASO 1: Información General */}
           {step === 1 && (
             <div className="space-y-5 animate-in fade-in slide-in-from-left-4 duration-300">
@@ -149,11 +180,32 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
                   </div>
                   <div className="col-span-2">
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Categoría</label>
-                    <input type="text" className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all" value={categoria} onChange={(e) => setCategoria(e.target.value)} placeholder="Ej: Periféricos" />
+                    <input type="text" className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all" value={categoria} onChange={(e) => setCategoria(e.target.value)} placeholder="Agrega una categoría (Ej. Herramientas)" />
+                    <p className="text-[9px] font-bold text-slate-400 mt-1 ml-1 leading-tight">Clasificación interna para organizar tu inventario en la tienda o punto de venta.</p>
                   </div>
                   <div className="col-span-2">
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Descripción Técnica</label>
                     <textarea className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all min-h-[80px]" rows="2" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} placeholder="Describa las especificaciones principales..."></textarea>
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Imagen del Producto</label>
+                    <div className="flex items-center gap-4">
+                      {imagePreview && (
+                        <img src={imagePreview} alt="Preview" className="w-16 h-16 rounded-xl object-cover border border-slate-200" />
+                      )}
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={(e) => {
+                            const file = e.target.files[0];
+                            if(file) {
+                                setImageFile(file);
+                                setImagePreview(URL.createObjectURL(file));
+                            }
+                        }} 
+                        className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-[0.5rem] file:border-0 file:text-[11px] file:font-black file:uppercase file:tracking-widest file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 cursor-pointer"
+                      />
+                    </div>
                   </div>
                   {featureToggles?.mod_produccion && (
                       <div className="col-span-2">
@@ -179,9 +231,9 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
                   )}
 
                   {/* ── Campos dinámicos del rubro ─────────────────── */}
-                  {rubroSchema.productFields.length > 0 && (() => {
+                  {(activeSchema.productFields || []).length > 0 && (() => {
                       // Agrupar por section
-                      const sections = rubroSchema.productFields.reduce((acc, f) => {
+                      const sections = activeSchema.productFields.reduce((acc, f) => {
                           const s = f.section || 'Datos del Rubro';
                           if (!acc[s]) acc[s] = [];
                           acc[s].push(f);
