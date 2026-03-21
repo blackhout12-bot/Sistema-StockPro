@@ -160,12 +160,15 @@ const Dashboard = () => {
                                 total_ventas: <MiniKpi key="4" icon={ShoppingCart} label="Ventas Hoy" value={formatMoney(totalSales)} colorClass="bg-indigo-500" iconColor="text-indigo-600" />,
                                 total_clientes: <MiniKpi key="5" icon={Users} label="Clientes" value={`${totalClientes}`} colorClass="bg-violet-500" iconColor="text-violet-600" />
                             };
-                            let visibleKpis = [];
+                            let visibleKpis = ['total_ventas', 'total_productos', 'total_clientes'];
                             try {
-                                if (config?.dash_kpis_visibles) visibleKpis = JSON.parse(config.dash_kpis_visibles);
+                                if (config?.dash_kpis_visibles) {
+                                    const parsed = JSON.parse(config.dash_kpis_visibles);
+                                    if (Array.isArray(parsed) && parsed.length > 0) {
+                                        visibleKpis = parsed;
+                                    }
+                                }
                             } catch(e) {}
-                            
-                            if (visibleKpis.length === 0) visibleKpis = ['total_ventas', 'total_productos', 'total_clientes'];
                             return visibleKpis.slice(0,4).map(k => kpiMap[k]);
                         })()}
                     </div>

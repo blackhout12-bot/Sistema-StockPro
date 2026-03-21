@@ -13,9 +13,12 @@ const RubroShowcaseCard = ({ producto, rubro }) => {
     let fields = {};
     if (producto.custom_fields) {
         try {
-            fields = typeof producto.custom_fields === 'string' 
+            const parsed = typeof producto.custom_fields === 'string' 
                 ? JSON.parse(producto.custom_fields) 
                 : producto.custom_fields;
+            if (parsed && typeof parsed === 'object') {
+                fields = parsed;
+            }
         } catch(e) {}
     }
 
