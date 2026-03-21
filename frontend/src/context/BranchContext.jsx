@@ -6,10 +6,12 @@
  */
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import api from '../utils/axiosConfig';
+import { useAuth } from './AuthContext';
 
 const BranchContext = createContext(null);
 
 export function BranchProvider({ children }) {
+  const { isAuthenticated } = useAuth();
   const [sucursalActiva, setSucursalActiva] = useState(() => {
     try { return JSON.parse(localStorage.getItem('sucursal_activa')) || null; }
     catch { return null; }
@@ -42,24 +44,39 @@ export function BranchProvider({ children }) {
           };
         }
       });
-      setSucursales(Object.values(sucMap));
+      const sucursalesArr = Object.values(sucMap);
+      setSucursales(sucursalesArr);
 
       // Auto-seleccionar primera sucursal/depósito si no hay selección
-      if (!sucursalActiva && Object.keys(sucMap).length > 0) {
-        const firstSucursal = Object.values(sucMap)[0];
-        setSucursalActiva(firstSucursal);
-        localStorage.setItem('sucursal_activa', JSON.stringify(firstSucursal));
-      }
-      if (!depositoActivo && Array.isArray(data) && data.length > 0) {
-        setDepositoActivo(data[0]);
-        localStorage.setItem('deposito_activo', JSON.stringify(data[0]));
-      }
+      setSucursalActiva(prev => {
+        if (!prev && sucursalesArr.length > 0) {
+          localStorage.setItem('sucursal_activa', JSON.stringify(sucursalesArr[0]));
+          return sucursalesArr[0];
+        }
+        return prev;
+      });
+
+      setDepositoActivo(prev => {
+        if (!prev && Array.isArray(data) && data.length > 0) {
+          localStorage.setItem('deposito_activo', JSON.stringify(data[0]));
+          return data[0];
+        }
+        return prev;
+      });
+      
     } catch (err) {
       console.error('Error cargando sucursales/depósitos:', err);
     } finally {
       setLoading(false);
     }
-  }, [sucursalActiva, depositoActivo]);
+  }, []);
+
+  // CARGA INICIAL: Prevenir que la app quede huérfana de sucursales
+  useEffect(() => {
+    if (isAuthenticated) {
+        fetchBranches();
+    }
+  }, [fetchBranches, isAuthenticated]);
 
   // Filtrar depósitos de la sucursal activa
   const depositosDeSucursal = sucursalActiva
