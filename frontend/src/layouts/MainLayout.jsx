@@ -155,47 +155,7 @@ const MainLayout = () => {
         </div>
       </div>
 
-      {/* Selector de Empresa / Sucursal */}
-      <div className="px-4 pt-4 pb-2 space-y-2 flex-shrink-0">
-        {misEmpresas?.length > 1 && (
-          <div>
-            <label className="block text-[9px] font-black uppercase text-white/50 tracking-widest mb-1 ml-1">
-              Empresa
-            </label>
-            <select
-              value={currentEmpresaId || ''}
-              onChange={(e) => switchEmpresa(Number(e.target.value))}
-              className="w-full appearance-none bg-surface-50 border border-slate-100 rounded-xl px-3 py-2 text-[11px] font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-primary-500/10 focus:border-primary-500 transition-all cursor-pointer"
-            >
-              {misEmpresas?.map(emp => (
-                <option key={emp.id || emp.empresa_id} value={emp.empresa_id}>
-                  {emp.empresa_nombre}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {sucursales.length > 1 && (
-          <div>
-            <label className="block text-[9px] font-black uppercase text-white/50 tracking-widest mb-1 ml-1">
-              Sucursal
-            </label>
-            <select
-              value={sucursalActiva?.id || ''}
-              onChange={(e) => {
-                const s = sucursales.find(s => s.id === Number(e.target.value));
-                if (s) selectSucursal(s);
-              }}
-              className="w-full appearance-none bg-surface-50 border border-slate-100 rounded-xl px-3 py-2 text-[11px] font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-primary-500/10 focus:border-primary-500 transition-all cursor-pointer"
-            >
-              {sucursales.map(s => (
-                <option key={s.id} value={s.id}>{s.nombre}</option>
-              ))}
-            </select>
-          </div>
-        )}
-      </div>
+      {/* Selectores removidos y movidos al Header (GestiónMax) */}
 
       {/* Navegación dinámica por secciones */}
       <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-3">
@@ -276,22 +236,48 @@ const MainLayout = () => {
             <Menu size={20} />
           </button>
 
-          {/* Breadcrumbs */}
-          <div className="hidden md:flex items-center">
+          {/* FASE 4: Breadcrumbs y Context Selectors (GestiónMax) */}
+          <div className="hidden md:flex items-center gap-4 flex-1 ml-4 lg:ml-8 border-l border-slate-200 pl-4 lg:pl-8">
             {generateBreadcrumbs()}
+            
+            <div className="h-4 w-px bg-slate-200 mx-2" />
+
+            {misEmpresas?.length > 1 && (
+              <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md border border-slate-100 hover:border-brand-300 transition-colors">
+                <Building2 size={12} className="text-brand-base" />
+                <select
+                  value={currentEmpresaId || ''}
+                  onChange={(e) => switchEmpresa(Number(e.target.value))}
+                  className="appearance-none bg-transparent border-none text-[11px] font-black text-slate-700 outline-none cursor-pointer pr-4 uppercase tracking-widest"
+                >
+                  {misEmpresas?.map(emp => (
+                    <option key={emp.id || emp.empresa_id} value={emp.empresa_id}>{emp.empresa_nombre}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {sucursales.length > 1 && (
+              <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md border border-slate-100 hover:border-brand-300 transition-colors">
+                <Store size={12} className="text-brand-base" />
+                <select
+                  value={sucursalActiva?.id || ''}
+                  onChange={(e) => {
+                    const s = sucursales.find(s => s.id === Number(e.target.value));
+                    if (s) selectSucursal(s);
+                  }}
+                  className="appearance-none bg-transparent border-none text-[11px] font-black text-slate-700 outline-none cursor-pointer pr-4 uppercase tracking-widest"
+                >
+                  {sucursales.map(s => (
+                    <option key={s.id} value={s.id}>{s.nombre}</option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
 
           {/* Right side */}
           <div className="ml-auto flex items-center gap-4">
-            {/* Sucursal badge (si hay una activa) */}
-            {sucursalActiva && sucursales.length > 1 && (
-              <div className="hidden sm:flex items-center gap-1.5 bg-primary-50 border border-primary-100 rounded-full px-3 py-1">
-                <Building2 size={10} className="text-primary-500" />
-                <span className="text-[9px] font-black text-primary-600 uppercase tracking-wider">
-                  {sucursalActiva.nombre}
-                </span>
-              </div>
-            )}
 
             <NotificationsDropdown />
 
