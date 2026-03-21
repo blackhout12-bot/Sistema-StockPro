@@ -236,31 +236,26 @@ const Dashboard = () => {
                         </div>
                     </div>
 
-                    {/* Docked KPIs */}
+                    {/* Docked KPIs Reactivos */}
                     <div className="flex-1 flex items-center justify-around xl:justify-end gap-2 xl:gap-8 ml-8">
-                        <MiniKpi 
-                            icon={ShoppingCart} 
-                            label="Ventas Hoy" 
-                            value={formatMoney(totalSales)}
-                            colorClass="bg-brand-500" 
-                            iconColor="text-brand-600"
-                        />
-                        <MiniKpi 
-                            icon={Package} 
-                            label="Inventario" 
-                            value={`${totalProducts}`}
-                            sub="Unidades Totales"
-                            colorClass="bg-emerald-500" 
-                            iconColor="text-emerald-600"
-                        />
-                        <MiniKpi 
-                            icon={Users} 
-                            label="Clientes" 
-                            value={totalClientes}
-                            sub="Registrados"
-                            colorClass="bg-violet-500" 
-                            iconColor="text-violet-600"
-                        />
+                        {(() => {
+                            const kpiMap = {
+                                total_productos: <MiniKpi key="1" icon={Package} label="Inventario" value={`${totalProducts}`} sub="Unidades" colorClass="bg-emerald-500" iconColor="text-emerald-600" />,
+                                low_stock: <MiniKpi key="2" icon={AlertTriangle} label="Stock Crítico" value={`${lowStockItems.length}`} colorClass="bg-rose-500" iconColor="text-rose-600" />,
+                                valor_inventario: <MiniKpi key="3" icon={DollarSign} label="Valorizado" value={formatMoney(totalValue)} colorClass="bg-brand-500" iconColor="text-brand-600" />,
+                                total_ventas: <MiniKpi key="4" icon={ShoppingCart} label="Ventas" value={formatMoney(totalSales)} colorClass="bg-indigo-500" iconColor="text-indigo-600" />,
+                                total_clientes: <MiniKpi key="5" icon={Users} label="Clientes" value={`${totalClientes}`} colorClass="bg-violet-500" iconColor="text-violet-600" />
+                            };
+                            let visibleKpis = [];
+                            try {
+                                if (config?.dash_kpis_visibles) {
+                                    visibleKpis = JSON.parse(config.dash_kpis_visibles);
+                                }
+                            } catch(e) {}
+                            
+                            if (visibleKpis.length === 0) visibleKpis = ['total_ventas', 'total_productos', 'total_clientes'];
+                            return visibleKpis.slice(0,4).map(k => kpiMap[k]);
+                        })()}
                     </div>
                 </div>
 
