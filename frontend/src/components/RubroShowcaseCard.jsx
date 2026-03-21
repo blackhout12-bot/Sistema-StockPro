@@ -19,7 +19,10 @@ const RubroShowcaseCard = ({ producto, rubro }) => {
         } catch(e) {}
     }
 
-    const imageUrl = producto.image_url || fallbacks[rubro?.toLowerCase()] || fallbacks.general;
+    const isAbsolute = producto.image_url?.startsWith('http');
+    const imageUrl = producto.image_url 
+        ? (isAbsolute ? producto.image_url : `${import.meta.env.VITE_API_URL}${producto.image_url}`)
+        : (fallbacks[rubro?.toLowerCase()] || fallbacks.general);
 
     return (
         <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-5 relative overflow-visible flex flex-col min-h-[16rem]">
