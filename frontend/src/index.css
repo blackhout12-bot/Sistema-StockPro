@@ -8,8 +8,10 @@
   body {
     @apply text-slate-900 font-sans antialiased selection:bg-brand-light;
     background-color: theme('colors.brand.light');
-    background-image: radial-gradient(at 0% 0%, hsla(215,90%,95%,1) 0, transparent 50%), 
-                      radial-gradient(at 50% 100%, hsla(210,100%,98%,1) 0, transparent 50%);
+    background-image: 
+        radial-gradient(at 0% 0%, hsla(215,90%,95%,1) 0, transparent 50%), 
+        radial-gradient(at 50% 100%, hsla(210,100%,98%,1) 0, transparent 50%),
+        url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1h2v2H1V1zm11 11h2v2h-2v-2z' fill='%23cbd5e1' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E");
     margin: 0;
   }
 

@@ -62,12 +62,12 @@ const RubroShowcaseCard = ({ producto, rubro }) => {
                 <span className="text-xs font-bold text-slate-500 ml-1">unidades</span>
             </div>
 
-            {/* Floating Image */}
-            <div className="absolute -right-4 top-[50%] -translate-y-[50%] w-32 h-32 z-20 drop-shadow-2xl pointer-events-none transition-transform hover:scale-105 duration-300">
+            {/* Floating Image 3D Pop Exagerado */}
+            <div className="absolute -right-8 top-[45%] -translate-y-[55%] w-44 h-44 z-30 drop-shadow-2xl pointer-events-none transition-transform hover:scale-[1.15] duration-500 scale-[1.3]">
                 <img 
                     src={imageUrl} 
                     alt={producto.nombre}
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-contain filter drop-shadow-[0_20px_20px_rgba(0,0,0,0.3)]"
                 />
             </div>
             
