@@ -68,6 +68,8 @@ app.use(cors({
   credentials: true
 }));
 
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
@@ -145,6 +147,7 @@ initQueues();
 // ─── Event Bus & Asynchronous Subscribers (RabbitMQ) ─────────────
 const eventBus = require('./events/eventBus');
 const setupAuditSubscribers = require('./events/subscribers/auditSubscriber');
+const setupNotificationSubscribers = require('./events/subscribers/notificationSubscriber');
 
 // ─── Arranque ────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
@@ -157,6 +160,7 @@ if (require.main === module) {
         await rabbitMQ.connect();
         await eventBus.init();
         await setupAuditSubscribers();
+        await setupNotificationSubscribers();
     } catch (err) {
         logger.error({ err }, 'Failed to initialize Event Driven Architecture');
     }
