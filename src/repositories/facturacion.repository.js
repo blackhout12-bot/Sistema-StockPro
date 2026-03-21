@@ -2,7 +2,7 @@ const sql = require('mssql');
 const logger = require('../utils/logger');
 
 class FacturacionModel {
-    async getAllFacturas(pool, empresa_id) {
+    async getAllFacturas(pool, empresa_id, sucursal_id = null) {
         // Optimización Senior: Si la migración corrió, la columna existe. Try-Catch nativo para detección robusta.
         let hasSnapshots = false;
         try {
@@ -12,6 +12,12 @@ class FacturacionModel {
 
         const hasTipo = await pool.request().query("SELECT TOP 1 name FROM sys.columns WHERE object_id = OBJECT_ID('Facturas') AND name = 'tipo_comprobante'").then(r => r.recordset.length > 0);
         const hasOrigen = await pool.request().query("SELECT TOP 1 name FROM sys.columns WHERE object_id = OBJECT_ID('Facturas') AND name = 'origen_venta'").then(r => r.recordset.length > 0);
+        const hasSucursal = await pool.request().query("SELECT TOP 1 name FROM sys.columns WHERE object_id = OBJECT_ID('Facturas') AND name = 'sucursal_id'").then(r => r.recordset.length > 0);
+
+        let whereClause = "f.empresa_id = @empresa_id";
+        if (hasSucursal && sucursal_id) {
+            whereClause += " AND f.sucursal_id = @sucursal_id";
+        }
 
         const query = hasSnapshots
             ? `SELECT f.id, f.nro_factura, f.fecha_emision, f.total, f.estado,
@@ -23,7 +29,7 @@ class FacturacionModel {
                FROM Facturas f
                LEFT JOIN Clientes c ON f.cliente_id = c.id
                LEFT JOIN Usuarios u ON f.usuario_id = u.id
-               WHERE f.empresa_id = @empresa_id ORDER BY f.fecha_emision DESC`
+               WHERE ${whereClause} ORDER BY f.fecha_emision DESC`
             : `SELECT f.id, f.nro_factura, f.fecha_emision, f.total, f.estado,
                    ${hasTipo ? 'f.tipo_comprobante,' : "'' as tipo_comprobante,"}
                    ${hasOrigen ? 'f.origen_venta,' : "'' as origen_venta,"}
@@ -32,11 +38,13 @@ class FacturacionModel {
                FROM Facturas f
                LEFT JOIN Clientes c ON f.cliente_id = c.id
                LEFT JOIN Usuarios u ON f.usuario_id = u.id
-               WHERE f.empresa_id = @empresa_id ORDER BY f.fecha_emision DESC`;
+               WHERE ${whereClause} ORDER BY f.fecha_emision DESC`;
 
-        const result = await pool.request()
-            .input('empresa_id', sql.Int, empresa_id)
-            .query(query);
+        const req = pool.request().input('empresa_id', sql.Int, empresa_id);
+        if (hasSucursal && sucursal_id) {
+            req.input('sucursal_id', sql.Int, sucursal_id);
+        }
+        const result = await req.query(query);
         return result.recordset;
     }
 
@@ -154,6 +162,7 @@ class FacturacionModel {
 
         const transaction = new sql.Transaction(pool);
         await transaction.begin();
+        const pendingEvents = [];
 
         try {
             // Validar cliente pertenece a la empresa
@@ -272,6 +281,9 @@ class FacturacionModel {
             addFactCol('moneda', facturaData.moneda || 'ARS', sql.NVarChar(10));
             addFactCol('tasa_cambio', facturaData.tasa_cambio || 1.0, sql.Decimal(18, 4));
             addFactCol('origen_venta', facturaData.origen_venta || 'Local', sql.VarChar(50));
+            if (facturaData.sucursal_id) {
+                addFactCol('sucursal_id', facturaData.sucursal_id, sql.Int);
+            }
 
             const insertFactQuery = `INSERT INTO Facturas (${factFields.join(', ')}) OUTPUT INSERTED.id VALUES (${factValues.join(', ')})`;
             const resultFact = await reqFact.query(insertFactQuery);
@@ -284,9 +296,17 @@ class FacturacionModel {
                     .input('eid', sql.Int, empresa_id)
                     .query('SELECT nombre, stock FROM Productos WHERE id = @pid AND empresa_id = @eid');
 
-                if (prodCheck.recordset.length === 0) throw new Error(`Producto ID ${item.producto_id} no encontrado.`);
+                if (prodCheck.recordset.length === 0) {
+                    const err = new Error(`Producto ID ${item.producto_id} no encontrado.`);
+                    err.statusCode = 400;
+                    throw err;
+                }
                 const prod = prodCheck.recordset[0];
-                if (prod.stock < item.cantidad) throw new Error(`Stock insuficiente para: ${prod.nombre}.`);
+                if (prod.stock < item.cantidad) {
+                    const err = new Error(`Stock insuficiente para: ${prod.nombre}.`);
+                    err.statusCode = 400;
+                    throw err;
+                }
 
                 const reqDet = new sql.Request(transaction)
                     .input('fid', sql.Int, factura_id)
@@ -307,13 +327,22 @@ class FacturacionModel {
                 // ── NUEVO: DETERMINAR DEPOSITO Y DESCONTAR ──
                 let targetDepositoId = item.deposito_id;
                 if (!targetDepositoId) {
-                    const depRes = await new sql.Request(transaction)
-                        .input('emp_id', sql.Int, empresa_id)
-                        .query('SELECT TOP 1 id FROM Depositos WHERE empresa_id = @emp_id AND es_principal = 1 AND activo = 1');
+                    const reqFallback = new sql.Request(transaction).input('emp_id', sql.Int, empresa_id);
+                    let qFallback = 'SELECT TOP 1 id FROM Depositos WHERE empresa_id = @emp_id AND activo = 1';
+                    if (facturaData.sucursal_id) {
+                        qFallback += ' AND sucursal_id = @suc_id';
+                        reqFallback.input('suc_id', sql.Int, facturaData.sucursal_id);
+                    } else {
+                        qFallback += ' AND es_principal = 1';
+                    }
+                    const depRes = await reqFallback.query(qFallback);
+                    
                     if (depRes.recordset.length > 0) {
                         targetDepositoId = depRes.recordset[0].id;
                     } else {
-                        throw new Error('No hay depósito principal configurado para realizar la venta.');
+                        const err = new Error('No se encontró un depósito válido asociado a esta sucursal (o empresa) para descontar stock.');
+                        err.statusCode = 400; // Middleware usa statusCode
+                        throw err;
                     }
                 }
 
@@ -323,8 +352,27 @@ class FacturacionModel {
                     .input('did', sql.Int, targetDepositoId)
                     .query('SELECT cantidad FROM ProductoDepositos WHERE producto_id = @pid AND deposito_id = @did');
                 
-                if (checkDepStock.recordset.length === 0 || checkDepStock.recordset[0].cantidad < item.cantidad) {
-                    throw new Error(`Stock insuficiente en el depósito elegido para el producto: ${prod.nombre}.`);
+                let stockEnDeposito = 0;
+                
+                if (checkDepStock.recordset.length === 0) {
+                    // ── SELF-HEALING: El producto no tiene registro de depósito, pero sí stock global ──
+                    if (prod.stock > 0) {
+                        await new sql.Request(transaction)
+                            .input('pid', sql.Int, item.producto_id)
+                            .input('did', sql.Int, targetDepositoId)
+                            .input('qty', sql.Decimal(18,2), prod.stock)
+                            .query('INSERT INTO ProductoDepositos (producto_id, deposito_id, cantidad) VALUES (@pid, @did, @qty)');
+                        logger.info({ producto_id: item.producto_id, deposito_id: targetDepositoId, stock: prod.stock }, 'Self-Healing: Regenerado registro de depósito huérfano');
+                        stockEnDeposito = prod.stock;
+                    }
+                } else {
+                    stockEnDeposito = checkDepStock.recordset[0].cantidad;
+                }
+
+                if (stockEnDeposito < item.cantidad) {
+                    const err = new Error(`Stock insuficiente en el depósito elegido para el producto: ${prod.nombre}. (Stock Disp: ${stockEnDeposito})`);
+                    err.statusCode = 400;
+                    throw err;
                 }
 
                 // Descontar del depósito
@@ -438,10 +486,26 @@ class FacturacionModel {
                         mensaje: `El producto ${p.nombre} ha alcanzado su nivel crítico (${p.stock} unidades).`,
                         tipo: 'warning'
                     });
+
+                    pendingEvents.push({
+                        empresa_id,
+                        producto_id: item.producto_id,
+                        nombre: p.nombre,
+                        stock: p.stock
+                    });
                 }
             }
 
             await transaction.commit();
+
+            // ── Disparar Eventos asíncronos post-commit ──
+            if (pendingEvents.length > 0) {
+                const eventBus = require('../events/eventBus');
+                for (const evt of pendingEvents) {
+                    eventBus.publish('STOCK_BAJO', evt).catch(e => logger.error({ err: e }, 'Error publicando STOCK_BAJO'));
+                }
+            }
+
             return factura_id;
 
         } catch (error) {

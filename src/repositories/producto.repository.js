@@ -162,9 +162,15 @@ class ProductoRepository {
             newProductId = result.recordset[0].id;
         }
 
-        const depRes = await pool.request()
+        let depRes = await pool.request()
             .input('empresa_id', sql.Int, empresa_id)
             .query('SELECT TOP 1 id FROM Depositos WHERE empresa_id = @empresa_id AND es_principal = 1 AND activo = 1');
+            
+        if (depRes.recordset.length === 0) {
+            depRes = await pool.request()
+                .input('empresa_id', sql.Int, empresa_id)
+                .query('SELECT TOP 1 id FROM Depositos WHERE empresa_id = @empresa_id AND activo = 1');
+        }
         
         if (depRes.recordset.length > 0) {
             const depositoId = depRes.recordset[0].id;
