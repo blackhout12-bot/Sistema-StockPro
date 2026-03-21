@@ -10,7 +10,7 @@ import { toast } from 'react-hot-toast';
 const LIMIT = 20;
 
 const Products = () => {
-    const { user } = useAuth();
+    const { user, featureToggles } = useAuth();
     const queryClient = useQueryClient();
 
     // ── Estado de UI & Paginación ────────────────────────────────
@@ -274,6 +274,8 @@ const Products = () => {
                         onViewLots={handleViewLots}
                         onAddStock={handleAddStock}
                         userRole={user?.rol}
+                        hasLotesToggle={featureToggles?.mod_lotes}
+                        featureToggles={featureToggles}
                     />
 
                     {/* Paginación */}
@@ -382,26 +384,30 @@ const Products = () => {
                                         min="1"
                                     />
                                 </div>
+                                {featureToggles?.mod_lotes && (
+                                    <div>
+                                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Número de Lote</label>
+                                        <input
+                                            type="text"
+                                            className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all uppercase placeholder:normal-case font-mono"
+                                            value={stockEntry.nro_lote}
+                                            onChange={e => setStockEntry({ ...stockEntry, nro_lote: e.target.value })}
+                                            placeholder="Ej: LOTE-A1"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                            {featureToggles?.mod_lotes && (
                                 <div>
-                                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Número de Lote</label>
+                                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Fecha de Vencimiento</label>
                                     <input
-                                        type="text"
-                                        className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all uppercase placeholder:normal-case font-mono"
-                                        value={stockEntry.nro_lote}
-                                        onChange={e => setStockEntry({ ...stockEntry, nro_lote: e.target.value })}
-                                        placeholder="Ej: LOTE-A1"
+                                        type="date"
+                                        className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all"
+                                        value={stockEntry.fecha_vto}
+                                        onChange={e => setStockEntry({ ...stockEntry, fecha_vto: e.target.value })}
                                     />
                                 </div>
-                            </div>
-                            <div>
-                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Fecha de Vencimiento</label>
-                                <input
-                                    type="date"
-                                    className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all"
-                                    value={stockEntry.fecha_vto}
-                                    onChange={e => setStockEntry({ ...stockEntry, fecha_vto: e.target.value })}
-                                />
-                            </div>
+                            )}
                             <div className="flex gap-4 pt-4">
                                 <button
                                     onClick={() => setShowAddStockModal(false)}

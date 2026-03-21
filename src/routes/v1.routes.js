@@ -63,6 +63,8 @@ router.use('/notificaciones', authenticate, tenantContext, require('../modules/n
 router.use('/reportes', authenticate, tenantContext, require('../modules/reportes/reportes.controller'));
 router.use('/productos', authenticate, tenantContext, require('../modules/productos/productos.controller'));
 router.use('/movimientos', authenticate, tenantContext, require('../modules/movimientos/movimientos.controller'));
+// Marketplace V1 / Ecosistema
+router.use('/marketplace', authenticate, tenantContext, require('../modules/marketplace/marketplace.routes.v1'));
 router.use('/empresa', authenticate, tenantContext, require('../modules/empresa/empresa.controller'));
 router.use('/clientes', authenticate, tenantContext, require('../modules/clientes/clientes.controller'));
 router.use('/facturacion', authenticate, tenantContext, require('../modules/facturacion/facturacion.controller'));

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/axiosConfig';
 import { useAuth } from '../context/AuthContext';
+import { useBranch } from '../context/BranchContext';
 import {
     Package, AlertTriangle, DollarSign, ShoppingCart,
     TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight,
-    FileText, RefreshCw, BarChart2, Zap, Users, History, CheckCircle, ArrowRight
+    FileText, RefreshCw, BarChart2, Zap, Users, History, CheckCircle, ArrowRight, Building2
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
@@ -47,6 +48,8 @@ import { useQuery } from '@tanstack/react-query';
 
 const Dashboard = () => {
     const { token } = useAuth();
+    const { sucursalActiva, sucursales } = useBranch();
+    const [branchVentas, setBranchVentas] = useState([]);
     
     const { data: dashData, isLoading: loading, refetch: fetchAll } = useQuery({
         queryKey: ['dashboard', 'main-stats'],
@@ -85,6 +88,25 @@ const Dashboard = () => {
             };
         }
     });
+
+    // Cargar métricas por sucursal
+    useEffect(() => {
+        if (!token || sucursales.length < 2) return;
+        const now = new Date();
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+        const today = now.toISOString().slice(0, 10);
+        Promise.all(
+            sucursales.map(s =>
+                api.get(`/facturacion?sucursal_id=${s.id}&fechaInicio=${monthStart}&fechaFin=${today}`)
+                    .then(r => ({
+                        sucursal: s.nombre,
+                        total: (r.data || []).reduce((sum, f) => sum + Number(f.total || 0), 0),
+                        cantidad: (r.data || []).length
+                    }))
+                    .catch(() => ({ sucursal: s.nombre, total: 0, cantidad: 0 }))
+            )
+        ).then(setBranchVentas);
+    }, [token, sucursales]);
 
     // Desestructurar datos cacheados con valores por defecto
     const { products = [], recentActivity = [], recentFacturas = [], topProducts = [], config = null, stats = null, lastUpdated = null } = dashData || {};
@@ -277,7 +299,45 @@ const Dashboard = () => {
                     )}
                 </div>
 
-                {/* Stock Critico Panel */}
+                {/* ── Comparativo por Sucursal (sólo multi-sucursal) ── */}
+                {branchVentas.length >= 2 && (
+                    <div className="lg:col-span-8 premium-card">
+                        <SectionHeader
+                            icon={Building2}
+                            title="Estado de Sucursales"
+                            subtitle={`Ventas del mes actual por punto de venta.`}
+                        />
+                        <div className="h-[220px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={branchVentas} margin={{ top: 0, right: 10, bottom: 20, left: 0 }}>
+                                    <XAxis dataKey="sucursal" tick={{ fontSize: 11, fill: '#64748b' }} angle={-15} textAnchor="end" />
+                                    <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} hide />
+                                    <Tooltip
+                                        formatter={(v) => [`$${v.toLocaleString('es-AR')}`, 'Ventas']}
+                                        contentStyle={{ borderRadius: '12px', border: '1px solid #f1f5f9', fontSize: '11px' }}
+                                    />
+                                    <Bar dataKey="total" radius={[8, 8, 0, 0]}>
+                                        {branchVentas.map((entry, i) => (
+                                            <Cell key={i} fill={['#6366f1','#10b981','#f59e0b','#8b5cf6','#06b6d4'][i % 5]}
+                                                opacity={sucursalActiva?.nombre === entry.sucursal ? 1 : 0.6}
+                                            />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                        {/* Tabla resumen mini */}
+                        <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                            {branchVentas.map((b, i) => (
+                                <div key={i} className={`p-3 rounded-xl border transition-colors ${sucursalActiva?.nombre === b.sucursal ? 'border-primary-200 bg-primary-50' : 'border-slate-100 bg-slate-50'}`}>
+                                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 truncate">{b.sucursal}</p>
+                                    <p className="text-sm font-black text-slate-900 mt-1">${b.total.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</p>
+                                    <p className="text-[9px] text-slate-400 font-medium">{b.cantidad} ventas</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
                 <div className="lg:col-span-4 premium-card flex flex-col">
                     <SectionHeader
                         icon={Zap}

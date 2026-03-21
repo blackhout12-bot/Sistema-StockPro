@@ -15,7 +15,8 @@ const facturacionSchema = z.object({
     tipo_comprobante: z.string().optional(), // ej: 'Factura A', 'Remito'
     metodo_pago: z.string().optional(),       // ej: 'Efectivo', 'Tarjeta'
     moneda_id: z.string().max(3).optional().default('ARS'),
-    tipo_cambio: z.number().min(0).optional().default(1.0)
+    tipo_cambio: z.number().min(0).optional().default(1.0),
+    origen_venta: z.string().optional().default('Local')
 });
 
 module.exports = {

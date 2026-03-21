@@ -14,10 +14,16 @@ class EmpresaModel {
         const {
             id,
             nombre, documento_identidad, direccion, telefono, email,
-            sitio_web, pais, ciudad, codigo_postal, logo_url
+            sitio_web, pais, ciudad, codigo_postal, logo_url, rubro
         } = empresaData;
 
-        await pool.request()
+        // Self-healing: verificar si la columna rubro existe
+        const hasRubro = await pool.request().query(
+            "SELECT COUNT(*) as cnt FROM sys.columns " +
+            "WHERE object_id = OBJECT_ID('Empresa') AND name = 'rubro'"
+        ).then(r => r.recordset[0]?.cnt > 0).catch(() => false);
+
+        const req = pool.request()
             .input('id', sql.Int, id)
             .input('nombre', sql.NVarChar(255), nombre || null)
             .input('documento_identidad', sql.NVarChar(100), documento_identidad || null)
@@ -28,21 +34,25 @@ class EmpresaModel {
             .input('pais', sql.NVarChar(100), pais || null)
             .input('ciudad', sql.NVarChar(100), ciudad || null)
             .input('codigo_postal', sql.NVarChar(20), codigo_postal || null)
-            .input('logo_url', sql.NVarChar(500), logo_url || null)
-            .query(`
-                UPDATE Empresa SET
-                    nombre               = @nombre,
-                    documento_identidad  = @documento_identidad,
-                    direccion            = @direccion,
-                    telefono             = @telefono,
-                    email                = @email,
-                    sitio_web            = @sitio_web,
-                    pais                 = @pais,
-                    ciudad               = @ciudad,
-                    codigo_postal        = @codigo_postal,
-                    logo_url             = @logo_url
-                WHERE id = @id
-            `);
+            .input('logo_url', sql.NVarChar(500), logo_url || null);
+
+        if (hasRubro) req.input('rubro', sql.NVarChar(50), rubro || 'general');
+
+        await req.query(`
+            UPDATE Empresa SET
+                nombre               = @nombre,
+                documento_identidad  = @documento_identidad,
+                direccion            = @direccion,
+                telefono             = @telefono,
+                email                = @email,
+                sitio_web            = @sitio_web,
+                pais                 = @pais,
+                ciudad               = @ciudad,
+                codigo_postal        = @codigo_postal,
+                logo_url             = @logo_url
+                ${hasRubro ? ', rubro = @rubro' : ''}
+            WHERE id = @id
+        `);
         return this.getEmpresa(pool, id);
     }
 

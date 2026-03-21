@@ -1,0 +1,520 @@
+FAIL tests/bi_olap.test.js
+  ÔùÅ Console
+
+    console.log
+      [dotenv@17.3.1] injecting env (16) from .env -- tip: ÔÜÖ´©Å  override existing env vars with { override: true }
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+  ÔùÅ Phase 14: BI, OLAP & Multi-Currency Tests ÔÇ║ Business Intelligence (Power BI/Metabase Exports) ÔÇ║ should return 200 OK and formatted JSON for Financial KPIs
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value: 401
+    Received array: [200, 500]
+
+      41 |             // Check status or expect DB mock failure if SQL Server isn't running in CI
+      42 |             // If the DB is not connected, this will return 500, but the route mapping is validated
+    > 43 |             expect([200, 500]).toContain(res.status);
+         |                                ^
+      44 |             if(res.status === 200) {
+      45 |                 expect(res.body).toHaveProperty('metrics');
+      46 |                 expect(res.body.metrics).toHaveProperty('ingresos_brutos_ars');
+
+      at Object.toContain (tests/bi_olap.test.js:43:32)
+
+  ÔùÅ Phase 14: BI, OLAP & Multi-Currency Tests ÔÇ║ Business Intelligence (Power BI/Metabase Exports) ÔÇ║ should return 200 OK and formatted JSON for Operational KPIs (Stock Turnover)
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value: 401
+    Received array: [200, 500]
+
+      50 |         it('should return 200 OK and formatted JSON for Operational KPIs (Stock Turnover)', async () => {
+      51 |              const res = await request(app).get('/api/v1/bi/operational-kpis');
+    > 52 |              expect([200, 500]).toContain(res.status);
+         |                                 ^
+      53 |         });
+      54 |     });
+      55 |
+
+      at Object.toContain (tests/bi_olap.test.js:52:33)
+
+  ÔùÅ Phase 14: BI, OLAP & Multi-Currency Tests ÔÇ║ OLAP Multidimensional Cubes ÔÇ║ should accept slice-and-dice queries for Sales Cube
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value: 401
+    Received array: [200, 500]
+
+      57 |         it('should accept slice-and-dice queries for Sales Cube', async () => {
+      58 |             const res = await request(app).get('/api/v1/olap/cubo-ventas?anio=2026&moneda=USD');
+    > 59 |             expect([200, 500]).toContain(res.status);
+         |                                ^
+      60 |             if(res.status === 200) {
+      61 |                 expect(res.body).toHaveProperty('cube_data');
+      62 |                 expect(res.body).toHaveProperty('time_ms');
+
+      at Object.toContain (tests/bi_olap.test.js:59:32)
+
+(node:27784) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:27784) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+[01:34:32] [32mINFO[39m: [36m­ƒÜÇ Iniciando infraestructura de BullMQ (Graceful Degradation Mode)...[39m
+[01:34:32] [32mINFO[39m: [36malertWorker (Legacy) importado. Las tareas ahora son administradas por BullMQ cronQueue.[39m
+[01:34:32] [32mINFO[39m: [36m­ƒÜÇ Socket.io inicializado con soporte multi-tenant[39m
+[01:34:32] [32mINFO[39m: [36mConectado a Redis Exitosamente[39m
+[01:34:32] [32mINFO[39m: [36mIncoming Request[39m
+    [35mmethod[39m: "GET"
+    [35murl[39m: "/health"
+[01:34:32] [32mINFO[39m: [36mCron Job [check-stock-vencimientos] registrado en BullMQ.[39m
+    [35mcronTime[39m: "*/5 * * * *"
+[01:34:32] [32mINFO[39m: [36mÔ£à BullMQ y Workers inicializados correctamente.[39m
+[01:34:32] [32mINFO[39m: [36mConectado a SQL Server (Escritura)[39m
+PASS src/tests/integration/health.test.js
+  ÔùÅ Console
+
+    console.log
+      [dotenv@17.3.1] injecting env (16) from .env -- tip: ÔÜÖ´©Å  specify custom .env file path with { path: '/custom/path/.env' }
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+    console.log
+      [dotenv@17.3.1] injecting env (0) from .env -- tip: ÔÜÖ´©Å  override existing env vars with { override: true }
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+[01:34:33] [32mINFO[39m: [36m­ƒÜÇ Iniciando infraestructura de BullMQ (Graceful Degradation Mode)...[39m
+[01:34:33] [32mINFO[39m: [36malertWorker (Legacy) importado. Las tareas ahora son administradas por BullMQ cronQueue.[39m
+[01:34:33] [32mINFO[39m: [36m­ƒÜÇ Socket.io inicializado con soporte multi-tenant[39m
+[01:34:33] [32mINFO[39m: [36mConectado a Redis Exitosamente[39m
+[01:34:33] [32mINFO[39m: [36mIncoming Request[39m
+    [35mmethod[39m: "POST"
+    [35murl[39m: "/api/public/auth/login"
+    [35mbody[39m: "REDACTED"
+[01:34:33] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 1,
+      "method": "POST",
+      "url": "/api/public/auth/login",
+      "query": {},
+      "params": {},
+      "headers": {
+        "host": "127.0.0.1:63290",
+        "accept-encoding": "gzip, deflate",
+        "content-type": "application/json",
+        "content-length": "48",
+        "connection": "close"
+      },
+      "remoteAddress": "::ffff:127.0.0.1",
+      "remotePort": 63291
+    }
+    [35mres[39m: {
+      "statusCode": 401,
+      "headers": {
+        "cross-origin-opener-policy": "same-origin",
+        "cross-origin-resource-policy": "same-origin",
+        "origin-agent-cluster": "?1",
+        "referrer-policy": "no-referrer",
+        "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+        "x-content-type-options": "nosniff",
+        "x-dns-prefetch-control": "off",
+        "x-download-options": "noopen",
+        "x-frame-options": "SAMEORIGIN",
+        "x-permitted-cross-domain-policies": "none",
+        "x-xss-protection": "0",
+        "vary": "Origin",
+        "access-control-allow-credentials": "true",
+        "content-type": "application/json; charset=utf-8",
+        "content-length": "42",
+        "etag": "W/\"2a-RGeA6zBeESnfVQLY88z4ho6KVW8\""
+      }
+    }
+    [35mresponseTime[39m: 10
+PASS src/tests/integration/dashboard.test.js
+  ÔùÅ Console
+
+    console.log
+      [dotenv@17.3.1] injecting env (16) from .env -- tip: ­ƒøá´©Å  run anywhere with `dotenvx run -- yourcommand`
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+    console.log
+      [dotenv@17.3.1] injecting env (0) from .env -- tip: ÔÜÖ´©Å  enable debug logging with { debug: true }
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+[01:34:34] [32mINFO[39m: [36m­ƒÜÇ Iniciando infraestructura de BullMQ (Graceful Degradation Mode)...[39m
+[01:34:34] [32mINFO[39m: [36malertWorker (Legacy) importado. Las tareas ahora son administradas por BullMQ cronQueue.[39m
+[01:34:34] [32mINFO[39m: [36m­ƒÜÇ Socket.io inicializado con soporte multi-tenant[39m
+[01:34:34] [32mINFO[39m: [36mConectado a Redis Exitosamente[39m
+[01:34:34] [32mINFO[39m: [36mIncoming Request[39m
+    [35mmethod[39m: "POST"
+    [35murl[39m: "/api/public/auth/login"
+    [35mbody[39m: "REDACTED"
+[01:34:34] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 1,
+      "method": "POST",
+      "url": "/api/public/auth/login",
+      "query": {},
+      "params": {},
+      "headers": {
+        "host": "127.0.0.1:63306",
+        "accept-encoding": "gzip, deflate",
+        "content-type": "application/json",
+        "content-length": "48",
+        "connection": "close"
+      },
+      "remoteAddress": "::ffff:127.0.0.1",
+      "remotePort": 63307
+    }
+    [35mres[39m: {
+      "statusCode": 401,
+      "headers": {
+        "cross-origin-opener-policy": "same-origin",
+        "cross-origin-resource-policy": "same-origin",
+        "origin-agent-cluster": "?1",
+        "referrer-policy": "no-referrer",
+        "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+        "x-content-type-options": "nosniff",
+        "x-dns-prefetch-control": "off",
+        "x-download-options": "noopen",
+        "x-frame-options": "SAMEORIGIN",
+        "x-permitted-cross-domain-policies": "none",
+        "x-xss-protection": "0",
+        "vary": "Origin",
+        "access-control-allow-credentials": "true",
+        "content-type": "application/json; charset=utf-8",
+        "content-length": "42",
+        "etag": "W/\"2a-RGeA6zBeESnfVQLY88z4ho6KVW8\""
+      }
+    }
+    [35mresponseTime[39m: 4
+PASS src/tests/integration/productos.test.js
+  ÔùÅ Console
+
+    console.log
+      [dotenv@17.3.1] injecting env (16) from .env -- tip: ­ƒøí´©Å auth for agents: https://vestauth.com
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+    console.log
+      [dotenv@17.3.1] injecting env (0) from .env -- tip: ­ƒöÉ encrypt with Dotenvx: https://dotenvx.com
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+    console.warn
+      Skipping test: Missing valid authentication token
+
+      25 |     it('should fetch products only for the specified tenant', async () => {
+      26 |         if (!token) {
+    > 27 |             console.warn('Skipping test: Missing valid authentication token');
+         |                     ^
+      28 |             return;
+      29 |         }
+      30 |
+
+      at Object.warn (src/tests/integration/productos.test.js:27:21)
+
+[01:34:34] [32mINFO[39m: [36m­ƒÜÇ Iniciando infraestructura de BullMQ (Graceful Degradation Mode)...[39m
+[01:34:34] [32mINFO[39m: [36malertWorker (Legacy) importado. Las tareas ahora son administradas por BullMQ cronQueue.[39m
+[01:34:34] [32mINFO[39m: [36m­ƒÜÇ Socket.io inicializado con soporte multi-tenant[39m
+[01:34:34] [32mINFO[39m: [36mConectado a Redis Exitosamente[39m
+[01:34:34] [32mINFO[39m: [36mIncoming Request[39m
+    [35mmethod[39m: "POST"
+    [35murl[39m: "/api/public/auth/login"
+    [35mbody[39m: "REDACTED"
+[01:34:34] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 1,
+      "method": "POST",
+      "url": "/api/public/auth/login",
+      "query": {},
+      "params": {},
+      "headers": {
+        "host": "127.0.0.1:63322",
+        "accept-encoding": "gzip, deflate",
+        "content-type": "application/json",
+        "content-length": "48",
+        "connection": "close"
+      },
+      "remoteAddress": "::ffff:127.0.0.1",
+      "remotePort": 63323
+    }
+    [35mres[39m: {
+      "statusCode": 401,
+      "headers": {
+        "cross-origin-opener-policy": "same-origin",
+        "cross-origin-resource-policy": "same-origin",
+        "origin-agent-cluster": "?1",
+        "referrer-policy": "no-referrer",
+        "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+        "x-content-type-options": "nosniff",
+        "x-dns-prefetch-control": "off",
+        "x-download-options": "noopen",
+        "x-frame-options": "SAMEORIGIN",
+        "x-permitted-cross-domain-policies": "none",
+        "x-xss-protection": "0",
+        "vary": "Origin",
+        "access-control-allow-credentials": "true",
+        "content-type": "application/json; charset=utf-8",
+        "content-length": "42",
+        "etag": "W/\"2a-RGeA6zBeESnfVQLY88z4ho6KVW8\""
+      }
+    }
+    [35mresponseTime[39m: 4
+PASS src/tests/integration/movimientos.test.js
+  ÔùÅ Console
+
+    console.log
+      [dotenv@17.3.1] injecting env (16) from .env -- tip: ­ƒøí´©Å auth for agents: https://vestauth.com
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+    console.log
+      [dotenv@17.3.1] injecting env (0) from .env -- tip: ÔÜÖ´©Å  specify custom .env file path with { path: '/custom/path/.env' }
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+    console.warn
+      Skipping test: Missing valid authentication token
+
+      25 |     it('should fetch movements only for the specified tenant', async () => {
+      26 |         if (!token) {
+    > 27 |             console.warn('Skipping test: Missing valid authentication token');
+         |                     ^
+      28 |             return;
+      29 |         }
+      30 |
+
+      at Object.warn (src/tests/integration/movimientos.test.js:27:21)
+
+[01:34:34] [32mINFO[39m: [36mCron Job [check-stock-vencimientos] registrado en BullMQ.[39m
+    [35mcronTime[39m: "*/5 * * * *"
+[01:34:34] [32mINFO[39m: [36mÔ£à BullMQ y Workers inicializados correctamente.[39m
+[01:34:34] [32mINFO[39m: [36mCron Job [check-stock-vencimientos] registrado en BullMQ.[39m
+    [35mcronTime[39m: "*/5 * * * *"
+[01:34:34] [32mINFO[39m: [36mÔ£à BullMQ y Workers inicializados correctamente.[39m
+[01:34:34] [32mINFO[39m: [36mCron Job [check-stock-vencimientos] registrado en BullMQ.[39m
+    [35mcronTime[39m: "*/5 * * * *"
+[01:34:34] [32mINFO[39m: [36mÔ£à BullMQ y Workers inicializados correctamente.[39m
+[01:34:35] [32mINFO[39m: [36mConectado a SQL Server (Escritura)[39m
+PASS tests/sso.test.js
+  ÔùÅ Console
+
+    console.log
+      [dotenv@17.3.1] injecting env (16) from .env -- tip: ­ƒøá´©Å  run anywhere with `dotenvx run -- yourcommand`
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+FAIL mobile/__tests__/App.test.tsx
+  ÔùÅ Test suite failed to run
+
+    Jest encountered an unexpected token
+
+    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+
+    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+
+    By default "node_modules" folder is ignored by transformers.
+
+    Here's what you can do:
+     ÔÇó If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+     ÔÇó If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+     ÔÇó To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+     ÔÇó If you need a custom transformation, specify a "transform" option in your config.
+     ÔÇó If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+
+    You'll find more details and examples of these config options in the docs:
+    https://jestjs.io/docs/configuration
+    For information about custom transformations, see:
+    https://jestjs.io/docs/code-transformation
+
+    Details:
+
+    SyntaxError: C:\Users\egar0\stock-system\mobile\__tests__\App.test.tsx: Support for the experimental syntax 'jsx' isn't currently enabled (11:30):
+
+       9 | test('renders correctly', async () => {
+      10 |   await ReactTestRenderer.act(() => {
+    > 11 |     ReactTestRenderer.create(<App />);
+         |                              ^
+      12 |   });
+      13 | });
+      14 |
+
+    Add @babel/preset-react (https://github.com/babel/babel/tree/main/packages/babel-preset-react) to the 'presets' section of your Babel config to enable transformation.
+    If you want to leave it as-is, add @babel/plugin-syntax-jsx (https://github.com/babel/babel/tree/main/packages/babel-plugin-syntax-jsx) to the 'plugins' section to enable parsing.
+
+    If you already added the plugin for this syntax to your config, it's possible that your config isn't being loaded.
+    You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the loaded configuration:
+    	npx cross-env BABEL_SHOW_CONFIG_FOR=C:\Users\egar0\stock-system\mobile\__tests__\App.test.tsx <your build command>
+    See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+
+      at constructor (node_modules/@babel/parser/src/parse-error.ts:95:45)
+      at Parser.toParseError [as raise] (node_modules/@babel/parser/src/tokenizer/index.ts:1504:19)
+      at Parser.raise [as expectOnePlugin] (node_modules/@babel/parser/src/tokenizer/index.ts:1569:18)
+      at Parser.expectOnePlugin [as parseExprAtom] (node_modules/@babel/parser/src/parser/expression.ts:1272:22)
+      at Parser.parseExprAtom [as parseExprSubscripts] (node_modules/@babel/parser/src/parser/expression.ts:742:23)
+      at Parser.parseExprSubscripts [as parseUpdate] (node_modules/@babel/parser/src/parser/expression.ts:721:21)
+      at Parser.parseUpdate [as parseMaybeUnary] (node_modules/@babel/parser/src/parser/expression.ts:683:23)
+      at Parser.parseMaybeUnary [as parseMaybeUnaryOrPrivate] (node_modules/@babel/parser/src/parser/expression.ts:417:14)
+      at Parser.parseMaybeUnaryOrPrivate [as parseExprOps] (node_modules/@babel/parser/src/parser/expression.ts:429:23)
+      at Parser.parseExprOps [as parseMaybeConditional] (node_modules/@babel/parser/src/parser/expression.ts:384:23)
+      at Parser.parseMaybeConditional [as parseMaybeAssign] (node_modules/@babel/parser/src/parser/expression.ts:301:21)
+      at parseMaybeAssign (node_modules/@babel/parser/src/parser/expression.ts:257:12)
+      at Parser.callback [as allowInAnd] (node_modules/@babel/parser/src/parser/expression.ts:3194:12)
+      at Parser.allowInAnd [as parseMaybeAssignAllowIn] (node_modules/@babel/parser/src/parser/expression.ts:256:17)
+      at Parser.parseMaybeAssignAllowIn [as parseMaybeAssignAllowInOrVoidPattern] (node_modules/@babel/parser/src/parser/expression.ts:3308:17)
+      at Parser.parseMaybeAssignAllowInOrVoidPattern [as parseExprListItem] (node_modules/@babel/parser/src/parser/expression.ts:2790:18)
+      at Parser.parseExprListItem [as parseCallExpressionArguments] (node_modules/@babel/parser/src/parser/expression.ts:1042:14)
+      at Parser.parseCallExpressionArguments [as parseCoverCallAndAsyncArrowHead] (node_modules/@babel/parser/src/parser/expression.ts:922:29)
+      at Parser.parseCoverCallAndAsyncArrowHead [as parseSubscript] (node_modules/@babel/parser/src/parser/expression.ts:804:19)
+      at Parser.parseSubscript [as parseSubscripts] (node_modules/@babel/parser/src/parser/expression.ts:763:19)
+      at Parser.parseSubscripts [as parseExprSubscripts] (node_modules/@babel/parser/src/parser/expression.ts:748:17)
+      at Parser.parseExprSubscripts [as parseUpdate] (node_modules/@babel/parser/src/parser/expression.ts:721:21)
+      at Parser.parseUpdate [as parseMaybeUnary] (node_modules/@babel/parser/src/parser/expression.ts:683:23)
+      at Parser.parseMaybeUnary [as parseMaybeUnaryOrPrivate] (node_modules/@babel/parser/src/parser/expression.ts:417:14)
+      at Parser.parseMaybeUnaryOrPrivate [as parseExprOps] (node_modules/@babel/parser/src/parser/expression.ts:429:23)
+      at Parser.parseExprOps [as parseMaybeConditional] (node_modules/@babel/parser/src/parser/expression.ts:384:23)
+      at Parser.parseMaybeConditional [as parseMaybeAssign] (node_modules/@babel/parser/src/parser/expression.ts:301:21)
+      at Parser.parseMaybeAssign [as parseExpressionBase] (node_modules/@babel/parser/src/parser/expression.ts:226:23)
+      at parseExpressionBase (node_modules/@babel/parser/src/parser/expression.ts:217:39)
+      at Parser.callback [as allowInAnd] (node_modules/@babel/parser/src/parser/expression.ts:3189:16)
+      at Parser.allowInAnd [as parseExpression] (node_modules/@babel/parser/src/parser/expression.ts:217:17)
+      at Parser.parseExpression [as parseStatementContent] (node_modules/@babel/parser/src/parser/statement.ts:688:23)
+      at Parser.parseStatementContent [as parseStatementLike] (node_modules/@babel/parser/src/parser/statement.ts:482:17)
+      at Parser.parseStatementLike [as parseStatementListItem] (node_modules/@babel/parser/src/parser/statement.ts:431:17)
+      at Parser.parseStatementListItem [as parseBlockOrModuleBlockBody] (node_modules/@babel/parser/src/parser/statement.ts:1444:16)
+      at Parser.parseBlockOrModuleBlockBody [as parseBlockBody] (node_modules/@babel/parser/src/parser/statement.ts:1417:10)
+      at Parser.parseBlockBody [as parseBlock] (node_modules/@babel/parser/src/parser/statement.ts:1385:10)
+      at Parser.parseBlock [as parseFunctionBody] (node_modules/@babel/parser/src/parser/expression.ts:2618:24)
+      at Parser.parseFunctionBody [as parseArrowExpression] (node_modules/@babel/parser/src/parser/expression.ts:2559:10)
+      at Parser.parseArrowExpression [as parseParenAndDistinguishExpression] (node_modules/@babel/parser/src/parser/expression.ts:1847:12)
+      at Parser.parseParenAndDistinguishExpression [as parseExprAtom] (node_modules/@babel/parser/src/parser/expression.ts:1170:21)
+      at Parser.parseExprAtom [as parseExprSubscripts] (node_modules/@babel/parser/src/parser/expression.ts:742:23)
+      at Parser.parseExprSubscripts [as parseUpdate] (node_modules/@babel/parser/src/parser/expression.ts:721:21)
+      at Parser.parseUpdate [as parseMaybeUnary] (node_modules/@babel/parser/src/parser/expression.ts:683:23)
+      at Parser.parseMaybeUnary [as parseMaybeUnaryOrPrivate] (node_modules/@babel/parser/src/parser/expression.ts:417:14)
+      at Parser.parseMaybeUnaryOrPrivate [as parseExprOps] (node_modules/@babel/parser/src/parser/expression.ts:429:23)
+      at Parser.parseExprOps [as parseMaybeConditional] (node_modules/@babel/parser/src/parser/expression.ts:384:23)
+      at Parser.parseMaybeConditional [as parseMaybeAssign] (node_modules/@babel/parser/src/parser/expression.ts:301:21)
+      at parseMaybeAssign (node_modules/@babel/parser/src/parser/expression.ts:257:12)
+      at Parser.callback [as allowInAnd] (node_modules/@babel/parser/src/parser/expression.ts:3194:12)
+      at Parser.allowInAnd [as parseMaybeAssignAllowIn] (node_modules/@babel/parser/src/parser/expression.ts:256:17)
+      at Parser.parseMaybeAssignAllowIn [as parseMaybeAssignAllowInOrVoidPattern] (node_modules/@babel/parser/src/parser/expression.ts:3308:17)
+      at Parser.parseMaybeAssignAllowInOrVoidPattern [as parseExprListItem] (node_modules/@babel/parser/src/parser/expression.ts:2790:18)
+      at Parser.parseExprListItem [as parseCallExpressionArguments] (node_modules/@babel/parser/src/parser/expression.ts:1042:14)
+      at Parser.parseCallExpressionArguments [as parseCoverCallAndAsyncArrowHead] (node_modules/@babel/parser/src/parser/expression.ts:922:29)
+      at Parser.parseCoverCallAndAsyncArrowHead [as parseSubscript] (node_modules/@babel/parser/src/parser/expression.ts:804:19)
+      at Parser.parseSubscript [as parseSubscripts] (node_modules/@babel/parser/src/parser/expression.ts:763:19)
+      at Parser.parseSubscripts [as parseExprSubscripts] (node_modules/@babel/parser/src/parser/expression.ts:748:17)
+      at Parser.parseExprSubscripts [as parseUpdate] (node_modules/@babel/parser/src/parser/expression.ts:721:21)
+      at Parser.parseUpdate [as parseMaybeUnary] (node_modules/@babel/parser/src/parser/expression.ts:683:23)
+      at Parser.parseMaybeUnary [as parseAwait] (node_modules/@babel/parser/src/parser/expression.ts:2955:28)
+      at Parser.parseAwait [as parseMaybeUnary] (node_modules/@babel/parser/src/parser/expression.ts:645:25)
+      at Parser.parseMaybeUnary [as parseMaybeUnaryOrPrivate] (node_modules/@babel/parser/src/parser/expression.ts:417:14)
+      at Parser.parseMaybeUnaryOrPrivate [as parseExprOps] (node_modules/@babel/parser/src/parser/expression.ts:429:23)
+      at Parser.parseExprOps [as parseMaybeConditional] (node_modules/@babel/parser/src/parser/expression.ts:384:23)
+      at Parser.parseMaybeConditional [as parseMaybeAssign] (node_modules/@babel/parser/src/parser/expression.ts:301:21)
+      at Parser.parseMaybeAssign [as parseExpressionBase] (node_modules/@babel/parser/src/parser/expression.ts:226:23)
+      at parseExpressionBase (node_modules/@babel/parser/src/parser/expression.ts:217:39)
+      at Parser.callback [as allowInAnd] (node_modules/@babel/parser/src/parser/expression.ts:3189:16)
+      at Parser.allowInAnd [as parseExpression] (node_modules/@babel/parser/src/parser/expression.ts:217:17)
+      at Parser.parseExpression [as parseStatementContent] (node_modules/@babel/parser/src/parser/statement.ts:688:23)
+      at Parser.parseStatementContent [as parseStatementLike] (node_modules/@babel/parser/src/parser/statement.ts:482:17)
+      at Parser.parseStatementLike [as parseStatementListItem] (node_modules/@babel/parser/src/parser/statement.ts:431:17)
+      at Parser.parseStatementListItem [as parseBlockOrModuleBlockBody] (node_modules/@babel/parser/src/parser/statement.ts:1444:16)
+      at Parser.parseBlockOrModuleBlockBody [as parseBlockBody] (node_modules/@babel/parser/src/parser/statement.ts:1417:10)
+      at Parser.parseBlockBody [as parseBlock] (node_modules/@babel/parser/src/parser/statement.ts:1385:10)
+      at Parser.parseBlock [as parseFunctionBody] (node_modules/@babel/parser/src/parser/expression.ts:2618:24)
+      at Parser.parseFunctionBody [as parseArrowExpression] (node_modules/@babel/parser/src/parser/expression.ts:2559:10)
+      at Parser.parseArrowExpression [as parseAsyncArrowFromCallExpression] (node_modules/@babel/parser/src/parser/expression.ts:1067:10)
+      at Parser.parseAsyncArrowFromCallExpression [as parseCoverCallAndAsyncArrowHead] (node_modules/@babel/parser/src/parser/expression.ts:942:27)
+      at Parser.parseCoverCallAndAsyncArrowHead [as parseSubscript] (node_modules/@babel/parser/src/parser/expression.ts:804:19)
+      at Parser.parseSubscript [as parseSubscripts] (node_modules/@babel/parser/src/parser/expression.ts:763:19)
+      at Parser.parseSubscripts [as parseExprSubscripts] (node_modules/@babel/parser/src/parser/expression.ts:748:17)
+      at Parser.parseExprSubscripts [as parseUpdate] (node_modules/@babel/parser/src/parser/expression.ts:721:21)
+      at Parser.parseUpdate [as parseMaybeUnary] (node_modules/@babel/parser/src/parser/expression.ts:683:23)
+      at Parser.parseMaybeUnary [as parseMaybeUnaryOrPrivate] (node_modules/@babel/parser/src/parser/expression.ts:417:14)
+      at Parser.parseMaybeUnaryOrPrivate [as parseExprOps] (node_modules/@babel/parser/src/parser/expression.ts:429:23)
+      at Parser.parseExprOps [as parseMaybeConditional] (node_modules/@babel/parser/src/parser/expression.ts:384:23)
+      at Parser.parseMaybeConditional [as parseMaybeAssign] (node_modules/@babel/parser/src/parser/expression.ts:301:21)
+      at parseMaybeAssign (node_modules/@babel/parser/src/parser/expression.ts:257:12)
+      at Parser.callback [as allowInAnd] (node_modules/@babel/parser/src/parser/expression.ts:3194:12)
+      at Parser.allowInAnd [as parseMaybeAssignAllowIn] (node_modules/@babel/parser/src/parser/expression.ts:256:17)
+      at Parser.parseMaybeAssignAllowIn [as parseMaybeAssignAllowInOrVoidPattern] (node_modules/@babel/parser/src/parser/expression.ts:3308:17)
+      at Parser.parseMaybeAssignAllowInOrVoidPattern [as parseExprListItem] (node_modules/@babel/parser/src/parser/expression.ts:2790:18)
+      at Parser.parseExprListItem [as parseCallExpressionArguments] (node_modules/@babel/parser/src/parser/expression.ts:1042:14)
+      at Parser.parseCallExpressionArguments [as parseCoverCallAndAsyncArrowHead] (node_modules/@babel/parser/src/parser/expression.ts:922:29)
+      at Parser.parseCoverCallAndAsyncArrowHead [as parseSubscript] (node_modules/@babel/parser/src/parser/expression.ts:804:19)
+      at Parser.parseSubscript [as parseSubscripts] (node_modules/@babel/parser/src/parser/expression.ts:763:19)
+      at Parser.parseSubscripts [as parseExprSubscripts] (node_modules/@babel/parser/src/parser/expression.ts:748:17)
+      at Parser.parseExprSubscripts [as parseUpdate] (node_modules/@babel/parser/src/parser/expression.ts:721:21)
+
+Test Suites: 2 failed, 5 passed, 7 total
+Tests:       3 failed, 12 passed, 15 total
+Snapshots:   0 total
+Time:        4.987 s, estimated 16 s
+Ran all test suites.
+Jest did not exit one second after the test run has completed.
+
+'This usually means that there are asynchronous operations that weren't stopped in your tests. Consider running Jest with `--detectOpenHandles` to troubleshoot this issue.
+[01:35:05] [32mINFO[39m: [36mProcesando tarea de Email en Background[39m
+    [35mjobId[39m: "115"
+    [35mtype[39m: "alerta-stock"
+[01:35:05] [31mERROR[39m: [36mError enviando email en Worker[39m
+    [35mto[39m: "edgardo@example.com"
+    error: "getaddrinfo ENOTFOUND smtp.example.com"
+[01:35:05] [31mERROR[39m: [36mJob email fall├│[39m
+    [35mjobId[39m: "115"
+    err: "getaddrinfo ENOTFOUND smtp.example.com"
+[01:40:00] [32mINFO[39m: [36mProcesando tarea de Email en Background[39m
+    [35mjobId[39m: "116"
+    [35mtype[39m: "alerta-stock"
+[01:40:00] [31mERROR[39m: [36mError enviando email en Worker[39m
+    [35mto[39m: "edgardo@example.com"
+    error: "getaddrinfo ENOTFOUND smtp.example.com"
+[01:40:00] [31mERROR[39m: [36mJob email fall├│[39m
+    [35mjobId[39m: "116"
+    err: "getaddrinfo ENOTFOUND smtp.example.com"
+[01:45:00] [32mINFO[39m: [36mEjecutando Cron Job...[39m
+    [35mjobId[39m: "repeat:cce8fcc63a33900f8ed59e16271b89f7:1773722700000"
+    [35mtype[39m: "check-stock-vencimientos"
+[01:45:00] [32mINFO[39m: [36mProcesando tarea de Email en Background[39m
+    [35mjobId[39m: "117"
+    [35mtype[39m: "alerta-stock"
+[01:45:00] [31mERROR[39m: [36mError enviando email en Worker[39m
+    [35mto[39m: "edgardo@example.com"
+    error: "getaddrinfo ENOTFOUND smtp.example.com"
+[01:45:00] [31mERROR[39m: [36mJob email fall├│[39m
+    [35mjobId[39m: "117"
+    err: "getaddrinfo ENOTFOUND smtp.example.com"
+[01:45:15] [32mINFO[39m: [36mProcesando tarea de Email en Background[39m
+    [35mjobId[39m: "117"
+    [35mtype[39m: "alerta-stock"
+[01:45:15] [31mERROR[39m: [36mError enviando email en Worker[39m
+    [35mto[39m: "edgardo@example.com"
+    error: "getaddrinfo ENOTFOUND smtp.example.com"
+[01:45:15] [31mERROR[39m: [36mJob email fall├│[39m
+    [35mjobId[39m: "117"
+    err: "getaddrinfo ENOTFOUND smtp.example.com"
+[01:55:00] [32mINFO[39m: [36mEjecutando Cron Job...[39m
+    [35mjobId[39m: "repeat:cce8fcc63a33900f8ed59e16271b89f7:1773723300000"
+    [35mtype[39m: "check-stock-vencimientos"
+
+ReferenceError: You are trying to `import` a file after the Jest environment has been torn down. From src/tests/integration/dashboard.test.js.
+
+      at BufferListStream.Readable (node_modules/readable-stream/lib/internal/streams/readable.js:209:36)
+      at BufferListStream.Duplex (node_modules/readable-stream/lib/internal/streams/duplex.js:50:12)
+      at new BufferListStream (node_modules/bl/bl.js:33:16)
+      at new IncomingMessageStream (node_modules/tedious/src/incoming-message-stream.ts:24:15)
+      at new MessageIO (node_modules/tedious/src/message-io.ts:40:34)
+      at Connection.initialiseConnection (node_modules/tedious/src/connection.ts:2061:28)
+[01:55:00] [31mERROR[39m: [36mError de conexi├│n a SQL Server (Escritura)[39m
+    err: "Right-hand side of 'instanceof' is not callable"
+[01:55:00] [31mERROR[39m: [36mError en logic de cronWorker[39m
+    error: "Right-hand side of 'instanceof' is not callable"
+[01:55:00] [31mERROR[39m: [36mCron Job fall├│![39m
+    [35mjobId[39m: "repeat:cce8fcc63a33900f8ed59e16271b89f7:1773723300000"
+    err: "Right-hand side of 'instanceof' is not callable"

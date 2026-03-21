@@ -1,0 +1,7 @@
+[dotenv@17.3.1] injecting env (16) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+=== Probando Facturacion ===
+Status: 201
+Body: {"id":96,"nro_factura":"F0001-1-00000013","cliente_id":1,"usuario_id":1,"fecha_emision":"2026-03-18T00:31:49.000Z","total":100,"estado":"Emitida","empresa_id":1,"cliente_nombre_snapshot":"Natalia Nicliz","cliente_doc_snapshot":"32300207","vendedor_nombre_snapshot":"Edgardo","empresa_nombre_snapshot":"Mi Empresa Prueba","empresa_nit_snapshot":"123456789-0","empresa_direccion_snapshot":"Calle Principal 123","empresa_telefono_snapshot":"+54 9 11 1234 5678","tipo_comprobante":"Factura","metodo_pago":"Efectivo","moneda_id":"ARS","tipo_cambio":1,"afip_cae":null,"afip_cae_vto":null,"moneda":"ARS","tasa_cambio":1,"cliente_nombre":"Natalia Nicliz","cliente_doc":"32300207","vendedor_nombre":"Edgardo","empresa_nombre_snap":"Mi Empresa Prueba","empresa_nit_snap":"123456789-0","empresa_dir_snap":"Calle Principal 123","empresa_tel_snap":"+54 9 11 1234 5678","detalles":[{"id":62,"factura_id":96,"producto_id":1,"cantidad":1,"precio_unitario":100,"subtotal":100,"producto_nombre_snapshot":"Laptop","deposito_id":1,"producto_nombre":"Laptop"}]}
+=== Probando Lotes ===
+Status: 200
+Body: [{"id":6,"producto_id":1,"nro_lote":"SIM-LOTE-456","cantidad":0,"fecha_vto":"2026-12-31T00:00:00.000Z","empresa_id":1,"creado_en":"2026-03-08T03:46:22.926Z"}]

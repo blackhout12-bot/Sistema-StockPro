@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
-import { ChevronRight, ChevronLeft, Save, Info, DollarSign } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Save, Info, DollarSign, Layers } from 'lucide-react';
+import { useAuth } from './context/AuthContext';
+import { getRubroSchema } from './config/rubroSchemas';
 
 const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
+  const { featureToggles, empresaConfig } = useAuth();
+  const rubroSchema = useMemo(() => getRubroSchema(empresaConfig?.rubro || 'general'), [empresaConfig?.rubro]);
   const [step, setStep] = useState(1);
   const [nombre, setNombre] = useState(initialData?.nombre || '');
   const [sku, setSku] = useState(initialData?.sku || '');
@@ -11,13 +15,41 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
   const [stock, setStock] = useState(initialData?.stock || '');
   const [categoria, setCategoria] = useState(initialData?.categoria || '');
   
-  // Custom Fields (Conversión Object -> Array para UI)
+  // Rubro dynamic fields state — lee custom_fields excluyendo keys del sistema
+  const SYSTEM_KEYS = ['es_materia_prima', 'publicar_ecommerce'];
   const [customFieldsList, setCustomFieldsList] = useState(() => {
     if (!initialData?.custom_fields) return [];
     try {
       const parsed = typeof initialData.custom_fields === 'string' ? JSON.parse(initialData.custom_fields) : initialData.custom_fields;
-      return Object.entries(parsed).map(([key, val]) => ({ key, value: String(val) }));
+      return Object.entries(parsed)
+          .filter(([key]) => !SYSTEM_KEYS.includes(key) && !rubroSchema.productFields.find(f => f.key === key))
+          .map(([key, val]) => ({ key, value: String(val) }));
     } catch { return []; }
+  });
+
+  // Estado para campos del rubro
+  const [rubroFields, setRubroFields] = useState(() => {
+    const parsed = (() => {
+      try { return typeof initialData?.custom_fields === 'string' ? JSON.parse(initialData?.custom_fields) : (initialData?.custom_fields || {}); }
+      catch { return {}; }
+    })();
+    const initial = {};
+    (rubroSchema.productFields || []).forEach(f => { initial[f.key] = parsed[f.key] ?? ''; });
+    return initial;
+  });
+
+  const [esMateriaPrima, setEsMateriaPrima] = useState(() => {
+    try {
+      const parsed = typeof initialData?.custom_fields === 'string' ? JSON.parse(initialData?.custom_fields) : initialData?.custom_fields;
+      return parsed?.es_materia_prima === 'true';
+    } catch { return false; }
+  });
+
+  const [publicarEcommerce, setPublicarEcommerce] = useState(() => {
+    try {
+      const parsed = typeof initialData?.custom_fields === 'string' ? JSON.parse(initialData?.custom_fields) : initialData?.custom_fields;
+      return parsed?.publicar_ecommerce === 'true';
+    } catch { return false; }
   });
 
   const addCustomField = () => setCustomFieldsList([...customFieldsList, { key: '', value: '' }]);
@@ -49,6 +81,12 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
       return acc;
     }, {});
 
+    // Merge campos del rubro
+    Object.assign(custom_fields, rubroFields);
+
+    if (featureToggles?.mod_produccion) custom_fields.es_materia_prima = esMateriaPrima ? 'true' : 'false';
+    if (featureToggles?.mod_marketplace) custom_fields.publicar_ecommerce = publicarEcommerce ? 'true' : 'false';
+
     const productData = {
       nombre,
       sku: sku.trim() || null,
@@ -73,6 +111,12 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
       setStock('');
       setCategoria('');
       setCustomFieldsList([]);
+      setEsMateriaPrima(false);
+      setPublicarEcommerce(false);
+      // Reset rubro fields
+      const emptyRubro = {};
+      (rubroSchema.productFields || []).forEach(f => { emptyRubro[f.key] = ''; });
+      setRubroFields(emptyRubro);
       setStep(1);
     }
   };
@@ -111,6 +155,90 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Descripción Técnica</label>
                     <textarea className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all min-h-[80px]" rows="2" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} placeholder="Describa las especificaciones principales..."></textarea>
                   </div>
+                  {featureToggles?.mod_produccion && (
+                      <div className="col-span-2">
+                          <label className="flex items-center gap-3 cursor-pointer p-4 rounded-xl border border-slate-100 bg-surface-50 hover:bg-slate-50 transition-colors">
+                              <input type="checkbox" checked={esMateriaPrima} onChange={(e) => setEsMateriaPrima(e.target.checked)} className="w-4 h-4 text-primary-600 rounded border-slate-300 focus:ring-primary-500" />
+                              <div>
+                                  <p className="text-[11px] font-black text-slate-700 uppercase tracking-widest leading-none">Materia Prima / Insumo</p>
+                                  <p className="text-[9px] font-bold text-slate-400 mt-1">Este artículo no se vende, se consume en cadena de producción.</p>
+                              </div>
+                          </label>
+                      </div>
+                  )}
+                  {featureToggles?.mod_marketplace && (
+                      <div className="col-span-2">
+                          <label className="flex items-center gap-3 cursor-pointer p-4 rounded-xl border border-indigo-100 bg-indigo-50/30 hover:bg-indigo-50/70 transition-colors">
+                              <input type="checkbox" checked={publicarEcommerce} onChange={(e) => setPublicarEcommerce(e.target.checked)} className="w-4 h-4 text-indigo-600 rounded border-indigo-300 focus:ring-indigo-500" />
+                              <div>
+                                  <p className="text-[11px] font-black text-indigo-800 uppercase tracking-widest leading-none">Publicar en Marketplace</p>
+                                  <p className="text-[9px] font-bold text-indigo-400 mt-1">Sincroniza inventario automático con MercadoLibre y Tienda Nube.</p>
+                              </div>
+                          </label>
+                      </div>
+                  )}
+
+                  {/* ── Campos dinámicos del rubro ─────────────────── */}
+                  {rubroSchema.productFields.length > 0 && (() => {
+                      // Agrupar por section
+                      const sections = rubroSchema.productFields.reduce((acc, f) => {
+                          const s = f.section || 'Datos del Rubro';
+                          if (!acc[s]) acc[s] = [];
+                          acc[s].push(f);
+                          return acc;
+                      }, {});
+
+                      return Object.entries(sections).map(([sectionName, fields]) => (
+                          <div key={sectionName} className="col-span-2">
+                              <div className="flex items-center gap-2 mb-3 mt-2">
+                                  <Layers size={12} className="text-primary-500" />
+                                  <p className="text-[10px] font-black text-primary-500 uppercase tracking-widest">{sectionName}</p>
+                              </div>
+                              <div className="grid grid-cols-2 gap-3">
+                                  {fields.map(field => (
+                                      <div key={field.key} className={field.type === 'checkbox' ? 'col-span-2' : ''}>
+                                          {field.type === 'checkbox' ? (
+                                              <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl border border-slate-100 bg-surface-50 hover:bg-slate-50 transition-colors">
+                                                  <input
+                                                      type="checkbox"
+                                                      checked={rubroFields[field.key] === 'true' || rubroFields[field.key] === true}
+                                                      onChange={e => setRubroFields(prev => ({ ...prev, [field.key]: e.target.checked ? 'true' : 'false' }))}
+                                                      className="w-4 h-4 text-primary-600 rounded border-slate-300 focus:ring-primary-500"
+                                                  />
+                                                  <span className="text-[11px] font-black text-slate-700 uppercase tracking-widest">{field.label}</span>
+                                              </label>
+                                          ) : field.type === 'select' ? (
+                                              <>
+                                                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{field.label}{field.required && ' *'}</label>
+                                                  <select
+                                                      value={rubroFields[field.key] || ''}
+                                                      onChange={e => setRubroFields(prev => ({ ...prev, [field.key]: e.target.value }))}
+                                                      required={field.required}
+                                                      className="w-full bg-surface-50 border border-slate-100 rounded-xl px-3 py-2.5 text-xs font-bold focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all"
+                                                  >
+                                                      <option value="">-- Seleccionar --</option>
+                                                      {(field.options || []).map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                                  </select>
+                                              </>
+                                          ) : (
+                                              <>
+                                                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{field.label}{field.required && ' *'}</label>
+                                                  <input
+                                                      type={field.type || 'text'}
+                                                      value={rubroFields[field.key] || ''}
+                                                      onChange={e => setRubroFields(prev => ({ ...prev, [field.key]: e.target.value }))}
+                                                      required={field.required}
+                                                      className="w-full bg-surface-50 border border-slate-100 rounded-xl px-3 py-2.5 text-xs font-bold focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all"
+                                                      placeholder={field.label}
+                                                  />
+                                              </>
+                                          )}
+                                      </div>
+                                  ))}
+                              </div>
+                          </div>
+                      ));
+                  })()}
               </div>
             </div>
           )}

@@ -143,7 +143,6 @@ const initQueues = require('./queues/initQueues');
 initQueues();
 
 // ─── Event Bus & Asynchronous Subscribers (RabbitMQ) ─────────────
-const rabbitMQ = require('./config/rabbitmq');
 const eventBus = require('./events/eventBus');
 const setupAuditSubscribers = require('./events/subscribers/auditSubscriber');
 

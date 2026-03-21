@@ -1,0 +1,7 @@
+[dotenv@17.3.1] injecting env (16) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+=== Probando Facturacion ===
+Status: 400
+Body: {"error":"Error de validación de datos","detalles":[{"campo":"cliente_id","mensaje":"Invalid input: expected number, received undefined"},{"campo":"detalles","mensaje":"Invalid input: expected array, received undefined"}]}
+=== Probando Lotes ===
+Status: 200
+Body: [{"id":6,"producto_id":1,"nro_lote":"SIM-LOTE-456","cantidad":1,"fecha_vto":"2026-12-31T00:00:00.000Z","empresa_id":1,"creado_en":"2026-03-08T03:46:22.926Z"}]

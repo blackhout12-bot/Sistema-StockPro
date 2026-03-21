@@ -1,6 +1,6 @@
-﻿import { Edit, Trash2, Box, PlusCircle } from 'lucide-react';
+import { Edit, Trash2, Box, PlusCircle, Hammer, ShoppingCart } from 'lucide-react';
 
-const ProductList = ({ products, onEdit, onDelete, onViewLots, onAddStock, userRole }) => {
+const ProductList = ({ products, onEdit, onDelete, onViewLots, onAddStock, userRole, hasLotesToggle, featureToggles }) => {
   const isAdmin = userRole?.toLowerCase() === 'admin';
   return (
     <div className="overflow-x-auto">
@@ -33,7 +33,27 @@ const ProductList = ({ products, onEdit, onDelete, onViewLots, onAddStock, userR
               </td>
               {/* Nombre */}
               <td className="px-10 py-5">
-                <p className="text-sm font-black text-slate-800 uppercase tracking-tight leading-none group-hover:text-primary-600 transition-colors">{p.nombre}</p>
+                <div className="flex flex-col md:flex-row md:items-center gap-2 mb-1">
+                  <p className="text-sm font-black text-slate-800 uppercase tracking-tight leading-none group-hover:text-primary-600 transition-colors">{p.nombre}</p>
+                  {featureToggles?.mod_produccion && (() => {
+                      try {
+                          const custom = typeof p.custom_fields === 'string' ? JSON.parse(p.custom_fields) : p.custom_fields;
+                          if (custom?.es_materia_prima === 'true') {
+                              return <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase text-rose-500 bg-rose-50 px-2 py-0.5 rounded-lg border border-rose-100" title="Materia Prima"><Hammer size={10} /> MP</span>;
+                          }
+                      } catch (e) {}
+                      return null;
+                  })()}
+                  {featureToggles?.mod_marketplace && (() => {
+                      try {
+                          const custom = typeof p.custom_fields === 'string' ? JSON.parse(p.custom_fields) : p.custom_fields;
+                          if (custom?.publicar_ecommerce === 'true') {
+                              return <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-lg border border-indigo-100" title="Publicado en E-Commerce"><ShoppingCart size={10} /> WEB</span>;
+                          }
+                      } catch (e) {}
+                      return null;
+                  })()}
+                </div>
                 <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase">ID Sistema: {p.id}</p>
               </td>
               {/* Categoría */}
@@ -72,13 +92,15 @@ const ProductList = ({ products, onEdit, onDelete, onViewLots, onAddStock, userR
               {isAdmin && (
                 <td className="px-10 py-5 text-right">
                   <div className="flex justify-end gap-2 translate-x-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                    <button
-                      onClick={() => onViewLots(p)}
-                      className="w-9 h-9 flex items-center justify-center bg-white border border-slate-100 text-slate-400 hover:text-primary-600 hover:border-primary-200 rounded-xl transition-all shadow-sm"
-                      title="Ver lotes"
-                    >
-                      <Box size={14} />
-                    </button>
+                    {hasLotesToggle && (
+                      <button
+                        onClick={() => onViewLots(p)}
+                        className="w-9 h-9 flex items-center justify-center bg-white border border-slate-100 text-slate-400 hover:text-primary-600 hover:border-primary-200 rounded-xl transition-all shadow-sm"
+                        title="Ver lotes"
+                      >
+                        <Box size={14} />
+                      </button>
+                    )}
                     <button
                       onClick={() => onAddStock(p)}
                       className="w-9 h-9 flex items-center justify-center bg-white border border-slate-100 text-slate-400 hover:text-emerald-500 hover:border-emerald-200 rounded-xl transition-all shadow-sm"

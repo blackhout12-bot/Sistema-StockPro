@@ -17,7 +17,7 @@ class ClienteRepository {
     }
 
     async create(pool, data, empresa_id) {
-        const { nombre, documento_identidad, email, telefono, direccion } = data;
+        const { nombre, documento_identidad, email, telefono, direccion, nivel_vip, puntos } = data;
 
         const request = pool.request();
         request.input('nombre', sql.NVarChar, nombre);
@@ -25,18 +25,20 @@ class ClienteRepository {
         request.input('email', sql.NVarChar, email || null);
         request.input('telefono', sql.NVarChar, telefono || null);
         request.input('direccion', sql.NVarChar, direccion || null);
+        request.input('nivel_vip', sql.NVarChar, nivel_vip || 'Bronce');
+        request.input('puntos', sql.Int, puntos || 0);
         request.input('empresa_id', sql.Int, empresa_id);
 
         const result = await request.query(`
-            INSERT INTO Clientes (nombre, documento_identidad, email, telefono, direccion, empresa_id)
+            INSERT INTO Clientes (nombre, documento_identidad, email, telefono, direccion, nivel_vip, puntos, empresa_id)
             OUTPUT INSERTED.id
-            VALUES (@nombre, @documento_identidad, @email, @telefono, @direccion, @empresa_id)
+            VALUES (@nombre, @documento_identidad, @email, @telefono, @direccion, @nivel_vip, @puntos, @empresa_id)
         `);
         return result.recordset[0].id;
     }
 
     async update(pool, id, data, empresa_id) {
-        const { nombre, documento_identidad, email, telefono, direccion } = data;
+        const { nombre, documento_identidad, email, telefono, direccion, nivel_vip, puntos } = data;
 
         const request = pool.request();
         request.input('id', sql.Int, id);
@@ -46,6 +48,8 @@ class ClienteRepository {
         request.input('email', sql.NVarChar, email || null);
         request.input('telefono', sql.NVarChar, telefono || null);
         request.input('direccion', sql.NVarChar, direccion || null);
+        request.input('nivel_vip', sql.NVarChar, nivel_vip || 'Bronce');
+        request.input('puntos', sql.Int, puntos || 0);
 
         await request.query(`
             UPDATE Clientes 
@@ -53,7 +57,9 @@ class ClienteRepository {
                 documento_identidad = @documento_identidad,
                 email = @email,
                 telefono = @telefono,
-                direccion = @direccion
+                direccion = @direccion,
+                nivel_vip = @nivel_vip,
+                puntos = @puntos
             WHERE id = @id AND empresa_id = @empresa_id
         `);
     }

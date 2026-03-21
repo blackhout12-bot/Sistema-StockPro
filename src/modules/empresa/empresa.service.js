@@ -1,6 +1,6 @@
 const { connectDB, connectReadOnlyDB } = require('../../config/db');
 const empresaModel = require('./empresa.model');
-const { getCache, setCache, delCache } = require('../../config/redis');
+const { getCache, setCache, deleteCache } = require('../../config/redis');
 const logger = require('../../utils/logger');
 
 class EmpresaService {
@@ -15,56 +15,69 @@ class EmpresaService {
         // Siempre forzar el id del tenant — no puede actualizar otra empresa
         empresaData.id = empresa_id;
         const res = await empresaModel.updateEmpresa(pool, empresaData);
-        await delCache(`stats:tenant_${empresa_id}`);
+        await deleteCache(`stats:tenant_${empresa_id}`);
         return res;
     }
 
     async updateConfiguracion(empresa_id, config) {
         const pool = await connectDB();
         const res = await empresaModel.updateConfiguracion(pool, empresa_id, config);
-        await delCache(`stats:tenant_${empresa_id}`);
+        await deleteCache(`stats:tenant_${empresa_id}`);
         return res;
     }
 
     async updateBranding(empresa_id, branding) {
         const pool = await connectDB();
         const res = await empresaModel.updateBranding(pool, empresa_id, branding);
-        await delCache(`stats:tenant_${empresa_id}`);
+        await deleteCache(`stats:tenant_${empresa_id}`);
         return res;
     }
 
     async updateInventarioConfig(empresa_id, inv) {
         const pool = await connectDB();
         const res = await empresaModel.updateInventarioConfig(pool, empresa_id, inv);
-        await delCache(`stats:tenant_${empresa_id}`);
+        await deleteCache(`stats:tenant_${empresa_id}`);
         return res;
     }
 
     async updateImpuestosConfig(empresa_id, imp) {
         const pool = await connectDB();
         const res = await empresaModel.updateImpuestosConfig(pool, empresa_id, imp);
-        await delCache(`stats:tenant_${empresa_id}`);
+        await deleteCache(`stats:tenant_${empresa_id}`);
         return res;
     }
 
     async updateIntegracionesConfig(empresa_id, intConfig) {
         const pool = await connectDB();
         const res = await empresaModel.updateIntegracionesConfig(pool, empresa_id, intConfig);
-        await delCache(`stats:tenant_${empresa_id}`);
+        await deleteCache(`stats:tenant_${empresa_id}`);
         return res;
     }
 
     async updateDashboardConfig(empresa_id, dash) {
         const pool = await connectDB();
         const res = await empresaModel.updateDashboardConfig(pool, empresa_id, dash);
-        await delCache(`stats:tenant_${empresa_id}`);
+        await deleteCache(`stats:tenant_${empresa_id}`);
         return res;
     }
 
     async updateFeatureToggles(empresa_id, toggles) {
         const pool = await connectDB();
         const res = await empresaModel.updateFeatureToggles(pool, empresa_id, toggles);
-        await delCache(`stats:tenant_${empresa_id}`);
+        const { deleteCache } = require('../../config/redis');
+        await deleteCache(`stats:tenant_${empresa_id}`);
+        await deleteCache(`features:tenant_${empresa_id}`); // Invalidate the requireFeature cache
+        
+        try {
+            const { notifyEvent } = require('../../utils/webhook.service');
+            await notifyEvent(empresa_id, 'modules.updated', {
+                toggles,
+                timestamp: new Date().toISOString()
+            });
+        } catch (e) {
+            console.error('Error firing modules.updated webhook', e);
+        }
+
         return res;
     }
 

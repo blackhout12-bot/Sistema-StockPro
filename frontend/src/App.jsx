@@ -1,34 +1,31 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { BranchProvider } from './context/BranchContext';
 import EmpresaSelector from './components/EmpresaSelector';
 import LoginForm from './LoginForm';
 import MainLayout from './layouts/MainLayout';
-import Dashboard from './pages/Dashboard';
-import Products from './pages/Products';
-import Movements from './pages/Movements';
-import Reports from './pages/Reports';
-import Users from './pages/Users';
-import Empresa from './pages/Empresa';
-import Clientes from './pages/Clientes';
-import Facturacion from './pages/Facturacion';
 import ResetPassword from './pages/ResetPassword';
-import AuditLogs from './pages/AuditLogs';
-import PaymentsDashboard from './pages/PaymentsDashboard';
-import AlertsPanel from './pages/AlertsPanel';
-import Marketplace from './pages/Marketplace';
 
-// ─── Rutas protegidas con AuthContext ───────────────────────────
+import moduleRegistry, { getAccessibleModules } from './config/moduleRegistry';
+
+// ── Loading Fallback ────────────────────────────────────────────
+const PageLoader = () => (
+  <div className="flex items-center justify-center h-full min-h-[60vh]">
+    <div className="flex flex-col items-center gap-4">
+      <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Cargando módulo...</p>
+    </div>
+  </div>
+);
+
+// ── Rutas protegidas ────────────────────────────────────────────
 function AppRoutes() {
-  const { isAuthenticated, user, logout, empresaSelector } = useAuth();
+  const { isAuthenticated, user, logout, empresaSelector, featureToggles } = useAuth();
 
-  // Modal de selección de empresa (multi-tenant login)
-  // Se muestra incluso si no está autenticado (caso de login con múltiples empresas)
-  if (empresaSelector) {
-    return <EmpresaSelector />;
-  }
+  if (empresaSelector) return <EmpresaSelector />;
 
   if (!isAuthenticated) {
     return (
@@ -46,24 +43,50 @@ function AppRoutes() {
     );
   }
 
-  const isAdmin = user?.rol === 'admin';
+  // ── Construir rutas dinámicamente desde el registry ──────────
+  const accessibleModules = getAccessibleModules(featureToggles, user?.rol);
 
   return (
     <Routes>
+      {/* Ruta de reset de contraseña (pública una vez logueado) */}
+      <Route path="/reset-password" element={<ResetPassword />} />
+
+      {/* Layout principal con todas las rutas dinámicas */}
       <Route path="/" element={<MainLayout onLogout={logout} />}>
-        <Route index element={<Dashboard />} />
-        <Route path="productos" element={<Products />} />
-        <Route path="movimientos" element={<Movements />} />
-        <Route path="facturacion" element={<Facturacion />} />
-        <Route path="reportes" element={<Reports />} />
-        <Route path="clientes" element={<Clientes />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="usuarios" element={isAdmin ? <Users /> : <Navigate to="/" replace />} />
-        <Route path="empresa" element={isAdmin ? <Empresa /> : <Navigate to="/" replace />} />
-        <Route path="auditoria" element={isAdmin ? <AuditLogs /> : <Navigate to="/" replace />} />
-        <Route path="pagos-externos" element={isAdmin ? <PaymentsDashboard /> : <Navigate to="/" replace />} />
-        <Route path="alertas-ia" element={isAdmin ? <AlertsPanel /> : <Navigate to="/" replace />} />
-        <Route path="marketplace" element={isAdmin ? <Marketplace /> : <Navigate to="/" replace />} />
+        {accessibleModules.map(mod => {
+          const LazyPage = React.lazy(mod.lazy);
+
+          if (mod.index) {
+            return (
+              <Route
+                key={mod.id}
+                index
+                element={
+                  <Suspense fallback={<PageLoader />}>
+                    <LazyPage />
+                  </Suspense>
+                }
+              />
+            );
+          }
+
+          // Extraer el path relativo (quitar "/" inicial)
+          const relativePath = mod.path.replace(/^\//, '');
+
+          return (
+            <Route
+              key={mod.id}
+              path={relativePath}
+              element={
+                <Suspense fallback={<PageLoader />}>
+                  <LazyPage />
+                </Suspense>
+              }
+            />
+          );
+        })}
+
+        {/* Catch-all: redirige al dashboard */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
@@ -73,9 +96,18 @@ function AppRoutes() {
 function App() {
   return (
     <Router>
-      <Toaster position="top-right" />
+      <Toaster position="top-right" toastOptions={{
+        style: {
+          borderRadius: '1rem',
+          fontWeight: 700,
+          fontSize: '12px',
+          letterSpacing: '0.05em'
+        }
+      }} />
       <AuthProvider>
-        <AppRoutes />
+        <BranchProvider>
+          <AppRoutes />
+        </BranchProvider>
       </AuthProvider>
     </Router>
   );

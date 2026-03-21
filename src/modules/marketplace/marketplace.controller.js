@@ -21,15 +21,10 @@ class MarketplaceController {
             // Si la tabla no existe físicamente, simulamos basándonos en metadata u omisión para no romper.
             // Aqui consultaremos una tabla mockeada si es posible, pero usaremos un try-catch silencioso.
             let instalados = [];
-            try {
-                const resModulos = await pool.request()
-                    .input('empresa_id', sql.Int, req.tenant_id)
-                    .query('SELECT modulo_id, fecha_instalacion FROM EmpresaModulos WHERE empresa_id = @empresa_id');
-                instalados = resModulos.recordset;
-            } catch (e) {
-                // Si la tabla EmpresaModulos aún no está migrada en la DB real, retornamos vacío
-                console.log('[Marketplace] Tabla EmpresaModulos no encontrada, asumiendo 0 módulos instalados.');
-            }
+            const resModulos = await pool.request()
+                .input('empresa_id', sql.Int, req.tenant_id)
+                .query('SELECT modulo_id, fecha_instalacion, estado FROM EmpresaModulos WHERE empresa_id = @empresa_id');
+            instalados = resModulos.recordset;
 
             const catalogo = MODULOS_DISPONIBLES.map(mod => {
                 const match = instalados.find(i => i.modulo_id === mod.id);
@@ -57,20 +52,27 @@ class MarketplaceController {
             const pool = await connectDB();
             
             // Auditoría inmutable intentando insertar en la tabla EmpresaModulos
+            await pool.request()
+                .input('empresa_id', sql.Int, req.tenant_id)
+                .input('modulo_id', sql.VarChar(50), modulo_id)
+                .input('usuario_id', sql.Int, req.user.id)
+                .query(`
+                    IF NOT EXISTS (SELECT 1 FROM EmpresaModulos WHERE empresa_id = @empresa_id AND modulo_id = @modulo_id)
+                    BEGIN
+                        INSERT INTO EmpresaModulos (empresa_id, modulo_id, usuario_id_instalador, fecha_instalacion, estado) 
+                        VALUES (@empresa_id, @modulo_id, @usuario_id, GETDATE(), 'ACTIVO')
+                    END
+                `);
+
             try {
-                await pool.request()
-                    .input('empresa_id', sql.Int, req.tenant_id)
-                    .input('modulo_id', sql.VarChar(50), modulo_id)
-                    .input('usuario_id', sql.Int, req.user.id)
-                    .query(`
-                        IF NOT EXISTS (SELECT 1 FROM EmpresaModulos WHERE empresa_id = @empresa_id AND modulo_id = @modulo_id)
-                        BEGIN
-                            INSERT INTO EmpresaModulos (empresa_id, modulo_id, usuario_id_instalador, fecha_instalacion) 
-                            VALUES (@empresa_id, @modulo_id, @usuario_id, GETDATE())
-                        END
-                    `);
+                const { notifyEvent } = require('../../utils/webhook.service');
+                await notifyEvent(req.tenant_id, 'marketplace.module.installed', {
+                    modulo_id,
+                    usuario_id: req.user.id,
+                    timestamp: new Date().toISOString()
+                });
             } catch (e) {
-                console.warn('[Marketplace] Error registrando auditoría, ¿tabla EmpresaModulos existe? Simulado OK.');
+                console.error('Error firing marketplace webhook', e);
             }
 
             res.json({ message: `Módulo ${modulo.nombre} instalado y habilitado exitosamente.`, modulo_id });

@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../utils/axiosConfig';
 import { useAuth } from '../context/AuthContext';
+import { rubroOptions } from '../config/rubroSchemas';
 import {
     Building2, Save, Globe, Phone, Mail, MapPin, Hash,
     Image, BarChart3, Settings, Users, Package, FileText,
     ShoppingBag, TrendingUp, ArrowUpCircle, ArrowDownCircle,
-    CheckCircle, Crown, Calendar, RefreshCw
+    CheckCircle, Crown, Calendar, RefreshCw, Shield, Eye, Check, X as XIcon
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
@@ -17,6 +18,8 @@ const TABS = [
     { id: 'configuracion', label: 'Configuración', icon: Settings },
     { id: 'modulos', label: 'Módulos Extra', icon: Package },
     { id: 'depositos', label: 'Depósitos', icon: MapPin },
+    { id: 'roles', label: 'Roles', icon: Shield, adminOnly: true },
+    { id: 'auditoria', label: 'Auditoría', icon: Eye, adminOnly: true },
 ];
 
 const MONEDAS = [
@@ -78,7 +81,7 @@ const inputCls = 'w-full px-3 py-2 border border-gray-300 rounded-lg text-sm foc
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 const Empresa = () => {
-    const { user } = useAuth();
+    const { user, fetchConfiguracionGlobal } = useAuth();
     const isAdmin = user?.rol?.toLowerCase() === 'admin';
 
     const [tab, setTab] = useState('perfil');
@@ -88,7 +91,8 @@ const Empresa = () => {
     // Datos del perfil
     const [perfil, setPerfil] = useState({
         nombre: '', documento_identidad: '', email: '', telefono: '',
-        direccion: '', sitio_web: '', pais: '', ciudad: '', codigo_postal: ''
+        direccion: '', sitio_web: '', pais: '', ciudad: '', codigo_postal: '',
+        rubro: 'general'
     });
 
     // Identidad visual
@@ -217,6 +221,7 @@ const Empresa = () => {
                 pais: d.pais || '',
                 ciudad: d.ciudad || '',
                 codigo_postal: d.codigo_postal || '',
+                rubro: d.rubro || 'general',
             });
 
             setBranding({
@@ -391,8 +396,7 @@ const Empresa = () => {
                     localStorage.setItem('dash_kpis', dashboard.kpis_visibles);
                     // Disparar evento para que el Dashboard se entere en tiempo real
                     window.dispatchEvent(new Event('storage'));
-                }),
-                api.put('/empresa/configuracion/features', modulos)
+                })
             ]);
             toast.success('Configuración guardada correctamente');
         } catch (err) {
@@ -527,8 +531,8 @@ const Empresa = () => {
                         {TABS.map(t => {
                             const Icon = t.icon;
                             const active = tab === t.id;
-                            // Ocultar config/estadísticas/depósitos a no-admin
-                            if (!isAdmin && (t.id === 'configuracion' || t.id === 'estadisticas' || t.id === 'depositos')) return null;
+                            // Ocultar config/estadísticas/depósitos/roles/auditoría a no-admin
+                            if (!isAdmin && (t.id === 'configuracion' || t.id === 'estadisticas' || t.id === 'depositos' || t.adminOnly)) return null;
                             return (
                                 <button
                                     key={t.id}
@@ -624,6 +628,23 @@ const Empresa = () => {
                                             onChange={e => setPerfil(p => ({ ...p, direccion: e.target.value }))}
                                             placeholder="Av. Corrientes 1234, CABA" />
                                     </div>
+                                </Field>
+
+                                {/* ── Selector de Rubro ─────── */}
+                                <Field label="Rubro / Sector de la Empresa" col2>
+                                    <select
+                                        className={inputCls}
+                                        value={perfil.rubro}
+                                        onChange={e => setPerfil(p => ({ ...p, rubro: e.target.value }))}
+                                    >
+                                        {rubroOptions.map(opt => (
+                                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                        ))}
+                                    </select>
+                                    <p className="text-xs text-gray-400 mt-1">
+                                        Define los campos de producto, validaciones del POS y reglas de impuestos según el rubro.
+                                        Cambiar el rubro adapta automáticamente el sistema — no requiere reconfigurar módulos.
+                                    </p>
                                 </Field>
                             </div>
 
@@ -1295,7 +1316,22 @@ const Empresa = () => {
 
                                 {isAdmin && (
                                     <div className="col-span-full flex justify-end mt-4">
-                                        <button type="submit" disabled={saving} className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-xl hover:bg-indigo-700 disabled:opacity-50 shadow-md">
+                                        <button type="button" onClick={async (e) => {
+                                            e.preventDefault();
+                                            setSaving(true);
+                                            try {
+                                                await api.put('/empresa/configuracion/features', modulos);
+                                                if (fetchConfiguracionGlobal) {
+                                                    await fetchConfiguracionGlobal();
+                                                }
+                                                // Fallback local en caso de que fetch tarde
+                                                localStorage.setItem('feature_toggles', JSON.stringify(modulos));
+                                                toast.success('Módulos Extra aplicados correctamente');
+                                            } catch (err) {
+                                                console.error('Error saving modulos:', err);
+                                                toast.error(err.response?.data?.error || 'Error al guardar módulos');
+                                            } finally { setSaving(false); }
+                                        }} disabled={saving} className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-xl hover:bg-indigo-700 disabled:opacity-50 shadow-md">
                                             <Save size={16} /> {saving ? 'Aplicando...' : 'Aplicar Módulos'}
                                         </button>
                                     </div>
@@ -1376,6 +1412,207 @@ const Empresa = () => {
                             </div>
                         </div>
                     )}
+
+                    {/* ══ TAB: ROLES ══════════════════════════════════════ */}
+                    {tab === 'roles' && (() => {
+                        // Módulos disponibles para la matrix
+                        const MODULOS_MATRIX = [
+                            'productos', 'inventario', 'pedidos', 'ventas',
+                            'clientes', 'proveedores', 'reportes', 'empresa'
+                        ];
+                        const ACCIONES = ['leer', 'crear', 'actualizar', 'eliminar', 'exportar'];
+                        const ROLES_DEF = ['admin', 'gerente', 'supervisor', 'cajero', 'gestor_produccion', 'gestor_fidelizacion'];
+
+                        // Defaults del sistema (fuente: permissions.js en config/)
+                        const DEFAULT_PERMISOS = {
+                            admin:      { full: true },
+                            gerente:    { productos: ['leer','crear','actualizar','exportar'], inventario: ['leer','crear','actualizar'], pedidos: ['leer','crear','actualizar'], ventas: ['leer','crear'], clientes: ['leer','crear','actualizar'], proveedores: ['leer','crear','actualizar'], reportes: ['leer','exportar'], empresa: ['leer'] },
+                            supervisor: { productos: ['leer','crear','actualizar'], inventario: ['leer','crear','actualizar'], pedidos: ['leer','crear','actualizar'], ventas: ['leer'], clientes: ['leer','actualizar'], proveedores: ['leer'], reportes: ['leer'], empresa: [] },
+                            cajero:     { productos: ['leer'], inventario: ['leer'], pedidos: ['leer','crear'], ventas: ['leer','crear'], clientes: ['leer','crear'], proveedores: [], reportes: [], empresa: [] },
+                            gestor_produccion: { productos: ['leer','crear','actualizar'], inventario: ['leer','crear','actualizar','eliminar'], pedidos: ['leer','actualizar'], ventas: ['leer'], clientes: [], proveedores: ['leer'], reportes: ['leer'], empresa: [] },
+                            gestor_fidelizacion: { productos: ['leer'], inventario: ['leer'], pedidos: [], ventas: ['leer'], clientes: ['leer','crear','actualizar'], proveedores: [], reportes: ['leer'], empresa: [] }
+                        };
+
+                        const hasAccess = (rol, modulo, accion) => {
+                            const p = DEFAULT_PERMISOS[rol] || {};
+                            if (p.full) return true;
+                            return (p[modulo] || []).includes(accion);
+                        };
+
+                        return (
+                            <div className="space-y-6">
+                                <div>
+                                    <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                                        <Shield size={18} className="text-indigo-500" />
+                                        Matriz de Permisos por Rol
+                                    </h2>
+                                    <p className="text-sm text-gray-500 mt-0.5">
+                                        Vista de sólo lectura de los permisos del sistema. Para modificar roles, editar <code className="text-xs bg-gray-100 px-1 rounded">src/config/permissions.js</code>.
+                                    </p>
+                                </div>
+
+                                <div className="overflow-x-auto rounded-xl border border-gray-100">
+                                    <table className="w-full text-xs">
+                                        <thead>
+                                            <tr className="bg-slate-50 border-b border-slate-100">
+                                                <th className="px-4 py-3 text-left font-black text-slate-500 uppercase tracking-widest text-[10px] w-28">Módulo / Rol</th>
+                                                {ROLES_DEF.map(rol => (
+                                                    <th key={rol} className="px-3 py-3 text-center font-black text-slate-700 uppercase tracking-widest text-[9px] whitespace-nowrap">
+                                                        {rol.replace('gestor_', 'g.')}
+                                                    </th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-50">
+                                            {MODULOS_MATRIX.map(modulo => (
+                                                ACCIONES.map((accion, ai) => (
+                                                    <tr key={`${modulo}-${accion}`} className={`hover:bg-slate-50/50 transition-colors ${ai === 0 ? 'border-t-2 border-slate-100' : ''}`}>
+                                                        <td className="px-4 py-2">
+                                                            {ai === 0 && (
+                                                                <span className="font-black text-slate-800 uppercase tracking-widest text-[10px]">{modulo}</span>
+                                                            )}
+                                                            <span className="text-slate-400 text-[9px] block mt-0.5 ml-0.5">{accion}</span>
+                                                        </td>
+                                                        {ROLES_DEF.map(rol => {
+                                                            const ok = hasAccess(rol, modulo, accion);
+                                                            return (
+                                                                <td key={rol} className="px-3 py-2 text-center">
+                                                                    {ok
+                                                                        ? <span className="inline-flex items-center justify-center w-5 h-5 bg-emerald-100 rounded-full"><Check size={10} className="text-emerald-600" /></span>
+                                                                        : <span className="inline-flex items-center justify-center w-5 h-5 bg-slate-50 rounded-full"><XIcon size={9} className="text-slate-300" /></span>
+                                                                    }
+                                                                </td>
+                                                            );
+                                                        })}
+                                                    </tr>
+                                                ))
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
+                                    <p className="text-xs font-bold text-indigo-700">
+                                        💡 Arquitectura dinámica — Para agregar un nuevo rol o cambiar permisos, editar{' '}
+                                        <code className="bg-indigo-100 px-1 rounded">frontend/src/config/permissions.js</code>.
+                                        El cambio se propaga automáticamente al menú, rutas y validaciones del POS sin recompilar.
+                                    </p>
+                                </div>
+                            </div>
+                        );
+                    })()}
+
+                    {/* ══ TAB: AUDITORÍA ════════════════════════════════════ */}
+                    {tab === 'auditoria' && (() => {
+                        const [auditLogs, setAuditLogs] = React.useState([]);
+                        const [auditLoading, setAuditLoading] = React.useState(false);
+                        const [auditFilter, setAuditFilter] = React.useState('');
+                        const [auditPage, setAuditPage] = React.useState(1);
+                        const PER_PAGE = 15;
+
+                        React.useEffect(() => {
+                            setAuditLoading(true);
+                            api.get('/reportes/auditoria?limit=200')
+                                .then(r => setAuditLogs(r.data || []))
+                                .catch(() => toast.error('Error cargando auditoría'))
+                                .finally(() => setAuditLoading(false));
+                        }, []);
+
+                        const filtered = auditLogs.filter(log =>
+                            !auditFilter ||
+                            log.accion?.toLowerCase().includes(auditFilter.toLowerCase()) ||
+                            log.entidad?.toLowerCase().includes(auditFilter.toLowerCase()) ||
+                            log.usuario_nombre?.toLowerCase().includes(auditFilter.toLowerCase())
+                        );
+
+                        const paginated = filtered.slice((auditPage - 1) * PER_PAGE, auditPage * PER_PAGE);
+                        const totalPages = Math.ceil(filtered.length / PER_PAGE);
+
+                        const colorByAction = {
+                            crear: 'bg-emerald-100 text-emerald-700',
+                            eliminar: 'bg-rose-100 text-rose-700',
+                            actualizar: 'bg-amber-100 text-amber-700',
+                            login: 'bg-indigo-100 text-indigo-700'
+                        };
+
+                        return (
+                            <div className="space-y-5">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                                            <Eye size={18} className="text-indigo-500" /> Registro de Auditoría
+                                        </h2>
+                                        <p className="text-sm text-gray-500 mt-0.5">Trazabilidad completa por usuario, entidad y acción.</p>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder="Filtrar por acción, entidad o usuario…"
+                                        value={auditFilter}
+                                        onChange={e => { setAuditFilter(e.target.value); setAuditPage(1); }}
+                                        className={`${inputCls} max-w-[260px] text-xs`}
+                                    />
+                                </div>
+
+                                {auditLoading ? (
+                                    <div className="flex justify-center py-12">
+                                        <div className="animate-spin rounded-full h-7 w-7 border-2 border-indigo-600 border-t-transparent" />
+                                    </div>
+                                ) : (
+                                    <div className="overflow-x-auto rounded-xl border border-slate-100">
+                                        <table className="w-full text-xs">
+                                            <thead className="bg-slate-50 border-b border-slate-100">
+                                                <tr>
+                                                    {['Fecha', 'Usuario', 'Acción', 'Entidad', 'ID', 'IP'].map(h => (
+                                                        <th key={h} className="px-4 py-3 text-left font-black text-slate-400 uppercase tracking-widest text-[9px]">{h}</th>
+                                                    ))}
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-50">
+                                                {paginated.length === 0 ? (
+                                                    <tr>
+                                                        <td colSpan={6} className="px-4 py-10 text-center text-slate-400 font-medium text-xs">
+                                                            No se encontraron registros
+                                                        </td>
+                                                    </tr>
+                                                ) : paginated.map((log, i) => (
+                                                    <tr key={i} className="hover:bg-slate-50/60 transition-colors">
+                                                        <td className="px-4 py-2.5 text-slate-500 whitespace-nowrap font-mono text-[10px]">
+                                                            {new Date(log.fecha_hora || log.created_at).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' })}
+                                                        </td>
+                                                        <td className="px-4 py-2.5 font-semibold text-slate-800">{log.usuario_nombre || `#${log.usuario_id}`}</td>
+                                                        <td className="px-4 py-2.5">
+                                                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${colorByAction[log.accion?.toLowerCase()] || 'bg-slate-100 text-slate-600'}`}>
+                                                                {log.accion}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-4 py-2.5 font-semibold text-slate-700">{log.entidad}</td>
+                                                        <td className="px-4 py-2.5 font-mono text-slate-400">{log.entidad_id || '—'}</td>
+                                                        <td className="px-4 py-2.5 font-mono text-slate-400 text-[10px]">{log.ip || '—'}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+
+                                {totalPages > 1 && (
+                                    <div className="flex items-center justify-between pt-2">
+                                        <p className="text-xs text-slate-400">{filtered.length} registros</p>
+                                        <div className="flex gap-1">
+                                            {Array.from({ length: Math.min(totalPages, 8) }, (_, i) => i + 1).map(p => (
+                                                <button key={p} onClick={() => setAuditPage(p)}
+                                                    className={`w-7 h-7 rounded-lg text-xs font-bold transition-all ${auditPage === p ? 'bg-indigo-600 text-white' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                                                >
+                                                    {p}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })()}
+
                 </div>
             </div>
 

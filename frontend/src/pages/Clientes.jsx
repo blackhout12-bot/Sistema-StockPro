@@ -5,7 +5,7 @@ import { Users as CustomersIcon, Plus, Search, Edit2, Trash2, Mail, Phone, MapPi
 import { toast } from 'react-hot-toast';
 
 const Clientes = () => {
-    const { token } = useAuth();
+    const { token, featureToggles } = useAuth();
     const [clientes, setClientes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -19,7 +19,9 @@ const Clientes = () => {
         documento_identidad: '',
         email: '',
         telefono: '',
-        direccion: ''
+        direccion: '',
+        nivel_vip: 'Bronce',
+        puntos: 0
     });
 
     useEffect(() => {
@@ -48,11 +50,13 @@ const Clientes = () => {
                 documento_identidad: cliente.documento_identidad,
                 email: cliente.email || '',
                 telefono: cliente.telefono || '',
-                direccion: cliente.direccion || ''
+                direccion: cliente.direccion || '',
+                nivel_vip: cliente.nivel_vip || 'Bronce',
+                puntos: cliente.puntos || 0
             });
         } else {
             setEditingCliente(null);
-            setFormData({ nombre: '', documento_identidad: '', email: '', telefono: '', direccion: '' });
+            setFormData({ nombre: '', documento_identidad: '', email: '', telefono: '', direccion: '', nivel_vip: 'Bronce', puntos: 0 });
         }
         setShowModal(true);
     };
@@ -184,6 +188,11 @@ const Clientes = () => {
                                     <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[9px] font-black bg-surface-50 text-slate-500 border border-slate-100 mt-2 uppercase tracking-tighter">
                                         CUIT / DNI: {cliente.documento_identidad}
                                     </span>
+                                    {featureToggles?.mod_fidelizacion && (
+                                        <span className={`inline-flex items-center ml-2 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter border ${cliente.nivel_vip === 'Platino' ? 'bg-indigo-50 text-indigo-600 border-indigo-100' : cliente.nivel_vip === 'Oro' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-slate-50 text-slate-500 border-slate-100'} mt-2`}>
+                                            VIP: {cliente.nivel_vip || 'Bronce'} • Pts: {cliente.puntos || 0}
+                                        </span>
+                                    )}
                                 </div>
                                 <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all">
                                     <button
@@ -320,6 +329,40 @@ const Clientes = () => {
                                         ></textarea>
                                     </div>
                                 </div>
+                                
+                                {featureToggles?.mod_fidelizacion && (
+                                    <>
+                                        <div className="pt-4 border-t border-slate-100">
+                                            <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-widest mb-4">Membresía & Fidelidad</h4>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Nivel VIP</label>
+                                                    <select
+                                                        className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all"
+                                                        value={formData.nivel_vip}
+                                                        onChange={(e) => setFormData({ ...formData, nivel_vip: e.target.value })}
+                                                    >
+                                                        <option value="Bronce">Bronce</option>
+                                                        <option value="Plata">Plata</option>
+                                                        <option value="Oro">Oro</option>
+                                                        <option value="Platino">Platino</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Puntos Acumulados</label>
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all"
+                                                        value={formData.puntos}
+                                                        onChange={(e) => setFormData({ ...formData, puntos: parseInt(e.target.value) || 0 })}
+                                                        placeholder="0"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                                 <div className="pt-6 flex gap-4 border-t border-slate-100">
                                     <button
                                         type="button"

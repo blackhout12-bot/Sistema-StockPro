@@ -386,6 +386,27 @@ async function resetPassword(token, nuevaPassword) {
   logger.info({ userId: usuario.id }, 'Contraseña restablecida vía token');
 }
 
+async function refreshToken(userPayload) {
+  if (!userPayload || !userPayload.id || !userPayload.email) {
+    throw Object.assign(new Error('Payload inválido para refrescar el token'), { statusCode: 401 });
+  }
+  
+  const payload = {
+    id: userPayload.id,
+    nombre: userPayload.nombre,
+    email: userPayload.email,
+    empresa_id: userPayload.empresa_id,
+    rol: userPayload.rol,
+  };
+
+  const newToken = generarToken(payload);
+  
+  return { 
+    token: newToken, 
+    user: payload 
+  };
+}
+
 module.exports = {
   login,
   seleccionarEmpresa,
@@ -403,4 +424,5 @@ module.exports = {
   obtenerUsuariosGlobal,
   forgotPassword,
   resetPassword,
+  refreshToken,
 };

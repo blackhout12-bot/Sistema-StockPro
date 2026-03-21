@@ -23,11 +23,21 @@ const biRouter = require('../src/routes/bi.routes');
 const olapRouter = require('../src/routes/olap.routes');
 const factRouter = require('../src/modules/facturacion/facturacion.controller');
 
-// Mock Authentication Middleware
-app.use((req, res, next) => {
-    req.user = { id: 1, rol: 'admin' };
-    req.tenant_id = 1;
-    next();
+// Mock Authentication Middleware using Jest
+jest.mock('../src/middlewares/auth', () => {
+    return (req, res, next) => {
+        req.user = { id: 1, rol: 'admin', empresa_id: 1 };
+        req.tenant_id = 1;
+        next();
+    };
+});
+
+// Mock TenantContext Middleware
+jest.mock('../src/middlewares/tenantContext', () => {
+    return (req, res, next) => {
+        req.tenant_id = 1;
+        next();
+    };
 });
 
 app.use('/api/v1/bi', biRouter);

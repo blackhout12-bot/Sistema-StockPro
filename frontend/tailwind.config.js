@@ -9,6 +9,11 @@ module.exports = {
                 sans: ['Inter', 'system-ui', 'sans-serif'],
             },
             colors: {
+                brand: {
+                    dark: '#1e3a8a',  // Azul naval corporativo (sidebar)
+                    base: '#2563eb',  // Tonos de acento principales
+                    light: '#dbeafe', // Fondos radiantes
+                },
                 primary: {
                     50: '#f5f7ff',
                     100: '#ebf0fe',
@@ -16,10 +21,10 @@ module.exports = {
                     300: '#adc0fb',
                     400: '#6b8df7',
                     500: '#2a5af3',
-                    600: '#2551db', // Main Brand Indigo
-                    700: '#1f44b7',
-                    800: '#193692',
-                    900: '#142c77',
+                    600: '#2563eb', // Matches brand.base
+                    700: '#1d4ed8',
+                    800: '#1e40af',
+                    900: '#1e3a8a', // Matches brand.dark
                 },
                 surface: {
                     50: '#f8fafc',

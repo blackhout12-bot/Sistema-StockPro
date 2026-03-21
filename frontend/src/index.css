@@ -6,7 +6,10 @@
 
 @layer base {
   body {
-    @apply bg-surface-50 text-slate-900 font-sans antialiased selection:bg-indigo-100;
+    @apply text-slate-900 font-sans antialiased selection:bg-brand-light;
+    background-color: theme('colors.brand.light');
+    background-image: radial-gradient(at 0% 0%, hsla(215,90%,95%,1) 0, transparent 50%), 
+                      radial-gradient(at 50% 100%, hsla(210,100%,98%,1) 0, transparent 50%);
     margin: 0;
   }
 

@@ -4,6 +4,7 @@ const router = express.Router();
 const authenticate = require('../../middlewares/auth');
 const authorizeRole = require('../../middlewares/roles');
 const checkPermiso = require('../../middlewares/rbac');
+const requireFeature = require('../../middlewares/features');
 const audit = require('../../middlewares/audit');
 const { validateBody } = require('../../middlewares/validateRequest');
 const { productoSchema } = require('../../schemas/producto.schema');
@@ -71,18 +72,20 @@ router.delete('/eliminar/:id', checkPermiso('productos', 'eliminar'), audit('eli
 });
 
 // Obtener lotes de un producto
-router.get('/:id/lotes', checkPermiso('productos', 'leer'), async (req, res, next) => {
+// ── GET /productos/:id/lotes ─────────
+router.get('/:id/lotes', checkPermiso('productos', 'leer'), requireFeature('mod_lotes'), async (req, res, next) => {
   try {
     const { id } = req.params;
     const lotes = await productosService.getLotesByProducto(parseInt(id), req.tenant_id);
     res.json(lotes);
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 });
 
 // Agregar lote
-router.post('/:id/lotes', checkPermiso('productos', 'editar'), audit('crear', 'Lote'), async (req, res, next) => {
+// ── POST /productos/:id/lotes ────────
+router.post('/:id/lotes', checkPermiso('productos', 'editar'), requireFeature('mod_lotes'), audit('crear', 'Lote'), async (req, res, next) => {
   try {
     const { id } = req.params;
     const { nro_lote, cantidad, fecha_vto } = req.body;

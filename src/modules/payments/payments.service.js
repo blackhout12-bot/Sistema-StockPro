@@ -111,7 +111,7 @@ async function handleWebhookMP(data) {
     }
 }
 
-const { delCache } = require('../../config/redis');
+const { deleteCache } = require('../../config/redis');
 
 async function updatePagoEstado(id, estado) {
     const pool = await connectDB();
@@ -122,7 +122,7 @@ async function updatePagoEstado(id, estado) {
     
     if (result.recordset.length > 0) {
         const empresa_id = result.recordset[0].empresa_id;
-        await delCache(`stats:tenant_${empresa_id}`);
+        await deleteCache(`stats:tenant_${empresa_id}`);
     }
     
     logger.info({ pagoId: id, estado }, 'Estado de pago actualizado y caché invalidada');

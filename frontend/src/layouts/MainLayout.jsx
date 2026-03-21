@@ -1,201 +1,321 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, ArrowRightLeft, LogOut, FileText, Users as UsersIcon, Building2, Users as CustomersIcon, ShoppingCart, Menu, History, Zap, Bell, Store, ChevronRight } from 'lucide-react';
+import {
+  LayoutDashboard, Package, ArrowRightLeft, LogOut, FileText,
+  UsersRound, Building2, Users, ShoppingCart, History, Zap, Bell,
+  Store, ChevronRight, ChevronDown, Menu, X, Star, Hammer,
+  BarChart2, Settings
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useBranch } from '../context/BranchContext';
 import NotificationsDropdown from '../components/NotificationsDropdown';
+import moduleRegistry, { getAccessibleModules, groupBySection, sectionMeta } from '../config/moduleRegistry';
 
-const MainLayout = () => {
-    const { user, logout, misEmpresas, switchEmpresa } = useAuth();
-    const [isSidebarOpen, setSidebarOpen] = useState(false);
-    const location = useLocation();
-    
-    const currentEmpresaId = user?.empresa_id;
-    const currentEmpresa = misEmpresas?.find(e => e.empresa_id === currentEmpresaId);
-
-    const baseNavItems = [
-        { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={18} /> },
-        { name: 'Facturación / POS', path: '/facturacion', icon: <ShoppingCart size={18} /> },
-        { name: 'Movimientos', path: '/movimientos', icon: <ArrowRightLeft size={18} /> },
-        { name: 'Productos', path: '/productos', icon: <Package size={18} /> },
-        { name: 'Clientes', path: '/clientes', icon: <CustomersIcon size={18} /> },
-        { name: 'Reportes', path: '/reportes', icon: <FileText size={18} /> }
-    ];
-
-    const adminAndGerenteNavItems = [
-        { name: 'Integraciones', path: '/pagos-externos', icon: <Zap size={18} /> },
-        { name: 'Marketplace', path: '/marketplace', icon: <Store size={18} /> },
-        { name: 'Alertas & IA', path: '/alertas-ia', icon: <Bell size={18} /> },
-    ];
-
-    let navItems = [...baseNavItems];
-
-    if (user?.rol === 'admin') {
-        navItems = [
-            ...baseNavItems,
-            { name: 'Usuarios', path: '/usuarios', icon: <UsersIcon size={18} /> },
-            ...adminAndGerenteNavItems,
-            { name: 'Auditoría', path: '/auditoria', icon: <History size={18} /> },
-            { name: 'Empresa', path: '/empresa', icon: <Building2 size={18} /> }
-        ];
-    } else if (user?.rol === 'gerente') {
-        navItems = [
-            ...baseNavItems,
-            ...adminAndGerenteNavItems,
-        ];
-    }
-    // ─── Breadcrumbs Generator ───────────────────────────────────
-    const generateBreadcrumbs = () => {
-        const pathnames = location.pathname.split('/').filter((x) => x);
-        const formatName = (name) => {
-            const mapped = {
-                '': 'Dashboard',
-                'facturacion': 'Punto de Venta',
-                'movimientos': 'Movimientos',
-                'productos': 'Productos',
-                'clientes': 'Clientes',
-                'reportes': 'Reportes',
-                'pagos-externos': 'Integraciones',
-                'marketplace': 'Marketplace',
-                'alertas-ia': 'Alertas IA',
-                'auditoria': 'Auditoría',
-                'empresa': 'Mi Empresa',
-                'usuarios': 'Usuarios'
-            };
-            return mapped[name] || name.charAt(0).toUpperCase() + name.slice(1);
-        };
-
-        return (
-            <div className="flex items-center gap-2 text-sm">
-                <Link to="/" className="text-slate-400 font-bold hover:text-primary-600 transition-colors">StockPro</Link>
-                {pathnames.length > 0 && <ChevronRight size={14} className="text-slate-300" />}
-                {pathnames.map((value, index) => {
-                    const isLast = index === pathnames.length - 1;
-                    const to = `/${pathnames.slice(0, index + 1).join('/')}`;
-                    return isLast ? (
-                        <span key={to} className="text-primary-600 font-black tracking-tight">{formatName(value)}</span>
-                    ) : (
-                        <React.Fragment key={to}>
-                            <Link to={to} className="text-slate-400 font-bold hover:text-primary-600 transition-colors">
-                                {formatName(value)}
-                            </Link>
-                            <ChevronRight size={14} className="text-slate-300" />
-                        </React.Fragment>
-                    );
-                })}
-            </div>
-        );
-    };
-
-    return (
-        <div className="flex h-screen bg-surface-50">
-            {/* Sidebar */}
-            <aside className="w-64 bg-white border-r border-slate-100 flex flex-col hidden md:flex h-full">
-                <div className="h-20 flex items-center px-8">
-                    <h1 className="text-xl font-extrabold text-primary-600 tracking-tighter">Stock Pro</h1>
-                </div>
-
-                {/* Selector de Empresa — Refined */}
-                {misEmpresas?.length > 1 && (
-                    <div className="px-6 py-4">
-                        <label className="block text-[10px] font-bold uppercase text-slate-400 tracking-widest mb-2 ml-1">
-                            Sucursal Activa
-                        </label>
-                        <div className="relative group">
-                            <select
-                                value={currentEmpresaId || ''}
-                                onChange={(e) => switchEmpresa(Number(e.target.value))}
-                                className="w-full appearance-none bg-surface-50 border border-slate-100 rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-primary-500/10 focus:border-primary-500 transition-all cursor-pointer"
-                            >
-                                {misEmpresas?.map(emp => (
-                                    <option key={emp.id || emp.empresa_id} value={emp.empresa_id}>
-                                        {emp.empresa_nombre}
-                                    </option>
-                                ))}
-                            </select>
-                            <Building2 size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-primary-500 transition-colors" />
-                        </div>
-                    </div>
-                )}
-
-                <div className="flex-1 overflow-y-auto py-2">
-                    <nav className="space-y-1 px-4">
-                        {navItems.map((item) => {
-                            const isActive = location.pathname === item.path;
-                            return (
-                                <Link
-                                    key={item.name}
-                                    to={item.path}
-                                    className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 ${isActive
-                                        ? 'bg-primary-50 text-primary-700 shadow-sm'
-                                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-                                        }`}
-                                >
-                                    <span className={`mr-3 ${isActive ? 'text-primary-600' : 'text-slate-400'}`}>
-                                        {item.icon}
-                                    </span>
-                                    {item.name}
-                                </Link>
-                            );
-                        })}
-                    </nav>
-                </div>
-
-                <div className="p-6 border-t border-slate-50 bg-slate-50/30">
-                    <div className="flex items-center mb-5 gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-primary-600 flex items-center justify-center text-white font-bold shadow-soft">
-                            {user?.nombre?.[0]?.toUpperCase() || 'U'}
-                        </div>
-                        <div className="min-w-0">
-                            <p className="text-sm font-bold text-slate-900 truncate tracking-tight">{user?.nombre || user?.email}</p>
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{user?.rol || 'Usuario'}</p>
-                        </div>
-                    </div>
-                    <button
-                        onClick={logout}
-                        className="w-full flex items-center justify-center px-4 py-2.5 text-xs font-bold text-rose-500 bg-rose-50 hover:bg-rose-100 rounded-xl transition-all active:scale-95"
-                    >
-                        <LogOut size={14} className="mr-2" />
-                        Finalizar Sesión
-                    </button>
-                </div>
-            </aside>
-
-            {/* Main content */}
-            <main className="flex-1 flex flex-col overflow-hidden">
-                {/* Header Superior Minimalist */}
-                <header className="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-end px-8 gap-6 sticky top-0 z-40">
-                    <div className="flex items-center gap-2 mr-auto md:hidden">
-                        <button className="p-2 text-slate-400 hover:text-primary-600 transition-colors">
-                            <Menu size={24} />
-                        </button>
-                    </div>
-
-                    <div className="hidden md:flex items-center mr-auto">
-                        {generateBreadcrumbs()}
-                    </div>
-
-                    <NotificationsDropdown />
-
-                    <div className="h-6 w-[1.5px] bg-slate-100"></div>
-
-                    <div className="flex items-center gap-3">
-                        <div className="text-right hidden sm:block">
-                            <p className="text-xs font-bold text-slate-800 leading-none">{user?.nombre || user?.email}</p>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-primary-500 mt-1">{user?.rol}</p>
-                        </div>
-                        <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-600 font-bold text-xs border border-slate-100">
-                            {user?.nombre?.[0]?.toUpperCase() || 'U'}
-                        </div>
-                    </div>
-                </header>
-
-                <div className="flex-1 overflow-y-auto p-8 lg:p-10">
-                    <Outlet />
-                </div>
-            </main>
-        </div>
-    );
+// ── Mapa de íconos Lucide ──────────────────────────────────────
+const ICON_MAP = {
+  LayoutDashboard: <LayoutDashboard size={16} />,
+  Package:         <Package size={16} />,
+  ArrowRightLeft:  <ArrowRightLeft size={16} />,
+  ShoppingCart:    <ShoppingCart size={16} />,
+  FileText:        <FileText size={16} />,
+  Users:           <Users size={16} />,
+  UsersRound:      <UsersRound size={16} />,
+  Building2:       <Building2 size={16} />,
+  History:         <History size={16} />,
+  Zap:             <Zap size={16} />,
+  Bell:            <Bell size={16} />,
+  Store:           <Store size={16} />,
+  Hammer:          <Hammer size={16} />,
+  Star:            <Star size={16} />,
+  BarChart2:       <BarChart2 size={16} />,
+  Settings:        <Settings size={16} />
 };
 
+// ── Componente de item de nav ──────────────────────────────────
+function NavItem({ mod, isActive }) {
+  const icon = ICON_MAP[mod.icon] || <Package size={16} />;
+  return (
+    <Link
+      to={mod.path}
+      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[12px] font-semibold transition-all duration-200 group ${
+        isActive
+          ? 'bg-brand-base text-white shadow-sm border border-white/10'
+          : 'text-white/60 hover:bg-white/5 hover:text-white'
+      }`}
+    >
+      <span className={`flex-shrink-0 transition-colors ${isActive ? 'text-white' : 'text-white/40 group-hover:text-white/80'}`}>
+        {icon}
+      </span>
+      <span className="truncate">{mod.label}</span>
+      {isActive && (
+        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white flex-shrink-0" />
+      )}
+    </Link>
+  );
+}
+
+// ── Componente de sección del menú ─────────────────────────────
+function NavSection({ sectionKey, mods, currentPath, defaultOpen = true }) {
+  const [open, setOpen] = useState(defaultOpen);
+  const meta = sectionMeta[sectionKey];
+  if (!mods || mods.length === 0) return null;
+
+  return (
+    <div className="mb-2">
+      {meta?.label && (
+        <button
+          onClick={() => setOpen(o => !o)}
+          className="w-full flex items-center justify-between px-3 py-1.5 mb-1 group"
+        >
+          <span className="text-[10px] font-black items-center gap-2 text-white/50 uppercase tracking-[0.2em] group-hover:text-white transition-colors">
+            {meta.label}
+          </span>
+          <ChevronDown
+            size={12}
+            className={`text-white/30 transition-transform duration-200 ${open ? '' : '-rotate-90'}`}
+          />
+        </button>
+      )}
+      {open && (
+        <div className="space-y-0.5 mt-1">
+          {mods.map(mod => (
+            <NavItem key={mod.id} mod={mod} isActive={
+              mod.index ? currentPath === '/' : currentPath === mod.path
+            } />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Layout Principal ───────────────────────────────────────────
+const MainLayout = () => {
+  const { user, logout, misEmpresas, switchEmpresa, featureToggles, empresaConfig } = useAuth();
+  const { sucursalActiva, sucursales, selectSucursal } = useBranch();
+  const [isMobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
+
+  const currentEmpresaId = user?.empresa_id;
+  const currentEmpresa = misEmpresas?.find(e => e.empresa_id === currentEmpresaId);
+
+  // ── Módulos accesibles agrupados por sección ─────────────────
+  const accessibleModules = useMemo(
+    () => getAccessibleModules(featureToggles, user?.rol),
+    [featureToggles, user?.rol]
+  );
+  const grouped = useMemo(() => groupBySection(accessibleModules), [accessibleModules]);
+
+  // Ordenar secciones por order
+  const sortedSections = useMemo(
+    () => Object.entries(grouped).sort(([a], [b]) => (sectionMeta[a]?.order ?? 99) - (sectionMeta[b]?.order ?? 99)),
+    [grouped]
+  );
+
+  // ── Breadcrumbs desde el registry ─────────────────────────────
+  const generateBreadcrumbs = () => {
+    const allMod = moduleRegistry.find(
+      m => m.index ? location.pathname === '/' : location.pathname === m.path
+    );
+    const pathnames = location.pathname.split('/').filter(x => x);
+
+    return (
+      <div className="flex items-center gap-2 text-sm">
+        <Link to="/" className="text-slate-400 font-bold hover:text-primary-600 transition-colors text-xs">
+          StockPro
+        </Link>
+        {pathnames.length > 0 && (
+          <>
+            <ChevronRight size={12} className="text-slate-300" />
+            <span className="text-primary-600 font-black text-xs tracking-tight">
+              {allMod?.breadcrumb || pathnames[pathnames.length - 1]}
+            </span>
+          </>
+        )}
+      </div>
+    );
+  };
+
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full">
+      {/* Logo */}
+      <div className="h-16 flex items-center px-5 border-b border-white/10 flex-shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center shadow-sm">
+            <span className="text-white text-[10px] font-black">GM</span>
+          </div>
+          <div>
+            <h1 className="text-[14px] font-black text-white tracking-tighter leading-none">GestiónMax</h1>
+            {empresaConfig?.rubro && empresaConfig.rubro !== 'general' && (
+              <p className="text-[9px] font-bold text-white/70 uppercase tracking-wider capitalize">
+                {empresaConfig.rubro}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Selector de Empresa / Sucursal */}
+      <div className="px-4 pt-4 pb-2 space-y-2 flex-shrink-0">
+        {misEmpresas?.length > 1 && (
+          <div>
+            <label className="block text-[9px] font-black uppercase text-white/50 tracking-widest mb-1 ml-1">
+              Empresa
+            </label>
+            <select
+              value={currentEmpresaId || ''}
+              onChange={(e) => switchEmpresa(Number(e.target.value))}
+              className="w-full appearance-none bg-surface-50 border border-slate-100 rounded-xl px-3 py-2 text-[11px] font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-primary-500/10 focus:border-primary-500 transition-all cursor-pointer"
+            >
+              {misEmpresas?.map(emp => (
+                <option key={emp.id || emp.empresa_id} value={emp.empresa_id}>
+                  {emp.empresa_nombre}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {sucursales.length > 1 && (
+          <div>
+            <label className="block text-[9px] font-black uppercase text-white/50 tracking-widest mb-1 ml-1">
+              Sucursal
+            </label>
+            <select
+              value={sucursalActiva?.id || ''}
+              onChange={(e) => {
+                const s = sucursales.find(s => s.id === Number(e.target.value));
+                if (s) selectSucursal(s);
+              }}
+              className="w-full appearance-none bg-surface-50 border border-slate-100 rounded-xl px-3 py-2 text-[11px] font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-primary-500/10 focus:border-primary-500 transition-all cursor-pointer"
+            >
+              {sucursales.map(s => (
+                <option key={s.id} value={s.id}>{s.nombre}</option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+
+      {/* Navegación dinámica por secciones */}
+      <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-3">
+        {sortedSections.map(([sectionKey, mods]) => (
+          <NavSection
+            key={sectionKey}
+            sectionKey={sectionKey}
+            mods={mods}
+            currentPath={location.pathname}
+            defaultOpen={sectionKey !== 'administracion' && sectionKey !== 'extras'}
+          />
+        ))}
+      </nav>
+
+      {/* User footer */}
+      <div className="p-4 border-t border-white/10 flex-shrink-0">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-white font-black text-xs shadow-sm flex-shrink-0">
+            {user?.nombre?.[0]?.toUpperCase() || 'U'}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-bold text-white truncate">{user?.nombre || user?.email}</p>
+            <p className="text-[9px] font-black uppercase tracking-wider text-white/50">{user?.rol || 'Usuario'}</p>
+          </div>
+        </div>
+        <button
+          onClick={logout}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-[10px] font-black text-white/80 bg-white/10 hover:bg-white/20 rounded-xl transition-all active:scale-95 uppercase tracking-widest"
+        >
+          <LogOut size={12} />
+          Finalizar Sesión
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="flex h-screen bg-surface-50 overflow-hidden">
+      {/* Desktop Sidebar */}
+      <aside className="w-56 bg-brand-dark border-r border-brand-900 hidden md:flex flex-col h-full flex-shrink-0 shadow-lg z-50 text-white">
+        <SidebarContent />
+      </aside>
+
+      {/* Mobile Overlay */}
+      {isMobileOpen && (
+        <div
+          className="fixed inset-0 bg-slate-900/50 z-50 md:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* Mobile Sidebar */}
+      <aside
+        className={`fixed inset-y-0 left-0 w-56 bg-brand-dark border-r border-brand-900 z-50 md:hidden flex flex-col transition-transform duration-300 ease-out shadow-xl text-white ${
+          isMobileOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="absolute top-3 right-3">
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="p-1.5 text-white/40 hover:text-white rounded-lg transition-colors"
+          >
+            <X size={16} />
+          </button>
+        </div>
+        <SidebarContent />
+      </aside>
+
+      {/* Main content */}
+      <main className="flex-1 flex flex-col overflow-hidden min-w-0">
+        {/* Header */}
+        <header className="h-14 bg-white/90 backdrop-blur-md border-b border-slate-100 flex items-center px-6 gap-4 sticky top-0 z-40 flex-shrink-0">
+          {/* Mobile menu trigger */}
+          <button
+            className="p-2 text-slate-400 hover:text-primary-600 transition-colors md:hidden"
+            onClick={() => setMobileOpen(true)}
+          >
+            <Menu size={20} />
+          </button>
+
+          {/* Breadcrumbs */}
+          <div className="hidden md:flex items-center">
+            {generateBreadcrumbs()}
+          </div>
+
+          {/* Right side */}
+          <div className="ml-auto flex items-center gap-4">
+            {/* Sucursal badge (si hay una activa) */}
+            {sucursalActiva && sucursales.length > 1 && (
+              <div className="hidden sm:flex items-center gap-1.5 bg-primary-50 border border-primary-100 rounded-full px-3 py-1">
+                <Building2 size={10} className="text-primary-500" />
+                <span className="text-[9px] font-black text-primary-600 uppercase tracking-wider">
+                  {sucursalActiva.nombre}
+                </span>
+              </div>
+            )}
+
+            <NotificationsDropdown />
+
+            <div className="h-5 w-px bg-slate-100" />
+
+            <div className="flex items-center gap-2">
+              <div className="text-right hidden sm:block">
+                <p className="text-[11px] font-bold text-slate-800 leading-none">{user?.nombre || user?.email}</p>
+                <p className="text-[9px] font-black uppercase tracking-widest text-primary-500 mt-0.5">{user?.rol}</p>
+              </div>
+              <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-600 font-bold text-xs border border-slate-100">
+                {user?.nombre?.[0]?.toUpperCase() || 'U'}
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Page content */}
+        <div className="flex-1 overflow-y-auto p-6 lg:p-8">
+          <Outlet />
+        </div>
+      </main>
+    </div>
+  );
+};
 
 export default MainLayout;

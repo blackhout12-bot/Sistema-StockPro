@@ -67,6 +67,17 @@ router.post('/select-empresa', async (req, res) => {
   }
 });
 
+// ── GET /auth/refresh ─────────────────────────────────────────────────────────
+// Renueva el token de autenticación
+router.get('/refresh', authenticate, async (req, res) => {
+  try {
+    const result = await authService.refreshToken(req.user);
+    res.json(result);
+  } catch (err) {
+    res.status(err.statusCode || 401).json({ error: err.message });
+  }
+});
+
 // ── GET /auth/empresas-disponibles — Lista de empresas para dropdown (Solo Admin via RBAC) ──
 router.get('/empresas-disponibles', authenticate, checkPermiso('usuarios', 'administrar'), async (req, res, next) => {
   try {

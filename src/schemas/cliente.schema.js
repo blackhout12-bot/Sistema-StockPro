@@ -6,7 +6,9 @@ const clienteSchema = z.object({
     documento_identidad: z.string().min(1, 'El documento de identidad es obligatorio').max(100, 'El documento no puede exceder 100 caracteres'),
     email: z.string().email('Debe ser un email válido').max(255).optional().or(z.literal('')),
     telefono: z.string().max(50).optional().or(z.literal('')),
-    direccion: z.string().max(255).optional().or(z.literal(''))
+    direccion: z.string().max(255).optional().or(z.literal('')),
+    nivel_vip: z.string().max(50).optional().or(z.literal('')),
+    puntos: z.number().int().min(0).optional()
 }).strict(); // Rechazar campos no mapeados
 
 module.exports = {

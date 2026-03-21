@@ -11,10 +11,12 @@ class FacturacionModel {
         } catch (e) { }
 
         const hasTipo = await pool.request().query("SELECT TOP 1 name FROM sys.columns WHERE object_id = OBJECT_ID('Facturas') AND name = 'tipo_comprobante'").then(r => r.recordset.length > 0);
+        const hasOrigen = await pool.request().query("SELECT TOP 1 name FROM sys.columns WHERE object_id = OBJECT_ID('Facturas') AND name = 'origen_venta'").then(r => r.recordset.length > 0);
 
         const query = hasSnapshots
             ? `SELECT f.id, f.nro_factura, f.fecha_emision, f.total, f.estado,
                    ${hasTipo ? 'f.tipo_comprobante,' : "'' as tipo_comprobante,"}
+                   ${hasOrigen ? 'f.origen_venta,' : "'' as origen_venta,"}
                    f.moneda, f.tasa_cambio,
                    ISNULL(f.cliente_nombre_snapshot, c.nombre) as cliente_nombre, 
                    ISNULL(f.vendedor_nombre_snapshot, u.nombre) as vendedor_nombre
@@ -24,6 +26,7 @@ class FacturacionModel {
                WHERE f.empresa_id = @empresa_id ORDER BY f.fecha_emision DESC`
             : `SELECT f.id, f.nro_factura, f.fecha_emision, f.total, f.estado,
                    ${hasTipo ? 'f.tipo_comprobante,' : "'' as tipo_comprobante,"}
+                   ${hasOrigen ? 'f.origen_venta,' : "'' as origen_venta,"}
                    f.moneda, f.tasa_cambio,
                    c.nombre as cliente_nombre, u.nombre as vendedor_nombre
                FROM Facturas f
@@ -137,9 +140,14 @@ class FacturacionModel {
         const randomPart = Math.floor(1000 + Math.random() * 9000);
         const nro_factura = `F${empresa_id}-${datePart}-${randomPart}`;
 
-        // Detección robusta de Snapshots al emitir
+        // Obtener Feature Toggles y Detección robusta
+        let toggles = {};
         let hasSnapshots = false;
         try {
+            const empRes = await pool.request().input('eid', sql.Int, empresa_id).query("SELECT feature_toggles FROM Empresa WHERE id = @eid");
+            if (empRes.recordset.length > 0 && empRes.recordset[0].feature_toggles) {
+                toggles = JSON.parse(empRes.recordset[0].feature_toggles);
+            }
             await pool.request().query("SELECT TOP 1 cliente_nombre_snapshot FROM Facturas");
             hasSnapshots = true;
         } catch (e) { }
@@ -263,6 +271,7 @@ class FacturacionModel {
             addFactCol('metodo_pago', facturaData.metodo_pago || 'Efectivo', sql.NVarChar);
             addFactCol('moneda', facturaData.moneda || 'ARS', sql.NVarChar(10));
             addFactCol('tasa_cambio', facturaData.tasa_cambio || 1.0, sql.Decimal(18, 4));
+            addFactCol('origen_venta', facturaData.origen_venta || 'Local', sql.VarChar(50));
 
             const insertFactQuery = `INSERT INTO Facturas (${factFields.join(', ')}) OUTPUT INSERTED.id VALUES (${factValues.join(', ')})`;
             const resultFact = await reqFact.query(insertFactQuery);
@@ -338,31 +347,34 @@ class FacturacionModel {
 
                 // ── NUEVO: DESCUENTO POR LOTES (FIFO) ───────────────────────
 
-                const lotCheck = await new sql.Request(transaction)
-                    .input('pid', sql.Int, item.producto_id)
-                    .input('eid', sql.Int, empresa_id)
-                    .query('SELECT id, cantidad, nro_lote FROM Lotes WHERE producto_id = @pid AND empresa_id = @eid AND cantidad > 0 ORDER BY fecha_vto ASC, creado_en ASC');
+                let lotCheck = { recordset: [] };
+                if (toggles.mod_lotes) {
+                    lotCheck = await new sql.Request(transaction)
+                        .input('pid', sql.Int, item.producto_id)
+                        .input('eid', sql.Int, empresa_id)
+                        .query('SELECT id, cantidad, nro_lote FROM Lotes WHERE producto_id = @pid AND empresa_id = @eid AND cantidad > 0 ORDER BY fecha_vto ASC, creado_en ASC');
 
-                if (lotCheck.recordset.length > 0) {
-                    let pendiente = item.cantidad;
-                    for (const lote of lotCheck.recordset) {
-                        if (pendiente <= 0) break;
+                    if (lotCheck.recordset.length > 0) {
+                        let pendiente = item.cantidad;
+                        for (const lote of lotCheck.recordset) {
+                            if (pendiente <= 0) break;
 
-                        const aDescontar = Math.min(lote.cantidad, pendiente);
-                        await new sql.Request(transaction)
-                            .input('lid', sql.Int, lote.id)
-                            .input('qty', sql.Int, aDescontar)
-                            .query('UPDATE Lotes SET cantidad = cantidad - @qty WHERE id = @lid');
+                            const aDescontar = Math.min(lote.cantidad, pendiente);
+                            await new sql.Request(transaction)
+                                .input('lid', sql.Int, lote.id)
+                                .input('qty', sql.Int, aDescontar)
+                                .query('UPDATE Lotes SET cantidad = cantidad - @qty WHERE id = @lid');
 
-                        pendiente -= aDescontar;
+                            pendiente -= aDescontar;
 
-                        // Opcional: Registrar que este lote fue usado (podría ir en una tabla Detalle_Factura_Lotes si fuera necesario)
-                        logger.info({ factura_id, producto_id: item.producto_id, lote_id: lote.id, nro_lote: lote.nro_lote, descontado: aDescontar }, 'Descuento de lote FIFO aplicado');
-                    }
+                            // Opcional: Registrar que este lote fue usado (podría ir en una tabla Detalle_Factura_Lotes si fuera necesario)
+                            logger.info({ factura_id, producto_id: item.producto_id, lote_id: lote.id, nro_lote: lote.nro_lote, descontado: aDescontar }, 'Descuento de lote FIFO aplicado');
+                        }
 
-                    if (pendiente > 0) {
-                        // Esto no debería pasar si el stock consolidado es correcto, pero por seguridad:
-                        logger.warn({ producto_id: item.producto_id, pendiente }, 'Venta mayor al stock total de lotes. El resto se descontó solo del stock general.');
+                        if (pendiente > 0) {
+                            // Esto no debería pasar si el stock consolidado es correcto, pero por seguridad:
+                            logger.warn({ producto_id: item.producto_id, pendiente }, 'Venta mayor al stock total de lotes. El resto se descontó solo del stock general.');
+                        }
                     }
                 }
 

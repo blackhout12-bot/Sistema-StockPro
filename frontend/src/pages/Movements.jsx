@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/axiosConfig';
 import { useAuth } from '../context/AuthContext';
-import { Plus, ArrowDownRight, ArrowUpRight, ArrowRightLeft } from 'lucide-react';
+import { Plus, ArrowDownRight, ArrowUpRight, ArrowRightLeft, Hammer } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 const Movements = () => {
-    const { token } = useAuth();
+    const { token, featureToggles } = useAuth();
     const [movements, setMovements] = useState([]);
     const [products, setProducts] = useState([]);
     const [depositos, setDepositos] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [showTransferModal, setShowTransferModal] = useState(false);
+    const [showProdModal, setShowProdModal] = useState(false);
 
     // Form state (Ajuste)
     const [formData, setFormData] = useState({
@@ -20,13 +21,20 @@ const Movements = () => {
         cantidad: ''
     });
 
-    // Form state (Transferencia)
     const [transferData, setTransferData] = useState({
         producto_id: '',
         origen_id: '',
         destino_id: '',
         cantidad: '',
         motivo: ''
+    });
+
+    // Form state (Produccion)
+    const [prodData, setProdData] = useState({
+        insumo_id: '',
+        terminado_id: '',
+        cantidad_insumo: '',
+        cantidad_terminado: ''
     });
 
     useEffect(() => {
@@ -117,6 +125,29 @@ const Movements = () => {
         }
     };
 
+    const handleProduccionSubmit = async (e) => {
+        e.preventDefault();
+        if (prodData.insumo_id === prodData.terminado_id) return toast.error('El insumo y el producto terminado no pueden ser el mismo');
+        try {
+            await api.post('/movimientos/registrar', {
+                productoId: Number(prodData.insumo_id),
+                tipo: 'salida',
+                cantidad: Number(prodData.cantidad_insumo)
+            });
+            await api.post('/movimientos/registrar', {
+                productoId: Number(prodData.terminado_id),
+                tipo: 'entrada',
+                cantidad: Number(prodData.cantidad_terminado)
+            });
+            setShowProdModal(false);
+            setProdData({ insumo_id: '', terminado_id: '', cantidad_insumo: '', cantidad_terminado: '' });
+            fetchMovements();
+            toast.success('Orden de Producción ejecutada exitosamente');
+        } catch (err) {
+            toast.error('Error al procesar la orden de producción. Verifique existencias.');
+        }
+    };
+
     const getProductName = (id) => {
         const prod = products.find(p => p.id === id);
         return prod ? prod.nombre : `ID: ${id}`;
@@ -132,7 +163,16 @@ const Movements = () => {
                         Trazabilidad de Inventario · {movements.length} Registros
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
+                    {featureToggles?.mod_produccion && (
+                        <button
+                            onClick={() => setShowProdModal(true)}
+                            className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 text-indigo-700 text-[11px] font-black uppercase tracking-widest rounded-2xl hover:bg-indigo-50 hover:border-indigo-200 transition-all shadow-sm active:scale-95"
+                        >
+                            <Hammer size={16} />
+                            Orden Producción
+                        </button>
+                    )}
                     <button
                         onClick={() => setShowTransferModal(true)}
                         className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 text-slate-700 text-[11px] font-black uppercase tracking-widest rounded-2xl hover:bg-slate-50 transition-all shadow-sm active:scale-95"
@@ -450,6 +490,108 @@ const Movements = () => {
                                         className="flex-[2] px-6 py-4 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-indigo-700 transition-all shadow-soft active:scale-[0.98]"
                                     >
                                         Ejecutar Transferencia
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de Produccion */}
+            {showProdModal && featureToggles?.mod_produccion && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in-95 duration-500">
+                        <div className="px-10 py-8 bg-surface-50 border-b border-slate-100 flex justify-between items-center text-left">
+                            <div>
+                                <h3 className="text-xl font-black text-slate-900 tracking-tighter">Orden de Producción</h3>
+                                <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest mt-1">
+                                    Transformación de Materiales
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setShowProdModal(false)}
+                                className="w-10 h-10 flex items-center justify-center bg-white border border-slate-100 rounded-xl text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all shadow-sm"
+                            >
+                                <Plus size={24} className="rotate-45" />
+                            </button>
+                        </div>
+                        <div className="p-10">
+                            <form onSubmit={handleProduccionSubmit} className="space-y-6">
+                                <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                    <div className="col-span-2">
+                                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Consumo (Materia Prima)</h4>
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Insumo Base</label>
+                                        <select
+                                            required
+                                            className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-rose-500/5 focus:border-rose-500 outline-none transition-all appearance-none"
+                                            value={prodData.insumo_id}
+                                            onChange={(e) => setProdData({ ...prodData, insumo_id: e.target.value })}
+                                        >
+                                            <option value="">Seleccione Insumo...</option>
+                                            {products.map(p => (
+                                                <option key={p.id} value={p.id}>{p.nombre.toUpperCase()}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Cantidad Usada</label>
+                                        <input
+                                            type="number"
+                                            required
+                                            min="1"
+                                            className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-black focus:ring-4 focus:ring-rose-500/5 focus:border-rose-500 outline-none transition-all font-mono"
+                                            value={prodData.cantidad_insumo}
+                                            onChange={(e) => setProdData({ ...prodData, cantidad_insumo: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 bg-emerald-50/30 p-4 rounded-2xl border border-emerald-100/50">
+                                    <div className="col-span-2">
+                                        <h4 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-4">Ingreso (Producto Terminado)</h4>
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-2 ml-1">Producto Final</label>
+                                        <select
+                                            required
+                                            className="w-full bg-white border border-emerald-200 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 outline-none transition-all appearance-none"
+                                            value={prodData.terminado_id}
+                                            onChange={(e) => setProdData({ ...prodData, terminado_id: e.target.value })}
+                                        >
+                                            <option value="">Seleccione Ensamblaje...</option>
+                                            {products.map(p => (
+                                                <option key={p.id} value={p.id}>{p.nombre.toUpperCase()}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-2 ml-1">Unidades Generadas</label>
+                                        <input
+                                            type="number"
+                                            required
+                                            min="1"
+                                            className="w-full bg-white border border-emerald-200 rounded-xl px-4 py-3 text-sm font-black focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 outline-none transition-all font-mono"
+                                            value={prodData.cantidad_terminado}
+                                            onChange={(e) => setProdData({ ...prodData, cantidad_terminado: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="pt-6 flex gap-4 border-t border-slate-100">
+                                    <button
+                                        type="button"
+                                        className="flex-1 px-6 py-4 bg-white border border-slate-200 text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-rose-50 hover:text-rose-500 hover:border-rose-100 transition-all"
+                                        onClick={() => setShowProdModal(false)}
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="flex-[2] px-6 py-4 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-indigo-700 transition-all shadow-soft active:scale-[0.98]"
+                                    >
+                                        Ejecutar Ensamblaje
                                     </button>
                                 </div>
                             </form>

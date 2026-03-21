@@ -3,7 +3,9 @@ import { DownloadService } from '../utils/downloadService';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../utils/axiosConfig';
 import { useAuth } from '../context/AuthContext';
-import { ShoppingCart, Plus, Trash2, Search, FileText, CheckCircle, Package, User, CreditCard, ArrowRight, RefreshCw, Minus, ChevronDown, Save, X } from 'lucide-react';
+import { useBranch } from '../context/BranchContext';
+import { usePOSEngine } from '../utils/posEngine';
+import { ShoppingCart, Plus, Trash2, Search, FileText, CheckCircle, Package, User, CreditCard, ArrowRight, RefreshCw, Minus, ChevronDown, Save, X, AlertTriangle, Building2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 // ── Componentes Atómicos Senior ──────────────────────────────────
@@ -33,7 +35,9 @@ const POSButton = ({ onClick, disabled, children, variant = "primary", className
 };
 
 const Facturacion = () => {
-    const { token } = useAuth();
+    const { token, featureToggles, empresaConfig } = useAuth();
+    const { sucursalActiva, depositoActivo } = useBranch();
+    const { validateAddToCart, calcTaxes, schema: rubroSchema } = usePOSEngine(empresaConfig?.rubro || 'general');
     const queryClient = useQueryClient();
 
     // ── Queries (TanStack Query) ─────────────────────────────────
@@ -101,6 +105,7 @@ const Facturacion = () => {
     const [metodoPago, setMetodoPago] = useState('Efectivo');
     const [tipoComprobante, setTipoComprobante] = useState('');
     const [monedaId, setMonedaId] = useState('ARS');
+    const [origenVenta, setOrigenVenta] = useState('Local');
 
     // Quick Client Modal State
     const [showQuickClient, setShowQuickClient] = useState(false);
@@ -156,6 +161,24 @@ const Facturacion = () => {
             return;
         }
 
+        // ── Validación contextual del rubro ─────────────────────
+        const validation = validateAddToCart(prod);
+        if (!validation.valid) {
+            if (validation.level === 'error') {
+                // Bloqueo duro: no se puede agregar
+                toast.error(validation.message, { duration: 5000 });
+                return;
+            }
+            if (validation.level === 'warning' && validation.confirmable) {
+                // Advertencia: agrega pero con notificación prominente
+                toast(validation.message, {
+                    icon: '⚠️',
+                    duration: 6000,
+                    style: { background: '#fef9c3', color: '#854d0e', fontWeight: 700 }
+                });
+            }
+        }
+
         const enCarrito = carrito.find(item => item.producto_id === prod.id);
         const currentQty = enCarrito ? enCarrito.cantidad : 0;
 
@@ -176,7 +199,8 @@ const Facturacion = () => {
                 nombre: prod.nombre,
                 cantidad: 1,
                 precio_unitario: prod.precio,
-                subtotal: prod.precio
+                subtotal: prod.precio,
+                custom_fields: prod.custom_fields
             }]);
         }
         setSearchTerm('');
@@ -293,7 +317,8 @@ const Facturacion = () => {
             metodo_pago: metodoPago,
             moneda_id: monedaId,
             tipo_cambio: monedaId === 'USD' ? (cotizaciones.USD || 1050) : 1,
-            external_reference: externalRef // Vincular con el pago si existe
+            external_reference: externalRef, // Vincular con el pago si existe
+            origen_venta: origenVenta
         };
 
         emitInvoiceMutation.mutate(payload);
@@ -687,6 +712,25 @@ const Facturacion = () => {
                                     <option value="MercadoPago">💙 MERCADOPAGO</option>
                                 </select>
                             </div>
+                            {featureToggles?.mod_marketplace && (
+                                <div className="col-span-2">
+                                    <label className="block text-[10px] font-black text-indigo-400 uppercase tracking-widest ml-1 mb-2">Origen de Venta (E-Commerce)</label>
+                                    <div className="flex bg-surface-50 p-1.5 rounded-2xl border border-slate-100 relative">
+                                        <button 
+                                            onClick={() => setOrigenVenta('Local')}
+                                            className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all z-10 ${origenVenta === 'Local' ? 'bg-white text-slate-800 shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'}`}
+                                        >Local Físico</button>
+                                        <button 
+                                            onClick={() => setOrigenVenta('MercadoLibre')}
+                                            className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all z-10 ${origenVenta === 'MercadoLibre' ? 'bg-yellow-400 text-yellow-900 shadow-sm border border-yellow-300' : 'text-slate-400 hover:text-slate-600'}`}
+                                        >MercadoLibre</button>
+                                        <button 
+                                            onClick={() => setOrigenVenta('Tienda Online')}
+                                            className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all z-10 ${origenVenta === 'Tienda Online' ? 'bg-indigo-600 text-white shadow-sm border border-indigo-500' : 'text-slate-400 hover:text-slate-600'}`}
+                                        >Tienda Online</button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {metodoPago === 'MercadoPago' && !paymentApproved ? (
@@ -742,7 +786,13 @@ const Facturacion = () => {
                             {(historicoFacturas.filter(f => f.nro_factura?.toLowerCase().includes(auditSearch.toLowerCase()) || f.cliente_nombre?.toLowerCase().includes(auditSearch.toLowerCase()))
                                 .slice((auditPage - 1) * AUDIT_PER_PAGE, auditPage * AUDIT_PER_PAGE)).map(factura => (
                                     <tr key={factura.id} className="hover:bg-primary-50/5 transition-all">
-                                        <td className="px-10 py-6 font-mono font-black text-slate-900 tracking-tight">#{factura.nro_factura}</td>
+                                        <td className="px-10 py-6">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-mono font-black text-slate-900 tracking-tight">#{factura.nro_factura}</span>
+                                                {factura.origen_venta === 'MercadoLibre' && <span className="text-[8px] px-1.5 py-0.5 bg-yellow-100 text-yellow-700 font-black rounded uppercase tracking-wider">MELI</span>}
+                                                {factura.origen_venta === 'Tienda Online' && <span className="text-[8px] px-1.5 py-0.5 bg-indigo-100 text-indigo-700 font-black rounded uppercase tracking-wider">WEB</span>}
+                                            </div>
+                                        </td>
                                         <td className="px-10 py-6 text-slate-500">{new Date(factura.fecha_emision).toLocaleDateString()}</td>
                                         <td className="px-10 py-6 font-black text-slate-700 uppercase">{factura.cliente_nombre}</td>
                                         <td className="px-10 py-6 text-right font-black text-slate-900 font-mono">

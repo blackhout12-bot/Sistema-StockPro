@@ -25,6 +25,10 @@ export function AuthProvider({ children }) {
         try { return JSON.parse(localStorage.getItem('featureToggles')) || {}; } catch { return {}; }
     });
 
+    const [empresaConfig, setEmpresaConfig] = useState(() => {
+        try { return JSON.parse(localStorage.getItem('empresaConfig')) || {}; } catch { return {}; }
+    });
+
     // Estado para el flujo de selección de empresa (multi-empresa)
     const [empresaSelector, setEmpresaSelector] = useState(null);
     const [misEmpresas, setMisEmpresas] = useState(() => {
@@ -55,16 +59,42 @@ export function AuthProvider({ children }) {
         if (!user || !token) return;
         try {
             const res = await api.get('/empresa/configuracion/completa');
+            const data = res.data || {};
             let parsed = {};
-            if (res.data?.feature_toggles) {
-                parsed = typeof res.data.feature_toggles === 'string' ? JSON.parse(res.data.feature_toggles) : res.data.feature_toggles;
+            if (data?.feature_toggles) {
+                parsed = typeof data.feature_toggles === 'string' ? JSON.parse(data.feature_toggles) : data.feature_toggles;
             }
             setFeatureToggles(parsed);
             localStorage.setItem('featureToggles', JSON.stringify(parsed));
+
+            // Store full empresa config (rubro, comprobantes, etc.)
+            const config = {
+                rubro: data.rubro || 'general',
+                iva_defecto: data.config_iva_defecto || 21,
+                comprobantes: data.comprobantes || [],
+                nombre: data.nombre || '',
+                feature_toggles: parsed
+            };
+            setEmpresaConfig(config);
+            localStorage.setItem('empresaConfig', JSON.stringify(config));
         } catch (err) {
             console.error('Error cargando configuración global:', err);
         }
     }, [user, token]);
+
+    useEffect(() => {
+        const handleStorageChange = () => {
+            try {
+                const storedToggles = JSON.parse(localStorage.getItem('feature_toggles') || localStorage.getItem('featureToggles') || '{}');
+                setFeatureToggles(storedToggles);
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
 
     /**
      * login() — acepta la respuesta del backend.
@@ -126,10 +156,12 @@ export function AuthProvider({ children }) {
         setEmpresaSelector(null);
         setMisEmpresas([]);
         setFeatureToggles({});
+        setEmpresaConfig({});
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         localStorage.removeItem('misEmpresas');
         localStorage.removeItem('featureToggles');
+        localStorage.removeItem('empresaConfig');
     }, []);
 
     // Validar token expirado al montar
@@ -158,12 +190,14 @@ export function AuthProvider({ children }) {
         token,
         user,
         featureToggles,
+        empresaConfig,
+        fetchConfiguracionGlobal,
         login,
         logout,
         selectEmpresa,
         switchEmpresa,
         misEmpresas,
-        empresaSelector,       // null | { usuario_id, empresas[] }
+        empresaSelector,
         isAuthenticated: !!token,
     };
 

@@ -25,7 +25,6 @@ class AIController {
                     WHERE empresa_id = @empresa_id 
                       AND producto_id = @producto_id 
                       AND tipo = 'salida' 
-                      AND motivo = 'Venta'
                       AND fecha >= DATEADD(day, -60, GETDATE())
                     GROUP BY fecha
                     ORDER BY fecha ASC
@@ -80,6 +79,7 @@ class AIController {
             });
 
         } catch (error) {
+            console.error("\n💥 [AI Controller] Predict Error:", error);
             next(error);
         }
     }
