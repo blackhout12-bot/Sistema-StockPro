@@ -24,9 +24,13 @@ const RubroShowcaseCard = ({ producto, rubro }) => {
         } catch(e) {}
     }
 
-    const isAbsolute = producto.image_url?.startsWith('http');
-    const imageUrl = producto.image_url 
-        ? (isAbsolute ? producto.image_url : `${import.meta.env.VITE_API_URL}${producto.image_url}`)
+    const parsedImageUrl = Array.isArray(producto.image_url) 
+        ? producto.image_url[0] 
+        : producto.image_url;
+    
+    const isAbsolute = typeof parsedImageUrl === 'string' && parsedImageUrl.startsWith('http');
+    const imageUrl = typeof parsedImageUrl === 'string' && parsedImageUrl
+        ? (isAbsolute ? parsedImageUrl : `${import.meta.env.VITE_API_URL}${parsedImageUrl}`)
         : (fallbacks[rubro?.toLowerCase()] || fallbacks.general);
 
     return (
