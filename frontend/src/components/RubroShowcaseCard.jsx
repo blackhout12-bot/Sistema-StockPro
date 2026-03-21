@@ -9,6 +9,8 @@ const fallbacks = {
 };
 
 const RubroShowcaseCard = ({ producto, rubro }) => {
+    if (!producto) return null;
+
     // Determine the unique fields based on `custom_fields`
     let fields = {};
     if (producto.custom_fields) {

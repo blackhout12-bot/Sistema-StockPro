@@ -114,9 +114,9 @@ const Dashboard = () => {
                 {/* Grilla Pura de Productos (GestiónMax Format) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-7">
                     {gridDisplay.length > 0 ? (
-                        gridDisplay.slice(0, 15).map(prod => (
+                        gridDisplay.slice(0, 15).filter(prod => !!prod).map(prod => (
                             <RubroShowcaseCard 
-                                key={prod.id} 
+                                key={prod.id || Math.random().toString(36).substring(7)} 
                                 producto={prod} 
                                 rubro={config?.rubro || 'general'} 
                             />
