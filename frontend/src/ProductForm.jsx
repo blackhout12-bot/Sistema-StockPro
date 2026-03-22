@@ -328,15 +328,14 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
               
               {/* Batch Entry on Creation */}
               {!initialData && hasLotes && (
-                <div className={`grid grid-cols-2 gap-4 transition-all duration-300 ${(!stock || parseInt(stock) <= 0) ? 'opacity-40 grayscale pointer-events-none' : ''}`}>
-                   <div className="relative">
-                      {(!stock || parseInt(stock) <= 0) && <div className="absolute -top-6 left-1 text-[9px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full z-10">Requiere stock inicial</div>}
+                <div className="grid grid-cols-2 gap-4 transition-all duration-300">
+                   <div>
                       <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Lote / Serie Inicial</label>
-                      <input type="text" className="w-full bg-emerald-50/50 border border-emerald-100 rounded-xl px-4 py-3 text-sm font-black focus:ring-4 focus:ring-emerald-500/5 outline-none font-mono uppercase" value={lote} onChange={(e) => setLote(e.target.value)} placeholder="OPCIONAL..." />
+                      <input type="text" className="w-full bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 text-sm font-black focus:ring-4 focus:ring-emerald-500/5 outline-none font-mono uppercase" value={lote} onChange={(e) => setLote(e.target.value)} placeholder="OPCIONAL..." />
                    </div>
                    <div>
                       <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Vencimiento Inicial</label>
-                      <input type="date" className="w-full bg-emerald-50/50 border border-emerald-100 rounded-xl px-4 py-3 text-sm font-black focus:ring-4 focus:ring-emerald-500/5 outline-none font-mono uppercase" value={fechaVto} onChange={(e) => setFechaVto(e.target.value)} />
+                      <input type="date" className="w-full bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 text-sm font-black focus:ring-4 focus:ring-emerald-500/5 outline-none font-mono uppercase" value={fechaVto} onChange={(e) => setFechaVto(e.target.value)} />
                    </div>
                 </div>
               )}
