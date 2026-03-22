@@ -9,6 +9,7 @@ import {
     CheckCircle, Crown, Calendar, RefreshCw, Shield, Eye, Check, X as XIcon
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import TabRoles from '../components/TabRoles';
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 const TABS = [
@@ -339,6 +340,7 @@ const Empresa = () => {
         setSaving(true);
         try {
             await api.put('/empresa', { ...perfil, logo_url: branding.logo_url });
+            await fetchConfiguracionGlobal();
             toast.success('Perfil actualizado correctamente');
         } catch (err) {
             toast.error(err.response?.data?.error || 'Error al guardar perfil');
@@ -351,6 +353,7 @@ const Empresa = () => {
         try {
             await api.put('/empresa/configuracion/branding', branding);
             setLogoPreview(branding.logo_url);
+            await fetchConfiguracionGlobal();
             toast.success('Identidad visual actualizada');
         } catch (err) {
             toast.error(err.response?.data?.error || 'Error al guardar identidad');
@@ -398,6 +401,7 @@ const Empresa = () => {
                     window.dispatchEvent(new Event('storage'));
                 })
             ]);
+            await fetchConfiguracionGlobal();
             toast.success('Configuración guardada correctamente');
         } catch (err) {
             console.error('Error saving config:', err);
@@ -1414,93 +1418,7 @@ const Empresa = () => {
                     )}
 
                     {/* ══ TAB: ROLES ══════════════════════════════════════ */}
-                    {tab === 'roles' && (() => {
-                        // Módulos disponibles para la matrix
-                        const MODULOS_MATRIX = [
-                            'productos', 'inventario', 'pedidos', 'ventas',
-                            'clientes', 'proveedores', 'reportes', 'empresa'
-                        ];
-                        const ACCIONES = ['leer', 'crear', 'actualizar', 'eliminar', 'exportar'];
-                        const ROLES_DEF = ['admin', 'gerente', 'supervisor', 'cajero', 'gestor_produccion', 'gestor_fidelizacion'];
-
-                        // Defaults del sistema (fuente: permissions.js en config/)
-                        const DEFAULT_PERMISOS = {
-                            admin:      { full: true },
-                            gerente:    { productos: ['leer','crear','actualizar','exportar'], inventario: ['leer','crear','actualizar'], pedidos: ['leer','crear','actualizar'], ventas: ['leer','crear'], clientes: ['leer','crear','actualizar'], proveedores: ['leer','crear','actualizar'], reportes: ['leer','exportar'], empresa: ['leer'] },
-                            supervisor: { productos: ['leer','crear','actualizar'], inventario: ['leer','crear','actualizar'], pedidos: ['leer','crear','actualizar'], ventas: ['leer'], clientes: ['leer','actualizar'], proveedores: ['leer'], reportes: ['leer'], empresa: [] },
-                            cajero:     { productos: ['leer'], inventario: ['leer'], pedidos: ['leer','crear'], ventas: ['leer','crear'], clientes: ['leer','crear'], proveedores: [], reportes: [], empresa: [] },
-                            gestor_produccion: { productos: ['leer','crear','actualizar'], inventario: ['leer','crear','actualizar','eliminar'], pedidos: ['leer','actualizar'], ventas: ['leer'], clientes: [], proveedores: ['leer'], reportes: ['leer'], empresa: [] },
-                            gestor_fidelizacion: { productos: ['leer'], inventario: ['leer'], pedidos: [], ventas: ['leer'], clientes: ['leer','crear','actualizar'], proveedores: [], reportes: ['leer'], empresa: [] }
-                        };
-
-                        const hasAccess = (rol, modulo, accion) => {
-                            const p = DEFAULT_PERMISOS[rol] || {};
-                            if (p.full) return true;
-                            return (p[modulo] || []).includes(accion);
-                        };
-
-                        return (
-                            <div className="space-y-6">
-                                <div>
-                                    <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
-                                        <Shield size={18} className="text-indigo-500" />
-                                        Matriz de Permisos por Rol
-                                    </h2>
-                                    <p className="text-sm text-gray-500 mt-0.5">
-                                        Vista de sólo lectura de los permisos del sistema. Para modificar roles, editar <code className="text-xs bg-gray-100 px-1 rounded">src/config/permissions.js</code>.
-                                    </p>
-                                </div>
-
-                                <div className="overflow-x-auto rounded-xl border border-gray-100">
-                                    <table className="w-full text-xs">
-                                        <thead>
-                                            <tr className="bg-slate-50 border-b border-slate-100">
-                                                <th className="px-4 py-3 text-left font-black text-slate-500 uppercase tracking-widest text-[10px] w-28">Módulo / Rol</th>
-                                                {ROLES_DEF.map(rol => (
-                                                    <th key={rol} className="px-3 py-3 text-center font-black text-slate-700 uppercase tracking-widest text-[9px] whitespace-nowrap">
-                                                        {rol.replace('gestor_', 'g.')}
-                                                    </th>
-                                                ))}
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-50">
-                                            {MODULOS_MATRIX.map(modulo => (
-                                                ACCIONES.map((accion, ai) => (
-                                                    <tr key={`${modulo}-${accion}`} className={`hover:bg-slate-50/50 transition-colors ${ai === 0 ? 'border-t-2 border-slate-100' : ''}`}>
-                                                        <td className="px-4 py-2">
-                                                            {ai === 0 && (
-                                                                <span className="font-black text-slate-800 uppercase tracking-widest text-[10px]">{modulo}</span>
-                                                            )}
-                                                            <span className="text-slate-400 text-[9px] block mt-0.5 ml-0.5">{accion}</span>
-                                                        </td>
-                                                        {ROLES_DEF.map(rol => {
-                                                            const ok = hasAccess(rol, modulo, accion);
-                                                            return (
-                                                                <td key={rol} className="px-3 py-2 text-center">
-                                                                    {ok
-                                                                        ? <span className="inline-flex items-center justify-center w-5 h-5 bg-emerald-100 rounded-full"><Check size={10} className="text-emerald-600" /></span>
-                                                                        : <span className="inline-flex items-center justify-center w-5 h-5 bg-slate-50 rounded-full"><XIcon size={9} className="text-slate-300" /></span>
-                                                                    }
-                                                                </td>
-                                                            );
-                                                        })}
-                                                    </tr>
-                                                ))
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
-                                    <p className="text-xs font-bold text-indigo-700">
-                                        💡 Arquitectura dinámica — Para agregar un nuevo rol o cambiar permisos, editar{' '}
-                                        <code className="bg-indigo-100 px-1 rounded">frontend/src/config/permissions.js</code>.
-                                        El cambio se propaga automáticamente al menú, rutas y validaciones del POS sin recompilar.
-                                    </p>
-                                </div>
-                            </div>
-                        );
-                    })()}
+                    {tab === 'roles' && <TabRoles />}
 
                     {/* ══ TAB: AUDITORÍA ════════════════════════════════════ */}
                     {tab === 'auditoria' && (() => {

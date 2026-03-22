@@ -1,6 +1,7 @@
 const { sql } = require('../config/db');
+const EventEmitter = require('events');
 
-class NotificacionRepository {
+class NotificacionRepository extends EventEmitter {
     async getByUsuario(pool, usuario_id, empresa_id) {
         const result = await pool.request()
             .input('usuario_id', sql.Int, usuario_id)
@@ -26,7 +27,10 @@ class NotificacionRepository {
                 OUTPUT INSERTED.*
                 VALUES (@empresa_id, @usuario_id, @titulo, @mensaje, @tipo)
             `);
-        return result.recordset[0];
+        
+        const newNotif = result.recordset[0];
+        this.emit('NUEVA_NOTIFICACION', newNotif);
+        return newNotif;
     }
 
     async markAsRead(pool, id, usuario_id, empresa_id) {

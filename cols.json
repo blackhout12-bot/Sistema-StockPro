@@ -1,0 +1,13 @@
+{
+  "suc": [],
+  "dep": [
+    "id",
+    "empresa_id",
+    "nombre",
+    "direccion",
+    "es_principal",
+    "activo",
+    "creado_en",
+    "actualizado_en"
+  ]
+}

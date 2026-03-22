@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bell, Check, Trash2 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../utils/axiosConfig';
@@ -12,20 +12,42 @@ const NotificationsDropdown = () => {
         queryFn: async () => {
             const res = await api.get('/notificaciones');
             return res.data;
-        },
-        refetchInterval: 60000 // Refresh every minute
+        }
     });
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        // Utilizamos EventSource nativo acoplado con nuestro token
+        const sse = new EventSource(`${import.meta.env.VITE_API_URL}/notificaciones/stream?token=${token}`);
+
+        sse.onmessage = (event) => {
+            try {
+                const newNotification = JSON.parse(event.data);
+                queryClient.setQueryData(['notifications'], (old = []) => {
+                    return [newNotification, ...old];
+                });
+            } catch (err) {
+                console.error("Error parsing SSE data", err);
+            }
+        };
+
+        return () => {
+            sse.close();
+        };
+    }, [queryClient]);
 
     const unreadCount = notifications.filter(n => !n.leido).length;
 
     const readMutation = useMutation({
-        mutationFn: (id) => api.put(`/notificaciones/${id}/read`),
-        onSuccess: () => queryClient.invalidateQueries(['notifications'])
+        mutationFn: (id) => api.put(`/notificaciones/leer/${id}`),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] })
     });
 
     const readAllMutation = useMutation({
-        mutationFn: () => api.put('/notificaciones/read-all'),
-        onSuccess: () => queryClient.invalidateQueries(['notifications'])
+        mutationFn: () => api.put('/notificaciones/leer-todas'),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] })
     });
 
     return (

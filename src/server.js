@@ -19,6 +19,14 @@ dotenv.config(); // Carga .env de la raíz de forma estándar
 
 const app = express();
 
+// ─── Senior Fallback Handlers ──────────────────────────────────
+process.on('uncaughtException', (err) => {
+    logger.error({ error: err.message, stack: err.stack }, 'FATAL UNCAUGHT EXCEPTION CATCHED - Preveniendo caída del servidor');
+});
+process.on('unhandledRejection', (reason, promise) => {
+    logger.error({ reason, promise }, 'UNHANDLED REJECTION CATCHED - Preveniendo caída del servidor');
+});
+
 // ─── Debug Logger (Global) ──────────────────────────────────────
 app.use((req, res, next) => {
   logger.info({ method: req.method, url: req.url, body: req.method === 'POST' ? 'REDACTED' : undefined }, 'Incoming Request');

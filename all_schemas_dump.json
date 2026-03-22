@@ -1,0 +1,544 @@
+{
+  "AuditLog": [
+    {
+      "column": "id",
+      "type": "bigint",
+      "nullable": "NO"
+    },
+    {
+      "column": "empresa_id",
+      "type": "int",
+      "nullable": "YES"
+    },
+    {
+      "column": "usuario_id",
+      "type": "int",
+      "nullable": "YES"
+    },
+    {
+      "column": "accion",
+      "type": "nvarchar",
+      "nullable": "NO"
+    },
+    {
+      "column": "entidad",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "entidad_id",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "payload",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "ip",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "fecha",
+      "type": "datetime2",
+      "nullable": "YES"
+    }
+  ],
+  "Comprobantes": [
+    {
+      "column": "id",
+      "type": "int",
+      "nullable": "NO"
+    },
+    {
+      "column": "tipo_comprobante",
+      "type": "nvarchar",
+      "nullable": "NO"
+    },
+    {
+      "column": "activo",
+      "type": "bit",
+      "nullable": "YES"
+    }
+  ],
+  "Depositos": [
+    {
+      "column": "id",
+      "type": "int",
+      "nullable": "NO"
+    },
+    {
+      "column": "empresa_id",
+      "type": "int",
+      "nullable": "NO"
+    },
+    {
+      "column": "nombre",
+      "type": "nvarchar",
+      "nullable": "NO"
+    },
+    {
+      "column": "direccion",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "es_principal",
+      "type": "bit",
+      "nullable": "YES"
+    },
+    {
+      "column": "activo",
+      "type": "bit",
+      "nullable": "YES"
+    },
+    {
+      "column": "creado_en",
+      "type": "datetime2",
+      "nullable": "YES"
+    },
+    {
+      "column": "actualizado_en",
+      "type": "datetime2",
+      "nullable": "YES"
+    }
+  ],
+  "Empresa": [
+    {
+      "column": "id",
+      "type": "int",
+      "nullable": "NO"
+    },
+    {
+      "column": "nombre",
+      "type": "varchar",
+      "nullable": "NO"
+    },
+    {
+      "column": "documento_identidad",
+      "type": "varchar",
+      "nullable": "NO"
+    },
+    {
+      "column": "direccion",
+      "type": "varchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "telefono",
+      "type": "varchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "email",
+      "type": "varchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "logo_url",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "sitio_web",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "pais",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "ciudad",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "codigo_postal",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "moneda",
+      "type": "nvarchar",
+      "nullable": "NO"
+    },
+    {
+      "column": "simbolo_moneda",
+      "type": "nvarchar",
+      "nullable": "NO"
+    },
+    {
+      "column": "zona_horaria",
+      "type": "nvarchar",
+      "nullable": "NO"
+    },
+    {
+      "column": "fecha_registro",
+      "type": "datetime",
+      "nullable": "NO"
+    },
+    {
+      "column": "activo",
+      "type": "bit",
+      "nullable": "NO"
+    },
+    {
+      "column": "plan",
+      "type": "nvarchar",
+      "nullable": "NO"
+    },
+    {
+      "column": "regional_formato_fecha",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "regional_separador_decimal",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "branding_color_primario",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "branding_color_secundario",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "branding_eslogan",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "config_iva_defecto",
+      "type": "decimal",
+      "nullable": "YES"
+    },
+    {
+      "column": "config_cuit_cuil",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "inv_stock_critico_global",
+      "type": "int",
+      "nullable": "YES"
+    },
+    {
+      "column": "inv_permitir_negativo",
+      "type": "bit",
+      "nullable": "YES"
+    },
+    {
+      "column": "int_email_host",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "int_email_port",
+      "type": "int",
+      "nullable": "YES"
+    },
+    {
+      "column": "inv_stock_max_global",
+      "type": "int",
+      "nullable": "YES"
+    },
+    {
+      "column": "inv_alertas_habilitadas",
+      "type": "bit",
+      "nullable": "YES"
+    },
+    {
+      "column": "inv_alertas_canal",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "inv_control_lotes",
+      "type": "bit",
+      "nullable": "YES"
+    },
+    {
+      "column": "inv_control_vencimientos",
+      "type": "bit",
+      "nullable": "YES"
+    },
+    {
+      "column": "config_tipos_comprobantes",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "config_pie_comprobante",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "regional_idioma",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "regional_zona_horaria",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "branding_nombre_fantasia",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "int_afip_cert_path",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "int_mercadopago_token",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "int_mercadolibre_token",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "dash_kpis_visibles",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "dash_rango_default",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "dash_refresco_segundos",
+      "type": "int",
+      "nullable": "YES"
+    },
+    {
+      "column": "regional_formato_hora",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "config_condicion_fiscal",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "config_percepciones_json",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "config_retenciones_json",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "comp_plantilla_json",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "int_ecommerce_url",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "int_ecommerce_secret",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "int_erp_key",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "dash_widgets_visibles",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "moneda_base_id",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "afip_cuit",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "afip_punto_venta",
+      "type": "int",
+      "nullable": "YES"
+    },
+    {
+      "column": "afip_tipo_responsable",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "afip_certificado_path",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "afip_key_path",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "feature_toggles",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "rubro",
+      "type": "nvarchar",
+      "nullable": "YES"
+    }
+  ],
+  "Productos": [
+    {
+      "column": "id",
+      "type": "int",
+      "nullable": "NO"
+    },
+    {
+      "column": "nombre",
+      "type": "nvarchar",
+      "nullable": "NO"
+    },
+    {
+      "column": "descripcion",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "precio",
+      "type": "decimal",
+      "nullable": "NO"
+    },
+    {
+      "column": "stock_actual",
+      "type": "int",
+      "nullable": "NO"
+    },
+    {
+      "column": "creado_en",
+      "type": "datetime",
+      "nullable": "YES"
+    },
+    {
+      "column": "stock",
+      "type": "int",
+      "nullable": "YES"
+    },
+    {
+      "column": "categoria",
+      "type": "varchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "empresa_id",
+      "type": "int",
+      "nullable": "NO"
+    },
+    {
+      "column": "sku",
+      "type": "varchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "stock_min",
+      "type": "int",
+      "nullable": "YES"
+    },
+    {
+      "column": "stock_max",
+      "type": "int",
+      "nullable": "YES"
+    },
+    {
+      "column": "moneda_id",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "meli_item_id",
+      "type": "varchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "custom_fields",
+      "type": "nvarchar",
+      "nullable": "YES"
+    }
+  ],
+  "Usuarios": [
+    {
+      "column": "id",
+      "type": "int",
+      "nullable": "NO"
+    },
+    {
+      "column": "nombre",
+      "type": "nvarchar",
+      "nullable": "NO"
+    },
+    {
+      "column": "email",
+      "type": "nvarchar",
+      "nullable": "NO"
+    },
+    {
+      "column": "password_hash",
+      "type": "nvarchar",
+      "nullable": "NO"
+    },
+    {
+      "column": "rol",
+      "type": "nvarchar",
+      "nullable": "NO"
+    },
+    {
+      "column": "creado_en",
+      "type": "datetime",
+      "nullable": "YES"
+    },
+    {
+      "column": "empresa_id",
+      "type": "int",
+      "nullable": "NO"
+    },
+    {
+      "column": "activo",
+      "type": "bit",
+      "nullable": "NO"
+    },
+    {
+      "column": "reset_token",
+      "type": "nvarchar",
+      "nullable": "YES"
+    },
+    {
+      "column": "reset_token_exp",
+      "type": "datetime2",
+      "nullable": "YES"
+    }
+  ]
+}

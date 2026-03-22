@@ -10,9 +10,13 @@ import {
 import { toast } from 'react-hot-toast';
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
-const ROL_CONFIG = {
-    admin: { label: 'Administrador', color: 'bg-primary-50 text-primary-600 border-primary-100', icon: Shield },
-    vendedor: { label: 'Vendedor', color: 'bg-emerald-50 text-emerald-600 border-emerald-100', icon: ShoppingBag },
+const getRolConfig = (rol) => {
+    const codigo = String(rol).toLowerCase();
+    if (codigo === 'admin') return { color: 'bg-primary-50 text-primary-600 border-primary-100', icon: Shield };
+    if (codigo === 'gerente') return { color: 'bg-indigo-50 text-indigo-600 border-indigo-100', icon: Shield };
+    if (codigo === 'supervisor') return { color: 'bg-amber-50 text-amber-600 border-amber-100', icon: Shield };
+    if (codigo === 'cajero' || codigo === 'vendedor') return { color: 'bg-emerald-50 text-emerald-600 border-emerald-100', icon: ShoppingBag };
+    return { color: 'bg-slate-50 text-slate-500 border-slate-100', icon: Shield };
 };
 
 const TABS = [
@@ -24,12 +28,15 @@ const inputCls = 'w-full bg-surface-50 border border-slate-100 rounded-xl px-4 p
 
 // ─── Sub-componentes ──────────────────────────────────────────────────────────
 
-const RolBadge = ({ rol }) => {
-    const cfg = ROL_CONFIG[rol] || { label: rol, color: 'bg-slate-50 text-slate-500 border-slate-100', icon: Shield };
+const RolBadge = ({ rol, roles = [] }) => {
+    const cfg = getRolConfig(rol);
     const Icon = cfg.icon;
+    const dbRole = roles.find(r => r.codigo_rol === rol);
+    const label = dbRole ? dbRole.nombre : rol;
+    
     return (
         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${cfg.color}`}>
-            <Icon size={10} /> {cfg.label}
+            <Icon size={10} /> {label}
         </span>
     );
 };
@@ -78,6 +85,7 @@ const Users = () => {
     const [users, setUsers] = useState([]);
     const [globalUsers, setGlobalUsers] = useState([]);
     const [empresasDisponibles, setEmpresasDisponibles] = useState([]);
+    const [rolesDisponibles, setRolesDisponibles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -114,6 +122,15 @@ const Users = () => {
         }
     }, []);
 
+    const fetchRoles = useCallback(async () => {
+        try {
+            const res = await api.get('/empresa/roles');
+            setRolesDisponibles(res.data);
+        } catch (err) {
+            console.error('Error cargando roles disponibles:', err);
+        }
+    }, []);
+
     const fetchGlobalUsers = useCallback(async () => {
         if (!isAdmin) return;
         try {
@@ -126,11 +143,12 @@ const Users = () => {
 
     useEffect(() => {
         fetchUsers();
+        fetchRoles();
         if (isAdmin) {
             fetchEmpresas();
             fetchGlobalUsers();
         }
-    }, [fetchUsers, fetchEmpresas, fetchGlobalUsers, isAdmin]);
+    }, [fetchUsers, fetchRoles, fetchEmpresas, fetchGlobalUsers, isAdmin]);
 
     // Filtrado local
     const filteredUsers = useMemo(() => {
@@ -198,9 +216,10 @@ const Users = () => {
 
     const handleRoleChange = async (userId, newRole) => {
         const u = users.find(x => x.id === userId);
+        const nameRol = rolesDisponibles.find(r => r.codigo_rol === newRole)?.nombre || newRole;
         setConfirmAction({
             title: 'Cambiar Rol',
-            message: `¿Estás seguro de cambiar el rol de ${u.nombre} a ${ROL_CONFIG[newRole].label}?`,
+            message: `¿Estás seguro de cambiar el rol de ${u.nombre} a ${nameRol}?`,
             type: 'info',
             onConfirm: async () => {
                 try {
@@ -407,10 +426,10 @@ const Users = () => {
                                                             <select
                                                                 value={u.rol}
                                                                 onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                                                                className={`appearance-none pr-10 pl-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-xl cursor-pointer focus:outline-none focus:ring-4 focus:ring-primary-500/10 transition-all border ${ROL_CONFIG[u.rol]?.color || 'bg-slate-50'}`}
+                                                                className={`appearance-none pr-10 pl-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-xl cursor-pointer focus:outline-none focus:ring-4 focus:ring-primary-500/10 transition-all border ${getRolConfig(u.rol).color}`}
                                                             >
-                                                                {Object.entries(ROL_CONFIG).map(([val, cfg]) => (
-                                                                    <option key={val} value={val}>{cfg.label.toUpperCase()}</option>
+                                                                {rolesDisponibles.map(r => (
+                                                                    <option key={r.codigo_rol} value={r.codigo_rol}>{r.nombre.toUpperCase()}</option>
                                                                 ))}
                                                             </select>
                                                             <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-60" />
@@ -434,8 +453,8 @@ const Users = () => {
                                                             <div>
                                                                 <p className="text-[11px] font-black text-slate-800 uppercase leading-none">{m.empresa_nombre}</p>
                                                                 <div className="flex items-center gap-2 mt-1.5">
-                                                                    <span className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border ${ROL_CONFIG[m.rol]?.color || 'bg-slate-50'}`}>
-                                                                        {m.rol}
+                                                                    <span className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border ${getRolConfig(m.rol).color}`}>
+                                                                        {rolesDisponibles.find(r => r.codigo_rol === m.rol)?.nombre || m.rol}
                                                                     </span>
                                                                     <span className="text-[8px] font-bold text-slate-400">{new Date(m.fecha_union).toLocaleDateString()}</span>
                                                                 </div>
@@ -602,8 +621,8 @@ const Users = () => {
                                             <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Nivel de Privilegios</label>
                                             <div className="relative">
                                                 <select className={`${inputCls} appearance-none pr-10`} value={formData.rol} onChange={e => setFormData(f => ({ ...f, rol: e.target.value }))}>
-                                                    {Object.entries(ROL_CONFIG).map(([v, c]) => (
-                                                        <option key={v} value={v}>{c.label.toUpperCase()}</option>
+                                                    {rolesDisponibles.map(r => (
+                                                        <option key={r.codigo_rol} value={r.codigo_rol}>{r.nombre.toUpperCase()}</option>
                                                     ))}
                                                 </select>
                                                 <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" />
@@ -634,8 +653,8 @@ const Users = () => {
                                                 <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Rol Proyectado</label>
                                                 <div className="relative">
                                                     <select className={`${inputCls} appearance-none pr-10`} value={accesoData.rol} onChange={e => setAccesoData(a => ({ ...a, rol: e.target.value }))}>
-                                                        {Object.entries(ROL_CONFIG).map(([v, c]) => (
-                                                            <option key={v} value={v}>{c.label.toUpperCase()}</option>
+                                                        {rolesDisponibles.map(r => (
+                                                            <option key={r.codigo_rol} value={r.codigo_rol}>{r.nombre.toUpperCase()}</option>
                                                         ))}
                                                     </select>
                                                     <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" />

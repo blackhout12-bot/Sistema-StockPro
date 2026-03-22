@@ -12,7 +12,8 @@ const { facturacionSchema } = require('../../schemas/facturacion.schema');
 // Get all facturas
 router.get('/', checkPermiso('facturacion', 'leer'), async (req, res, next) => {
     try {
-        const facturas = await facturacionService.getAllFacturas(req.tenant_id);
+        const sucursal_id = req.query.sucursal_id;
+        const facturas = await facturacionService.getAllFacturas(req.tenant_id, sucursal_id);
         res.json(facturas);
     } catch (error) {
         next(error);
@@ -58,7 +59,7 @@ router.all('/:id/pdf', checkPermiso('facturacion', 'leer'), async (req, res, nex
 });
 
 // Registrar nueva factura (Venta)
-router.post('/', checkPermiso('facturacion', 'emitir'), validateBody(facturacionSchema), audit('emitir', 'Facturacion'), async (req, res, next) => {
+router.post('/', checkPermiso('facturacion', 'crear'), validateBody(facturacionSchema), audit('emitir', 'Facturacion'), async (req, res, next) => {
     try {
         logger.info({ userId: req.user.id, empresa_id: req.tenant_id }, '[POST /facturacion] Iniciando creación de factura');
 
@@ -66,8 +67,17 @@ router.post('/', checkPermiso('facturacion', 'emitir'), validateBody(facturacion
             return res.status(400).json({ error: 'Falta contexto de empresa (empresa_id) para generar la venta.' });
         }
 
-        const { cliente_id, detalles, metodo_pago, sucursal, total, subtotal, impuestos, descuento, observaciones, moneda_id = 'ARS', tipo_cambio = 1.0, tipo_comprobante } = req.body;
+        const { cliente_id, detalles, metodo_pago, sucursal, total, subtotal, impuestos, descuento, observaciones, moneda_id = 'ARS', tipo_cambio = 1.0, tipo_comprobante, caja_id } = req.body;
         
+        // ── Validación estricta de Sesión de Caja POS ──
+        if (caja_id) {
+            const posService = require('../pos/pos.service');
+            const sesionActiva = await posService.getSesionActiva(caja_id, req.user.id);
+            if (!sesionActiva) {
+                return res.status(403).json({ error: 'Denegado: Debes abrir un turno de caja válido antes de facturar.' });
+            }
+        }
+        // ───────────────────────────────────────────────
         // Pass the exact object the service expects
         const cleanBody = { 
             cliente_id, 
@@ -95,6 +105,7 @@ router.post('/', checkPermiso('facturacion', 'emitir'), validateBody(facturacion
             stack: error.stack,
             body: req.body 
         }, '[POST /facturacion] Error al crear factura');
+        try { require('fs').writeFileSync('500_ERROR_TRACE.txt', String(error) + '\\n' + error.stack); } catch(e){}
         next(error);
     }
 });
@@ -102,7 +113,7 @@ router.post('/', checkPermiso('facturacion', 'emitir'), validateBody(facturacion
 // --- MercadoPago Integrations ---
 
 // Generar QR para cobrar
-router.post('/mercadopago/qr', checkPermiso('facturacion', 'emitir'), async (req, res, next) => {
+router.post('/mercadopago/qr', checkPermiso('facturacion', 'crear'), async (req, res, next) => {
     try {
         const { total, external_reference, title } = req.body;
         const qr = await mpService.generarQR({

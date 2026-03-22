@@ -78,15 +78,34 @@ const ProductList = ({ products, onEdit, onDelete, onViewLots, onAddStock, userR
               </td>
               {/* Stock */}
               <td className="px-10 py-5 text-center">
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border ${p.stock === 0
-                  ? 'bg-rose-50 text-rose-600 border-rose-100'
-                  : p.stock <= 5
-                    ? 'bg-amber-50 text-amber-600 border-amber-100'
-                    : 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                  }`}>
-                  <div className={`w-1 h-1 rounded-full ${p.stock === 0 ? 'bg-rose-500' : p.stock <= 5 ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
-                  {p.stock === 0 ? 'Agotado' : `${p.stock} Unid.`}
-                </span>
+                <div className="flex flex-col items-center gap-1">
+                  <span className={`inline-flex flex-col items-center gap-1.5 px-3 py-1 rounded-xl text-[9px] font-black uppercase tracking-wider border ${p.stock === 0
+                    ? 'bg-rose-50 text-rose-600 border-rose-100'
+                    : p.stock <= 5
+                      ? 'bg-amber-50 text-amber-600 border-amber-100'
+                      : 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                    }`}>
+                    <div className="flex items-center gap-1.5">
+                      <div className={`w-1 h-1 rounded-full ${p.stock === 0 ? 'bg-rose-500' : p.stock <= 5 ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
+                      {p.stock === 0 ? 'Agotado' : `${p.stock} Unid. Total`}
+                    </div>
+                  </span>
+                  {p.desglose_depositos && (
+                    <div className="flex flex-col items-center gap-0.5 mt-1 border border-slate-100 bg-surface-50 p-1.5 rounded-lg w-full">
+                      {(() => {
+                        try {
+                          const desgloses = typeof p.desglose_depositos === 'string' ? JSON.parse(p.desglose_depositos) : p.desglose_depositos;
+                          return desgloses.map((d, i) => (
+                            <div key={i} className="flex justify-between items-center w-full px-1 py-0.5 text-[8px] font-bold">
+                              <span className="text-slate-400 capitalize truncate max-w-[60px]">{d.deposito ? d.deposito.toLowerCase() : 'N/A'}</span>
+                              <span className="text-slate-700 font-mono tracking-tighter">{Number(d.stock || 0)}u</span>
+                            </div>
+                          ));
+                        } catch(e) { return null; }
+                      })()}
+                    </div>
+                  )}
+                </div>
               </td>
               {/* Acciones */}
               {isAdmin && (

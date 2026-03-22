@@ -215,21 +215,40 @@ async function obtenerUsuarios(empresa_id) {
  * Verifica si un rol específico tiene un permiso para un recurso y acción determinados.
  * Busca en la tabla RolPermisos unida a Permisos.
  */
-async function verificarPermisoRol(rol_nombre, recurso, accion) {
+async function verificarPermisoRol(empresa_id, rol_codigo, recurso, accion) {
+  if (!empresa_id || !rol_codigo) return false;
+  
   const pool = await connectDB();
   const result = await pool.request()
-    .input('rol', sql.NVarChar(50), rol_nombre)
-    .input('recurso', sql.NVarChar(50), recurso)
-    .input('accion', sql.NVarChar(50), accion)
+    .input('empresa_id', sql.Int, empresa_id)
+    .input('codigo_rol', sql.NVarChar(50), rol_codigo)
     .query(`
-      SELECT 1 
-      FROM dbo.RolPermisos rp
-      INNER JOIN dbo.Permisos p ON rp.permiso_id = p.id
-      WHERE rp.rol_nombre = @rol 
-        AND p.recurso = @recurso 
-        AND p.accion = @accion
+      SELECT permisos 
+      FROM dbo.Roles
+      WHERE empresa_id = @empresa_id AND codigo_rol = @codigo_rol AND activo = 1
     `);
-  return result.recordset.length > 0;
+    
+  if (result.recordset.length === 0) {
+      console.log(`[RBAC] No se encontró rol ${rol_codigo} para empresa ${empresa_id}`);
+      return false;
+  }
+  
+  try {
+    const rawPermisos = result.recordset[0].permisos;
+    const permisos = JSON.parse(rawPermisos);
+    
+    // Check wildcard total (*)
+    if (permisos['*'] && permisos['*'].includes(accion)) return true;
+    
+    // Check specific module
+    if (permisos[recurso] && permisos[recurso].includes(accion)) return true;
+    
+    console.log(`[RBAC] ReCHAZADO: empresa=${empresa_id}, rol=${rol_codigo}, recurso=${recurso}, accion=${accion}. Permisos JSON:`, permisos);
+    return false;
+  } catch (err) {
+    console.error('Error parseando JSON de permisos:', err);
+    return false;
+  }
 }
 
 module.exports = {

@@ -79,7 +79,7 @@ router.get('/refresh', authenticate, async (req, res) => {
 });
 
 // ── GET /auth/empresas-disponibles — Lista de empresas para dropdown (Solo Admin via RBAC) ──
-router.get('/empresas-disponibles', authenticate, checkPermiso('usuarios', 'administrar'), async (req, res, next) => {
+router.get('/empresas-disponibles', authenticate, checkPermiso('usuarios', 'leer'), async (req, res, next) => {
   try {
     const empresas = await authService.obtenerEmpresasDisponibles();
     res.json(empresas);
@@ -89,7 +89,7 @@ router.get('/empresas-disponibles', authenticate, checkPermiso('usuarios', 'admi
 });
 
 // ── GET /auth/global — Listado global de usuarios y empresas (Solo Admin via RBAC) ─────
-router.get('/global', authenticate, checkPermiso('usuarios', 'administrar'), async (req, res, next) => {
+router.get('/global', authenticate, checkPermiso('usuarios', 'leer'), async (req, res, next) => {
   try {
     const usuarios = await authService.obtenerUsuariosGlobal();
     res.json(usuarios);
@@ -112,7 +112,7 @@ router.post('/register', validateBody(registerSchema), audit('registrar', 'Empre
 });
 
 // ── GET /auth/ — listar miembros de mi empresa (Admin via RBAC) ───────────────────────
-router.get('/', authenticate, checkPermiso('usuarios', 'administrar'), async (req, res, next) => {
+router.get('/', authenticate, checkPermiso('usuarios', 'leer'), async (req, res, next) => {
   try {
     const usuarios = await authService.obtenerUsuarios(req.user.empresa_id);
     res.json(usuarios);
@@ -128,7 +128,7 @@ router.get('/mis-empresas', authenticate, async (req, res, next) => {
 });
 
 // ── POST /auth/users — crear usuario en mi empresa (Admin via RBAC) ───────────────────
-router.post('/users', authenticate, checkPermiso('usuarios', 'administrar'), validateBody(createUserSchema), audit('crear', 'Usuario'), async (req, res) => {
+router.post('/users', authenticate, checkPermiso('usuarios', 'crear'), validateBody(createUserSchema), audit('crear', 'Usuario'), async (req, res) => {
   try {
     await authService.crearUsuarioAdmin({ ...req.body, empresa_id: req.user.empresa_id });
     res.status(201).json({ message: 'Usuario creado exitosamente' });
@@ -141,7 +141,7 @@ router.post('/users', authenticate, checkPermiso('usuarios', 'administrar'), val
 });
 
 // ── PUT /auth/:id/rol — cambiar rol en mi empresa (Admin via RBAC) — BEFORE /:id wildcard
-router.put('/:id/rol', authenticate, checkPermiso('usuarios', 'administrar'), audit('modificar_rol', 'Usuario'), async (req, res) => {
+router.put('/:id/rol', authenticate, checkPermiso('usuarios', 'actualizar'), audit('modificar_rol', 'Usuario'), async (req, res) => {
   try {
     const result = await authService.actualizarRolUsuario(
       Number(req.params.id),
@@ -155,7 +155,7 @@ router.put('/:id/rol', authenticate, checkPermiso('usuarios', 'administrar'), au
 });
 
 // ── POST /auth/:id/reset-password — resetear contraseña (Admin via RBAC) — BEFORE /:id wildcard
-router.post('/:id/reset-password', authenticate, checkPermiso('usuarios', 'administrar'), audit('reset_password', 'Usuario'), async (req, res) => {
+router.post('/:id/reset-password', authenticate, checkPermiso('usuarios', 'actualizar'), audit('reset_password', 'Usuario'), async (req, res) => {
   const { nuevaPassword } = req.body;
   if (!nuevaPassword || nuevaPassword.length < 8) {
     return res.status(400).json({ error: 'La nueva contraseña debe tener al menos 8 caracteres.' });
@@ -169,7 +169,7 @@ router.post('/:id/reset-password', authenticate, checkPermiso('usuarios', 'admin
 });
 
 // ── POST /auth/:id/empresas — dar acceso a otro usuario en mi empresa (Admin via RBAC) ─
-router.post('/:id/empresas', authenticate, checkPermiso('usuarios', 'administrar'), audit('asignar_empresa', 'Usuario'), async (req, res) => {
+router.post('/:id/empresas', authenticate, checkPermiso('usuarios', 'actualizar'), audit('asignar_empresa', 'Usuario'), async (req, res) => {
   const { rol = 'vendedor', empresa_id } = req.body;
   // Solo puede dar acceso a su propia empresa (o a otra si es un super-admin)
   const target_empresa = empresa_id || req.user.empresa_id;
@@ -186,7 +186,7 @@ router.post('/:id/empresas', authenticate, checkPermiso('usuarios', 'administrar
 });
 
 // ── PUT /auth/:id — editar nombre/email de un usuario (Admin via RBAC) — AFTER specific sub-routes
-router.put('/:id', authenticate, checkPermiso('usuarios', 'administrar'), audit('actualizar', 'Usuario'), async (req, res) => {
+router.put('/:id', authenticate, checkPermiso('usuarios', 'actualizar'), audit('actualizar', 'Usuario'), async (req, res) => {
   try {
     const result = await authService.actualizarUsuario(
       Number(req.params.id),
@@ -203,7 +203,7 @@ router.put('/:id', authenticate, checkPermiso('usuarios', 'administrar'), audit(
 });
 
 // ── DELETE /auth/:id — revocar acceso (soft delete de membresía) (Admin via RBAC) ──────
-router.delete('/:id', authenticate, checkPermiso('usuarios', 'administrar'), audit('revocar_acceso', 'Usuario'), async (req, res, next) => {
+router.delete('/:id', authenticate, checkPermiso('usuarios', 'eliminar'), audit('revocar_acceso', 'Usuario'), async (req, res, next) => {
   try {
     const result = await authService.revocarAcceso(Number(req.params.id), req.user.empresa_id);
     res.json(result);

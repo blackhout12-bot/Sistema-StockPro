@@ -5,9 +5,9 @@ const { notifyEvent } = require('../../utils/webhook.service');
 const { afipQueue } = require('../../config/queue');
 
 class FacturacionService {
-    async getAllFacturas(empresa_id) {
+    async getAllFacturas(empresa_id, sucursal_id = null) {
         const pool = await connectDB();
-        return await facturacionRepository.getAllFacturas(pool, empresa_id);
+        return await facturacionRepository.getAllFacturas(pool, empresa_id, sucursal_id);
     }
 
     async getFacturaById(id, empresa_id) {

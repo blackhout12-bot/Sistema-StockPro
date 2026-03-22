@@ -1,0 +1,69 @@
+[dotenv@17.3.1] injecting env (16) from .env -- tip: ­ƒøá´©Å  run anywhere with `dotenvx run -- yourcommand`
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ÔÜÖ´©Å  override existing env vars with { override: true }
+(node:24436) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:24436) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+[22:59:31] [32mINFO[39m: [36m­ƒÜÇ Iniciando infraestructura de BullMQ (Graceful Degradation Mode)...[39m
+[22:59:31] [32mINFO[39m: [36malertWorker (Legacy) importado. Las tareas ahora son administradas por BullMQ cronQueue.[39m
+[22:59:31] [32mINFO[39m: [36m­ƒÜÇ Socket.io inicializado con soporte multi-tenant[39m
+[22:59:31] [32mINFO[39m: [36mConectado a Redis Exitosamente[39m
+[22:59:31] [32mINFO[39m: [36mCron Job [check-stock-vencimientos] registrado en BullMQ.[39m
+    [35mcronTime[39m: "*/5 * * * *"
+[22:59:31] [32mINFO[39m: [36mÔ£à BullMQ y Workers inicializados correctamente.[39m
+Fetching test dependencies...
+[22:59:31] [32mINFO[39m: [36mConectado a SQL Server (Escritura)[39m
+Dispatching request...
+[22:59:31] [32mINFO[39m: [36mIncoming Request[39m
+    [35mmethod[39m: "POST"
+    [35murl[39m: "/api/v1/facturacion"
+    [35mbody[39m: "REDACTED"
+[22:59:31] [32mINFO[39m: [36m[POST /facturacion] Iniciando creaci├│n de factura[39m
+    [35muserId[39m: 1
+    [35mempresa_id[39m: 1
+[22:59:31] [32mINFO[39m: [36mrequest completed[39m
+    [35mreq[39m: {
+      "id": 1,
+      "method": "POST",
+      "url": "/api/v1/facturacion",
+      "query": {},
+      "params": {},
+      "headers": {
+        "host": "127.0.0.1:58258",
+        "accept-encoding": "gzip, deflate",
+        "authorization": "[Redacted]",
+        "x-empresa-id": "1",
+        "content-type": "application/json",
+        "content-length": "278",
+        "connection": "close"
+      },
+      "remoteAddress": "::ffff:127.0.0.1",
+      "remotePort": 58259
+    }
+    [35mres[39m: {
+      "statusCode": 403,
+      "headers": {
+        "cross-origin-opener-policy": "same-origin",
+        "cross-origin-resource-policy": "same-origin",
+        "origin-agent-cluster": "?1",
+        "referrer-policy": "no-referrer",
+        "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+        "x-content-type-options": "nosniff",
+        "x-dns-prefetch-control": "off",
+        "x-download-options": "noopen",
+        "x-frame-options": "SAMEORIGIN",
+        "x-permitted-cross-domain-policies": "none",
+        "x-xss-protection": "0",
+        "vary": "Origin",
+        "access-control-allow-credentials": "true",
+        "content-type": "application/json; charset=utf-8",
+        "content-length": "77",
+        "etag": "W/\"4d-OPj/PvnUhOEiYXSus9YynNRe2kY\""
+      }
+    }
+    [35mresponseTime[39m: 26
+--- RESPONSE STATUS ---
+403
+--- RESPONSE BODY ---
+{
+  error: 'Denegado: Debes abrir un turno de caja v├ílido antes de facturar.'
+}

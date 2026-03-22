@@ -40,7 +40,7 @@ router.post('/', checkPermiso('clientes', 'crear'), validateBody(clienteSchema),
 });
 
 // Update cliente
-router.put('/:id', checkPermiso('clientes', 'editar'), validateBody(clienteSchema), audit('actualizar', 'Cliente'), async (req, res, next) => {
+router.put('/:id', checkPermiso('clientes', 'actualizar'), validateBody(clienteSchema), audit('actualizar', 'Cliente'), async (req, res, next) => {
     try {
         const updated = await clienteService.updateCliente(parseInt(req.params.id), req.body, req.tenant_id);
         res.json(updated);

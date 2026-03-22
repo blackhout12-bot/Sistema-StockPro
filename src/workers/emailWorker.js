@@ -21,6 +21,11 @@ const emailWorker = new Worker('emails', async job => {
     const { to, subject, html, text } = job.data;
 
     try {
+        if (transporter.options.host === 'smtp.example.com') {
+            logger.warn({ to }, 'Email no configurado (SMTP_HOST is smtp.example.com). Saltando el envío real de correo.');
+            return { messageId: 'simulated-id', skipped: true };
+        }
+
         const info = await transporter.sendMail({
             from: process.env.SMTP_FROM || 'no-reply@stock-system.com',
             to,

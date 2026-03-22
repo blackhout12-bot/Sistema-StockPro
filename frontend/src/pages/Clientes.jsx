@@ -271,7 +271,7 @@ const Clientes = () => {
                                 <Plus size={24} className="rotate-45" />
                             </button>
                         </div>
-                        <div className="p-10">
+                        <div className="p-10 max-h-[55vh] overflow-y-auto pr-2 custom-scrollbar overflow-x-hidden">
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div className="grid grid-cols-1 gap-6">
                                     <div>

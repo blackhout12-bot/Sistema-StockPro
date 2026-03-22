@@ -48,12 +48,20 @@ const Facturacion = () => {
     });
 
     const { data: productosBrutos = [], isLoading: loadingProductos } = useQuery({
-        queryKey: ['productos'],
-        queryFn: async () => { const res = await api.get('/productos'); return res.data; },
+        queryKey: ['productos', depositoActivo?.id],
+        queryFn: async () => { 
+            const params = {};
+            if (depositoActivo?.id) params.deposito_id = depositoActivo.id;
+            const res = await api.get('/productos', { params }); 
+            return res.data; 
+        },
         enabled: !!token
     });
 
-    const productos = useMemo(() => productosBrutos.filter(p => p.stock > 0), [productosBrutos]);
+    const productos = useMemo(() => productosBrutos.map(p => ({
+        ...p,
+        stock: p.stock_deposito !== undefined ? p.stock_deposito : p.stock
+    })).filter(p => p.stock > 0), [productosBrutos]);
 
     const { data: empresa = {}, isLoading: loadingEmpresa } = useQuery({
         queryKey: ['empresa'],
@@ -63,8 +71,11 @@ const Facturacion = () => {
 
 
     const { data: historicoFacturas = [], isLoading: loadingFacturas, refetch: refetchFacturas } = useQuery({
-        queryKey: ['historicoFacturas'],
-        queryFn: async () => { const res = await api.get('/facturacion'); return res.data; },
+        queryKey: ['historicoFacturas', sucursalActiva?.id],
+        queryFn: async () => { 
+            const res = await api.get('/facturacion', { params: { sucursal_id: sucursalActiva?.id } }); 
+            return res.data; 
+        },
         enabled: !!token
     });
 
@@ -88,11 +99,85 @@ const Facturacion = () => {
 
     const isLoadingMaestros = loadingClientes || loadingProductos || loadingEmpresa || loadingFacturas;
 
+    // ── Queries para POS_Cajas y POS_Sesiones ────────────────────
+    const { data: cajas = [], isLoading: loadingCajas } = useQuery({
+        queryKey: ['pos_cajas'],
+        queryFn: async () => { const res = await api.get('/pos/cajas'); return res.data; },
+        enabled: !!token
+    });
+
+    // Guardaremos el ID de caja activamente seleccionado (normalmente el devuelto por la sesión o la primera por defecto)
+    const [selectedCaja, setSelectedCaja] = useState('');
+    const [montoInicial, setMontoInicial] = useState('');
+
+    const cajasFiltradas = useMemo(() => {
+        if (!sucursalActiva || !sucursalActiva.id) return cajas;
+        return cajas.filter(c => c.sucursal_id === sucursalActiva.id || !c.sucursal_id);
+    }, [cajas, sucursalActiva]);
+
+    const { data: sesionActiva, isLoading: loadingSesion, refetch: refetchSesion } = useQuery({
+        // Dependemos del ID de caja si estuviera forzado, pero el backend trae la sesión activa del usuario
+        queryKey: ['pos_sesion_activa'],
+        queryFn: async () => { const res = await api.get('/pos/sesion/activa'); return res.data; },
+        enabled: !!token
+    });
+
+    const isSessionOpen = !!sesionActiva;
+
+    // Mutation para ABRIR sesión
+    const abrirSesionMutation = useMutation({
+        mutationFn: (payload) => api.post('/pos/sesion/abrir', payload),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['pos_sesion_activa'] });
+            toast.success('Turno de caja abierto correctamente. ¡Buena jornada!');
+        },
+        onError: (err) => {
+            toast.error(err.response?.data?.error || 'Error al abrir caja');
+        }
+    });
+
+    const handleAbrirCaja = (e) => {
+        e.preventDefault();
+        if (!selectedCaja) return toast.error('Debes seleccionar una caja registradora.');
+        abrirSesionMutation.mutate({ caja_id: selectedCaja, monto_inicial: parseFloat(montoInicial) || 0 });
+    };
+
+    // Auto-select primera caja si no hay sesion
+    useEffect(() => {
+        if (!isSessionOpen && cajasFiltradas.length > 0 && !selectedCaja) {
+            setSelectedCaja(cajasFiltradas[0].id);
+        }
+        if (sesionActiva) {
+            setSelectedCaja(sesionActiva.caja_id);
+        }
+    }, [cajasFiltradas, isSessionOpen, sesionActiva, selectedCaja]);
+
+    // Mutation para CERRAR sesión
+    const cerrarSesionMutation = useMutation({
+        mutationFn: (payload) => api.post('/pos/sesion/cerrar', payload),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['pos_sesion_activa'] });
+            toast.success('Turno cerrado exitosamente. El reporte X fue generado.');
+            setSelectedCaja('');
+            setMontoInicial('');
+        },
+        onError: (err) => {
+            toast.error(err.response?.data?.error || 'Error al cerrar caja');
+        }
+    });
+
+    const handleCerrarCaja = () => {
+        if (!sesionActiva) return;
+        if (window.confirm('¿Está seguro que desea cerrar el turno de caja actual?')) {
+            cerrarSesionMutation.mutate({ sesion_id: sesionActiva.id, monto_cierre: 0 }); // Simplificado para cerrar con 0 por defecto sin modal
+        }
+    };
+
     const cargarDatosMaestros = () => {
-        queryClient.invalidateQueries(['clientes']);
-        queryClient.invalidateQueries(['productos']);
-        queryClient.invalidateQueries(['empresa']);
-        queryClient.invalidateQueries(['historicoFacturas']);
+        queryClient.invalidateQueries({ queryKey: ['clientes'] });
+        queryClient.invalidateQueries({ queryKey: ['productos'] });
+        queryClient.invalidateQueries({ queryKey: ['empresa'] });
+        queryClient.invalidateQueries({ queryKey: ['historicoFacturas'] });
     };
 
     // Estado del POS
@@ -230,7 +315,7 @@ const Facturacion = () => {
     };
 
     const emitInvoiceMutation = useMutation({
-        mutationFn: (payload) => api.post('/facturacion', payload),
+        mutationFn: (payload) => api.post('/facturacion', { ...payload, caja_id: sesionActiva?.caja_id }),
         onSuccess: (res) => {
             const facturaCompleta = res.data;
             toast.success('¡Venta emitida y stock actualizado!');
@@ -272,7 +357,7 @@ const Facturacion = () => {
         mutationFn: (payload) => api.post('/clientes', payload),
         onSuccess: (res) => {
             toast.success('Cliente creado con éxito');
-            queryClient.invalidateQueries(['clientes']);
+            queryClient.invalidateQueries({ queryKey: ['clientes'] });
             setClienteId(res.data.id.toString());
             setShowQuickClient(false);
             setQuickClientForm({ nombre: '', documento_identidad: '', telefono: '', direccion: '' });
@@ -312,10 +397,11 @@ const Facturacion = () => {
         const payload = {
             cliente_id: parseInt(clienteId),
             total: parseFloat(totalFactura.toFixed(2)),
-            detalles: carrito,
+            detalles: carrito.map(item => ({ ...item, deposito_id: depositoActivo?.id })),
             tipo_comprobante: tipoComprobante,
             metodo_pago: metodoPago,
             moneda_id: monedaId,
+            sucursal_id: sucursalActiva?.id,
             tipo_cambio: monedaId === 'USD' ? (cotizaciones.USD || 1050) : 1,
             external_reference: externalRef, // Vincular con el pago si existe
             origen_venta: origenVenta
@@ -474,6 +560,58 @@ const Facturacion = () => {
 
     return (
         <div className="max-w-[1600px] mx-auto space-y-12 animate-in fade-in duration-700 pb-20">
+            {/* BLOQUEO DE CAJA POS */}
+            {!isLoadingMaestros && !loadingSesion && !isSessionOpen && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4">
+                    <div className="bg-white rounded-[2.5rem] p-10 max-w-md w-full shadow-2xl animate-in zoom-in-95">
+                        <div className="w-20 h-20 bg-primary-50 rounded-3xl flex items-center justify-center text-primary-600 border border-primary-100 mx-auto shadow-inner shadow-primary-500/20 mb-6">
+                            <Building2 size={32} />
+                        </div>
+                        <h2 className="text-2xl font-black text-center text-slate-900 mb-2 tracking-tighter">Apertura de Caja</h2>
+                        <p className="text-center text-slate-500 mb-8 text-sm font-medium">Debes abrir tu turno de caja registradora en esta sucursal para centralizar la facturación.</p>
+                        
+                        <form onSubmit={handleAbrirCaja} className="space-y-6">
+                            <div>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Caja Asignada *</label>
+                                <select 
+                                    className="w-full bg-surface-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-black focus:bg-white focus:ring-4 focus:ring-primary-500/5 outline-none transition-all shadow-sm"
+                                    value={selectedCaja}
+                                    onChange={(e) => setSelectedCaja(e.target.value)}
+                                    required
+                                >
+                                    <option value="">-- Elige una caja --</option>
+                                    {cajasFiltradas.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+                                </select>
+                            </div>
+                            <div className="text-[10px] text-slate-400 font-bold mb-4 uppercase tracking-widest text-center mt-2">
+                                CAJAS VISIBLES PARA SUCURSAL: {sucursalActiva?.nombre || 'Todas'}
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Monto Inicial (Fondo de Cambio)</label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-400 font-bold">$</div>
+                                    <input 
+                                        type="number" 
+                                        className="w-full bg-surface-50 border border-slate-100 rounded-2xl pl-10 pr-5 py-4 text-sm font-black focus:bg-white focus:ring-4 focus:ring-primary-500/5 outline-none transition-all shadow-sm"
+                                        value={montoInicial}
+                                        onChange={(e) => setMontoInicial(e.target.value)}
+                                        placeholder="0.00"
+                                        min="0"
+                                        step="0.01"
+                                    />
+                                </div>
+                            </div>
+                            <button 
+                                type="submit" 
+                                className="w-full flex items-center justify-center py-4 bg-primary-600 hover:bg-primary-700 text-white font-black text-[11px] uppercase tracking-widest rounded-2xl transition-all shadow-soft active:scale-95 disabled:opacity-50 mt-4"
+                            >
+                                Iniciar Turno de Venta
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             {/* Loading Skeletons for POS */}
             {isLoadingMaestros && (
                 <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 animate-pulse mt-8">
@@ -500,7 +638,9 @@ const Facturacion = () => {
                     </div>
                     <div>
                         <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase tracking-[-0.04em]">Punto de Venta</h1>
-                        <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-[0.3em] mt-1 ml-1">Facturación de Alto Rendimiento · {empresa.nombre}</p>
+                        <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-[0.3em] mt-1 ml-1">
+                            Facturación · {empresa.nombre} {depositoActivo ? `· Depósito: ${depositoActivo.nombre}` : ''}
+                        </p>
                     </div>
                 </div>
                 <div className="flex items-center gap-5">
@@ -513,7 +653,18 @@ const Facturacion = () => {
                             <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
                             <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">En Línea</span>
                         </div>
-                        <p className="text-xl font-black text-slate-900 font-mono tracking-tighter leading-none">CAJA 01</p>
+                        <div className="flex items-center gap-3">
+                            <p className="text-xl font-black text-slate-900 font-mono tracking-tighter leading-none">
+                                {cajas.find(c => c.id === sesionActiva?.caja_id)?.nombre || 'CAJA ACTIVA'}
+                            </p>
+                            <button 
+                                onClick={handleCerrarCaja}
+                                disabled={cerrarSesionMutation.isLoading}
+                                className="px-3 py-1 bg-rose-50 text-rose-600 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-rose-100 transition-colors"
+                            >
+                                Cerrar
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

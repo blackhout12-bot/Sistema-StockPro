@@ -1,0 +1,115 @@
+[dotenv@17.3.1] injecting env (16) from .env -- tip: ÔÜí´©Å secrets for agents: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ­ƒöÉ prevent building .env in docker: https://dotenvx.com/prebuild
+(node:20372) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:20372) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+[23:03:40] [32mINFO[39m: [36m­ƒÜÇ Iniciando infraestructura de BullMQ (Graceful Degradation Mode)...[39m
+[23:03:40] [32mINFO[39m: [36malertWorker (Legacy) importado. Las tareas ahora son administradas por BullMQ cronQueue.[39m
+[23:03:40] [32mINFO[39m: [36m­ƒÜÇ Socket.io inicializado con soporte multi-tenant[39m
+[23:03:40] [32mINFO[39m: [36mConectado a Redis Exitosamente[39m
+[23:03:40] [32mINFO[39m: [36mCron Job [check-stock-vencimientos] registrado en BullMQ.[39m
+    [35mcronTime[39m: "*/5 * * * *"
+[23:03:40] [32mINFO[39m: [36mÔ£à BullMQ y Workers inicializados correctamente.[39m
+Fetching dependencies...
+[23:03:40] [32mINFO[39m: [36mConectado a SQL Server (Escritura)[39m
+Abriendo Sesion en caja 1 para usuario 1
+Sesion abierta: 6
+Dispatching request with valid session...
+[23:03:40] [32mINFO[39m: [36mIncoming Request[39m
+    [35mmethod[39m: "POST"
+    [35murl[39m: "/api/v1/facturacion"
+    [35mbody[39m: "REDACTED"
+[23:03:40] [32mINFO[39m: [36m[POST /facturacion] Iniciando creaci├│n de factura[39m
+    [35muserId[39m: 1
+    [35mempresa_id[39m: 1
+[23:03:41] [31mERROR[39m: [36mError en createFactura (Transacci├│n bloqueada/fallida)[39m
+    [35mstack[39m: "Error: No hay dep├│sito principal configurado para realizar la venta.\n    at FacturacionModel.createFactura (C:\Users\egar0\stock-system\src\repositories\facturacion.repository.js:328:31)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async FacturacionService.createFactura (C:\Users\egar0\stock-system\src\modules\facturacion\facturacion.service.js:20:27)\n    at async C:\Users\egar0\stock-system\src\modules\facturacion\facturacion.controller.js:97:28"
+    error: "No hay dep├│sito principal configurado para realizar la venta."
+[23:03:41] [31mERROR[39m: [36m[POST /facturacion] Error al crear factura[39m
+    [35muserId[39m: 1
+    [35mempresa_id[39m: 1
+    [35mstack[39m: "Error: No hay dep├│sito principal configurado para realizar la venta.\n    at FacturacionModel.createFactura (C:\Users\egar0\stock-system\src\repositories\facturacion.repository.js:328:31)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async FacturacionService.createFactura (C:\Users\egar0\stock-system\src\modules\facturacion\facturacion.service.js:20:27)\n    at async C:\Users\egar0\stock-system\src\modules\facturacion\facturacion.controller.js:97:28"
+    [35mbody[39m: {
+      "cliente_id": 1,
+      "total": 10000,
+      "detalles": [
+        {
+          "producto_id": 18,
+          "cantidad": 1,
+          "precio_unitario": 10000,
+          "subtotal": 10000
+        }
+      ],
+      "tipo_comprobante": "Factura B",
+      "metodo_pago": "Efectivo",
+      "moneda_id": "ARS",
+      "tipo_cambio": 1,
+      "origen_venta": "Local",
+      "caja_id": 1,
+      "sucursal_id": 1
+    }
+    error: "No hay dep├│sito principal configurado para realizar la venta."
+[23:03:41] [31mERROR[39m: [36mExcepci├│n Global Capturada[39m
+    [35mstack[39m: "Error: No hay dep├│sito principal configurado para realizar la venta.\n    at FacturacionModel.createFactura (C:\Users\egar0\stock-system\src\repositories\facturacion.repository.js:328:31)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async FacturacionService.createFactura (C:\Users\egar0\stock-system\src\modules\facturacion\facturacion.service.js:20:27)\n    at async C:\Users\egar0\stock-system\src\modules\facturacion\facturacion.controller.js:97:28"
+    [35mpath[39m: "/api/v1/facturacion"
+    [35mmethod[39m: "POST"
+    err: "No hay dep├│sito principal configurado para realizar la venta."
+[23:03:41] [32mINFO[39m: [36mrequest errored[39m
+    [35mreq[39m: {
+      "id": 1,
+      "method": "POST",
+      "url": "/api/v1/facturacion",
+      "query": {},
+      "params": {},
+      "headers": {
+        "host": "127.0.0.1:55132",
+        "accept-encoding": "gzip, deflate",
+        "authorization": "[Redacted]",
+        "x-empresa-id": "1",
+        "content-type": "application/json",
+        "content-length": "257",
+        "connection": "close"
+      },
+      "remoteAddress": "::ffff:127.0.0.1",
+      "remotePort": 55133
+    }
+    [35mres[39m: {
+      "statusCode": 500,
+      "headers": {
+        "cross-origin-opener-policy": "same-origin",
+        "cross-origin-resource-policy": "same-origin",
+        "origin-agent-cluster": "?1",
+        "referrer-policy": "no-referrer",
+        "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+        "x-content-type-options": "nosniff",
+        "x-dns-prefetch-control": "off",
+        "x-download-options": "noopen",
+        "x-frame-options": "SAMEORIGIN",
+        "x-permitted-cross-domain-policies": "none",
+        "x-xss-protection": "0",
+        "vary": "Origin",
+        "access-control-allow-credentials": "true",
+        "content-type": "application/json; charset=utf-8",
+        "content-length": "53",
+        "etag": "W/\"35-lMbuvx2LjFOEEEH4yOjyrizwukw\""
+      }
+    }
+    [35mresponseTime[39m: 80
+    err: {
+      "type": "Error",
+      "message": "failed with status code 500",
+      "stack":
+          Error: failed with status code 500
+              at onResFinished (C:\Users\egar0\stock-system\node_modules\pino-http\logger.js:115:39)
+              at ServerResponse.onResponseComplete (C:\Users\egar0\stock-system\node_modules\pino-http\logger.js:178:14)
+              at ServerResponse.emit (node:events:520:35)
+              at onFinish (node:_http_outgoing:1026:10)
+              at callback (node:internal/streams/writable:764:21)
+              at afterWrite (node:internal/streams/writable:708:5)
+              at afterWriteTick (node:internal/streams/writable:694:10)
+              at process.processTicksAndRejections (node:internal/process/task_queues:88:21)
+    }
+--- RESPONSE STATUS ---
+500
+--- RESPONSE BODY ---
+{ error: true, message: 'Error Interno del Servidor' }

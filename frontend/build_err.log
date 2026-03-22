@@ -1,0 +1,76 @@
+
+> frontend@1.0.0 build
+> vite build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32mÔ£ô[39m 1827 modules transformed.
+Ô£ù Build failed in 2.40s
+error during build:
+[vite:esbuild] Transform failed with 6 errors:
+C:/Users/egar0/stock-system/frontend/src/ProductForm.jsx:4:9: ERROR: The symbol "ChevronRight" has already been declared
+C:/Users/egar0/stock-system/frontend/src/ProductForm.jsx:4:23: ERROR: The symbol "ChevronLeft" has already been declared
+C:/Users/egar0/stock-system/frontend/src/ProductForm.jsx:4:36: ERROR: The symbol "Save" has already been declared
+C:/Users/egar0/stock-system/frontend/src/ProductForm.jsx:4:42: ERROR: The symbol "Info" has already been declared
+C:/Users/egar0/stock-system/frontend/src/ProductForm.jsx:4:48: ERROR: The symbol "DollarSign" has already been declared
+...
+file: C:/Users/egar0/stock-system/frontend/src/ProductForm.jsx:4:9
+
+The symbol "ChevronRight" has already been declared
+2  |  import { toast } from 'react-hot-toast';
+3  |  import { ChevronRight, ChevronLeft, Save, Info, DollarSign, Layers } from 'lucide-react';
+4  |  import { ChevronRight, ChevronLeft, Save, Info, DollarSign, Layers } from 'lucide-react';
+   |           ^
+5  |  import { useAuth } from './context/AuthContext';
+6  |  import { getRubroSchema } from './config/rubroSchemas';
+
+The symbol "ChevronLeft" has already been declared
+2  |  import { toast } from 'react-hot-toast';
+3  |  import { ChevronRight, ChevronLeft, Save, Info, DollarSign, Layers } from 'lucide-react';
+4  |  import { ChevronRight, ChevronLeft, Save, Info, DollarSign, Layers } from 'lucide-react';
+   |                         ^
+5  |  import { useAuth } from './context/AuthContext';
+6  |  import { getRubroSchema } from './config/rubroSchemas';
+
+The symbol "Save" has already been declared
+2  |  import { toast } from 'react-hot-toast';
+3  |  import { ChevronRight, ChevronLeft, Save, Info, DollarSign, Layers } from 'lucide-react';
+4  |  import { ChevronRight, ChevronLeft, Save, Info, DollarSign, Layers } from 'lucide-react';
+   |                                      ^
+5  |  import { useAuth } from './context/AuthContext';
+6  |  import { getRubroSchema } from './config/rubroSchemas';
+
+The symbol "Info" has already been declared
+2  |  import { toast } from 'react-hot-toast';
+3  |  import { ChevronRight, ChevronLeft, Save, Info, DollarSign, Layers } from 'lucide-react';
+4  |  import { ChevronRight, ChevronLeft, Save, Info, DollarSign, Layers } from 'lucide-react';
+   |                                            ^
+5  |  import { useAuth } from './context/AuthContext';
+6  |  import { getRubroSchema } from './config/rubroSchemas';
+
+The symbol "DollarSign" has already been declared
+2  |  import { toast } from 'react-hot-toast';
+3  |  import { ChevronRight, ChevronLeft, Save, Info, DollarSign, Layers } from 'lucide-react';
+4  |  import { ChevronRight, ChevronLeft, Save, Info, DollarSign, Layers } from 'lucide-react';
+   |                                                  ^
+5  |  import { useAuth } from './context/AuthContext';
+6  |  import { getRubroSchema } from './config/rubroSchemas';
+
+The symbol "Layers" has already been declared
+2  |  import { toast } from 'react-hot-toast';
+3  |  import { ChevronRight, ChevronLeft, Save, Info, DollarSign, Layers } from 'lucide-react';
+4  |  import { ChevronRight, ChevronLeft, Save, Info, DollarSign, Layers } from 'lucide-react';
+   |                                                              ^
+5  |  import { useAuth } from './context/AuthContext';
+6  |  import { getRubroSchema } from './config/rubroSchemas';
+
+    at failureErrorWithLog (C:\Users\egar0\stock-system\frontend\node_modules\esbuild\lib\main.js:1467:15)
+    at C:\Users\egar0\stock-system\frontend\node_modules\esbuild\lib\main.js:736:50
+    at responseCallbacks.<computed> (C:\Users\egar0\stock-system\frontend\node_modules\esbuild\lib\main.js:603:9)
+    at handleIncomingPacket (C:\Users\egar0\stock-system\frontend\node_modules\esbuild\lib\main.js:658:12)
+    at Socket.readFromStdout (C:\Users\egar0\stock-system\frontend\node_modules\esbuild\lib\main.js:581:7)
+    at Socket.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)

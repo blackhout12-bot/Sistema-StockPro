@@ -153,6 +153,30 @@ async function registerEmpresa({ empresaNombre, nombre, email, password }) {
       .input('eid', sql.Int, empresa_id)
       .query("INSERT INTO ConfigComprobantes (empresa_id, tipo_comprobante, prefijo, proximo_nro, activo) VALUES (@eid, 'Factura', '0001', 1, 1)");
 
+    // ── NUEVO: Depósito Principal por defecto ──
+    const resDep = await new sql.Request(transaction)
+      .input('eid', sql.Int, empresa_id)
+      .query("INSERT INTO Depositos (empresa_id, nombre, direccion, es_principal, activo) OUTPUT INSERTED.id VALUES (@eid, 'Depósito Principal', 'Central', 1, 1)");
+    
+    // ── NUEVO: Caja POS Principal por defecto ──
+    // POS Cajas no requiere sucursal_id obligatoriamente, se puede vincular luego
+    await new sql.Request(transaction)
+      .input('eid', sql.Int, empresa_id)
+      .query("INSERT INTO POS_Cajas (empresa_id, nombre, activa) VALUES (@eid, 'Caja Principal', 1)");
+
+    // ── NUEVO: Sembrar Roles por defecto (¡CRÍTICO PARA RBAC!) ──
+    await new sql.Request(transaction)
+      .input('eid', sql.Int, empresa_id)
+      .input('adminPerm', sql.NVarChar, '{"*":["leer","crear","actualizar","eliminar","exportar"]}')
+      .input('gerentePerm', sql.NVarChar, '{"dashboard":["leer"],"facturacion":["leer","crear","exportar"],"movimientos":["leer","crear","actualizar","exportar"],"productos":["leer","crear","actualizar","exportar"],"clientes":["leer","crear","actualizar","exportar"],"reportes":["leer","exportar"]}')
+      .input('cajeroPerm', sql.NVarChar, '{"dashboard":["leer"],"facturacion":["leer","crear"],"clientes":["leer","crear"],"movimientos":["leer"]}')
+      .query(`
+        INSERT INTO Roles (empresa_id, nombre, codigo_rol, permisos, es_sistema) VALUES 
+        (@eid, 'Administrador', 'admin', @adminPerm, 1),
+        (@eid, 'Gerente', 'gerente', @gerentePerm, 1),
+        (@eid, 'Cajero', 'cajero', @cajeroPerm, 1)
+      `);
+
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const resUser = await new sql.Request(transaction)

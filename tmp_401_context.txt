@@ -1,0 +1,102 @@
+
+  dev_output.log:678875:[BACKEND]       },
+  dev_output.log:678876:[BACKEND]       "remoteAddress": "127.0.0.1",
+> dev_output.log:678877:[BACKEND]       "remotePort": 53401
+  dev_output.log:678878:[BACKEND]     }
+  dev_output.log:678879:[BACKEND]     res: {
+  dev_output.log:681749:[BACKEND]       },
+  dev_output.log:681750:[BACKEND]       "remoteAddress": "127.0.0.1",
+> dev_output.log:681751:[BACKEND]       "remotePort": 53401
+  dev_output.log:681752:[BACKEND]     }
+  dev_output.log:681753:[BACKEND]     res: {
+  dev_output.log:695845:[BACKEND] [01:24:18] INFO: request completed
+  dev_output.log:695846:[BACKEND]     req: {
+> dev_output.log:695847:[BACKEND]       "id": 7401,
+  dev_output.log:695848:[BACKEND]       "method": "GET",
+  dev_output.log:695849:[BACKEND]       "url": "/api/v1/ping",
+  dev_output.log:698375:[BACKEND]       },
+  dev_output.log:698376:[BACKEND]       "remoteAddress": "127.0.0.1",
+> dev_output.log:698377:[BACKEND]       "remotePort": 53401
+  dev_output.log:698378:[BACKEND]     }
+  dev_output.log:698379:[BACKEND]     res: {
+  dev_output.log:701249:[BACKEND]       },
+  dev_output.log:701250:[BACKEND]       "remoteAddress": "127.0.0.1",
+> dev_output.log:701251:[BACKEND]       "remotePort": 53401
+  dev_output.log:701252:[BACKEND]     }
+  dev_output.log:701253:[BACKEND]     res: {
+  dev_output.log:717875:[BACKEND]       },
+  dev_output.log:717876:[BACKEND]       "remoteAddress": "127.0.0.1",
+> dev_output.log:717877:[BACKEND]       "remotePort": 53401
+  dev_output.log:717878:[BACKEND]     }
+  dev_output.log:717879:[BACKEND]     res: {
+  dev_output.log:720749:[BACKEND]       },
+  dev_output.log:720750:[BACKEND]       "remoteAddress": "127.0.0.1",
+> dev_output.log:720751:[BACKEND]       "remotePort": 53401
+  dev_output.log:720752:[BACKEND]     }
+  dev_output.log:720753:[BACKEND]     res: {
+  dev_output.log:734845:[BACKEND] [01:24:19] INFO: request completed
+  dev_output.log:734846:[BACKEND]     req: {
+> dev_output.log:734847:[BACKEND]       "id": 8401,
+  dev_output.log:734848:[BACKEND]       "method": "GET",
+  dev_output.log:734849:[BACKEND]       "url": "/api/v1/ping",
+  dev_output.log:737375:[BACKEND]       },
+  dev_output.log:737376:[BACKEND]       "remoteAddress": "127.0.0.1",
+> dev_output.log:737377:[BACKEND]       "remotePort": 53401
+  dev_output.log:737378:[BACKEND]     }
+  dev_output.log:737379:[BACKEND]     res: {
+  dev_output.log:740249:[BACKEND]       },
+  dev_output.log:740250:[BACKEND]       "remoteAddress": "127.0.0.1",
+> dev_output.log:740251:[BACKEND]       "remotePort": 53401
+  dev_output.log:740252:[BACKEND]     }
+  dev_output.log:740253:[BACKEND]     res: {
+  dev_output.log:756911:[BACKEND]       },
+  dev_output.log:756912:[BACKEND]       "remoteAddress": "127.0.0.1",
+> dev_output.log:756913:[BACKEND]       "remotePort": 53401
+  dev_output.log:756914:[BACKEND]     }
+  dev_output.log:756915:[BACKEND]     res: {
+  dev_output.log:759713:[BACKEND]       },
+  dev_output.log:759714:[BACKEND]       "remoteAddress": "127.0.0.1",
+> dev_output.log:759715:[BACKEND]       "remotePort": 53401
+  dev_output.log:759716:[BACKEND]     }
+  dev_output.log:759717:[BACKEND]     res: {
+  dev_output.log:773845:[BACKEND] [01:24:19] INFO: request completed
+  dev_output.log:773846:[BACKEND]     req: {
+> dev_output.log:773847:[BACKEND]       "id": 9401,
+  dev_output.log:773848:[BACKEND]       "method": "GET",
+  dev_output.log:773849:[BACKEND]       "url": "/api/v1/ping",
+  dev_output.log:776411:[BACKEND]       },
+  dev_output.log:776412:[BACKEND]       "remoteAddress": "127.0.0.1",
+> dev_output.log:776413:[BACKEND]       "remotePort": 53401
+  dev_output.log:776414:[BACKEND]     }
+  dev_output.log:776415:[BACKEND]     res: {
+  dev_output.log:779213:[BACKEND]       },
+  dev_output.log:779214:[BACKEND]       "remoteAddress": "127.0.0.1",
+> dev_output.log:779215:[BACKEND]       "remotePort": 53401
+  dev_output.log:779216:[BACKEND]     }
+  dev_output.log:779217:[BACKEND]     res: {
+  dev_output.log:795911:[BACKEND]       },
+  dev_output.log:795912:[BACKEND]       "remoteAddress": "127.0.0.1",
+> dev_output.log:795913:[BACKEND]       "remotePort": 53401
+  dev_output.log:795914:[BACKEND]     }
+  dev_output.log:795915:[BACKEND]     res: {
+  dev_output.log:808931:[BACKEND]     }
+  dev_output.log:808932:[BACKEND]     res: {
+> dev_output.log:808933:[BACKEND]       "statusCode": 401,
+  dev_output.log:808934:[BACKEND]       "headers": {
+  dev_output.log:808935:[BACKEND]         "cross-origin-opener-policy": "same-origin",
+  dev_output.log:809023:[BACKEND]     }
+  dev_output.log:809024:[BACKEND]     res: {
+> dev_output.log:809025:[BACKEND]       "statusCode": 401,
+  dev_output.log:809026:[BACKEND]       "headers": {
+  dev_output.log:809027:[BACKEND]         "cross-origin-opener-policy": "same-origin",
+  dev_output.log:809141:[BACKEND]     }
+  dev_output.log:809142:[BACKEND]     res: {
+> dev_output.log:809143:[BACKEND]       "statusCode": 401,
+  dev_output.log:809144:[BACKEND]       "headers": {
+  dev_output.log:809145:[BACKEND]         "cross-origin-opener-policy": "same-origin",
+  dev_output.log:809287:[BACKEND]     }
+  dev_output.log:809288:[BACKEND]     res: {
+> dev_output.log:809289:[BACKEND]       "statusCode": 401,
+  dev_output.log:809290:[BACKEND]       "headers": {
+  dev_output.log:809291:[BACKEND]         "cross-origin-opener-policy": "same-origin",
+

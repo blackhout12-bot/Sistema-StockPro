@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { BranchProvider } from './context/BranchContext';
+import { SocketProvider } from './context/SocketContext';
 import EmpresaSelector from './components/EmpresaSelector';
 import LoginForm from './LoginForm';
 import MainLayout from './layouts/MainLayout';
@@ -106,7 +107,9 @@ function App() {
       }} />
       <AuthProvider>
         <BranchProvider>
-          <AppRoutes />
+          <SocketProvider>
+            <AppRoutes />
+          </SocketProvider>
         </BranchProvider>
       </AuthProvider>
     </Router>

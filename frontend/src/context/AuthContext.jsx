@@ -3,10 +3,12 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { jwtDecode } from 'jwt-decode';
 import { toast } from 'react-hot-toast';
 import api from '../utils/axiosConfig';
+import { useQueryClient } from '@tanstack/react-query';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
+    const queryClient = useQueryClient();
     const [token, setToken] = useState(() => localStorage.getItem('token'));
     const [user, setUser] = useState(() => {
         try {
@@ -162,7 +164,15 @@ export function AuthProvider({ children }) {
         localStorage.removeItem('misEmpresas');
         localStorage.removeItem('featureToggles');
         localStorage.removeItem('empresaConfig');
-    }, []);
+        localStorage.removeItem('selectedEmpresa'); // Security patch: Evitar leak de empresa ID anterior
+        localStorage.removeItem('sucursal_activa'); // Security patch: Limpiar sucursal
+        localStorage.removeItem('deposito_activo'); // Security patch: Limpiar depósito
+        
+        // Destruir por completo la caché en memoria de React Query al hacer logout
+        if (queryClient) {
+            queryClient.clear();
+        }
+    }, [queryClient]);
 
     // Validar token expirado al montar
     useEffect(() => {

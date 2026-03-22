@@ -496,6 +496,61 @@ class FacturacionModel {
                 }
             }
 
+            // ── NUEVO: GENERAR CUENTA POR COBRAR Y KARDEX ──
+            const esCredito = facturaData.metodo_pago === 'Cuenta Corriente' || facturaData.metodo_pago === 'A Crédito';
+            const reqCxc = new sql.Request(transaction)
+                .input('empresa_id', sql.Int, empresa_id)
+                .input('cliente_id', sql.Int, cliente_id)
+                .input('factura_id', sql.Int, factura_id)
+                .input('monto_adeudado', sql.Decimal(18,2), total)
+                .input('monto_cobrado', sql.Decimal(18,2), esCredito ? 0 : total)
+                .input('estado', sql.NVarChar, esCredito ? 'PENDIENTE' : 'COBRADA');
+
+            const resCxc = await reqCxc.query(`
+                INSERT INTO Cuentas_Cobrar (empresa_id, cliente_id, factura_id, monto_adeudado, monto_cobrado, estado)
+                OUTPUT INSERTED.id
+                VALUES (@empresa_id, @cliente_id, @factura_id, @monto_adeudado, @monto_cobrado, @estado)
+            `);
+            const cxc_id = resCxc.recordset[0].id;
+
+            if (!esCredito) {
+                await new sql.Request(transaction)
+                    .input('empresa_id', sql.Int, empresa_id)
+                    .input('cliente_id', sql.Int, cliente_id)
+                    .input('cuenta_cobrar_id', sql.Int, cxc_id)
+                    .input('monto_cobrado', sql.Decimal(18,2), total)
+                    .input('metodo_pago', sql.NVarChar, facturaData.metodo_pago || 'Efectivo')
+                    .query(`
+                        INSERT INTO Cobros (empresa_id, cliente_id, cuenta_cobrar_id, monto_cobrado, fecha_cobro, metodo_pago)
+                        VALUES (@empresa_id, @cliente_id, @cuenta_cobrar_id, @monto_cobrado, GETDATE(), @metodo_pago)
+                    `);
+            }
+
+            // Kardex para cada item (Salida)
+            for (const item of detalles) {
+                const stockActualRes = await new sql.Request(transaction)
+                    .input('pid', sql.Int, item.producto_id)
+                    .input('eid', sql.Int, empresa_id)
+                    .query('SELECT stock FROM Productos WHERE id = @pid AND empresa_id = @eid');
+                const saldo_cantidad = stockActualRes.recordset[0].stock;
+                
+                await new sql.Request(transaction)
+                    .input('empresa_id', sql.Int, empresa_id)
+                    .input('producto_id', sql.Int, item.producto_id)
+                    .input('tipo_movimiento', sql.NVarChar, 'SALIDA')
+                    .input('origen', sql.NVarChar, 'VENTA')
+                    .input('referencia_id', sql.Int, factura_id)
+                    .input('cantidad', sql.Decimal(18,2), item.cantidad)
+                    .input('costo_unitario', sql.Decimal(18,2), item.precio_unitario)
+                    .input('costo_total', sql.Decimal(18,2), item.subtotal)
+                    .input('saldo_cantidad', sql.Decimal(18,2), saldo_cantidad)
+                    .input('saldo_valorado', sql.Decimal(18,2), saldo_cantidad * item.precio_unitario)
+                    .query(`
+                        INSERT INTO Kardex (empresa_id, producto_id, tipo_movimiento, origen, referencia_id, cantidad, costo_unitario, costo_total, saldo_cantidad, saldo_valorado)
+                        VALUES (@empresa_id, @producto_id, @tipo_movimiento, @origen, @referencia_id, @cantidad, @costo_unitario, @costo_total, @saldo_cantidad, @saldo_valorado)
+                    `);
+            }
+
             await transaction.commit();
 
             // ── Disparar Eventos asíncronos post-commit ──

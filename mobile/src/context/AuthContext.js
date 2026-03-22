@@ -25,7 +25,21 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         const response = await api.post('/auth/login', { email, password });
-        const { token, user: userResponse } = response.data;
+        let { token, user: userResponse, requires_empresa_select, empresas, usuario_id } = response.data;
+
+        // Si el usuario es multi-empresa, auto-seleccionamos la primera para la App Mobile
+        if (requires_empresa_select && empresas && empresas.length > 0) {
+            const selResponse = await api.post('/auth/select-empresa', {
+                usuario_id: usuario_id,
+                empresa_id: empresas[0].empresa_id
+            });
+            token = selResponse.data.token;
+            userResponse = selResponse.data.user;
+        }
+
+        if (!token) {
+            throw new Error("No se pudo obtener el token de sesión");
+        }
 
         await AsyncStorage.setItem('token', token);
         await AsyncStorage.setItem('user', JSON.stringify(userResponse));

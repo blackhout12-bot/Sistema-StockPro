@@ -1,0 +1,5 @@
+[dotenv@17.3.1] injecting env (16) from .env -- tip: ÔÜÖ´©Å  enable debug logging with { debug: true }
+[22:57:40] [32mINFO[39m: [36mConectado a SQL Server (Escritura)[39m
+FATAL Error: Login failed: {"error":"Error interno validando API Key"}
+    at trigger (C:\Users\egar0\stock-system\trigger-factura.js:20:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)

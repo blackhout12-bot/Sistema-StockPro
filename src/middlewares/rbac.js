@@ -17,9 +17,10 @@ const checkPermiso = (recurso, accion) => {
             }
 
             const rolUsuario = req.user.rol; // 'admin' o 'vendedor'
+            const empresa_id = req.tenant_id || req.user.empresa_id;
 
-            // 2. Consultar la Base de Datos para verificar acceso real
-            const tieneAcceso = await verificarPermisoRol(rolUsuario, recurso, accion);
+            // 2. Consultar la Base de Datos para verificar acceso real en la tabla Roles
+            const tieneAcceso = await verificarPermisoRol(empresa_id, rolUsuario, recurso, accion);
 
             // 3. Ejecutar política de Drop seguro por defecto
             if (!tieneAcceso) {

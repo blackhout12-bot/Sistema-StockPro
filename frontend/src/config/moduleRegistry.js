@@ -62,9 +62,19 @@ const moduleRegistry = [
     icon: 'Package',
     section: 'operaciones',
     requiredToggle: null,
-    requiredRoles: ['admin', 'gerente', 'supervisor'],
     lazy: () => import('../pages/Products'),
     breadcrumb: 'Catálogo de Productos'
+  },
+  {
+    id: 'compras',
+    label: 'Compras',
+    path: '/compras',
+    icon: 'ShoppingCart',
+    section: 'operaciones',
+    requiredToggle: null,
+    requiredRoles: ['admin', 'gerente'],
+    lazy: () => import('../pages/Compras'),
+    breadcrumb: 'Gestión de Compras'
   },
 
   // ── RELACIONES ─────────────────────────────────────────────────
@@ -75,9 +85,19 @@ const moduleRegistry = [
     icon: 'Users',
     section: 'relaciones',
     requiredToggle: null,
-    requiredRoles: ['admin', 'gerente', 'supervisor', 'cajero'],
     lazy: () => import('../pages/Clientes'),
     breadcrumb: 'Clientes'
+  },
+  {
+    id: 'proveedores',
+    label: 'Proveedores',
+    path: '/proveedores',
+    icon: 'Truck',
+    section: 'relaciones',
+    requiredToggle: null,
+    requiredRoles: ['admin', 'gerente', 'supervisor'],
+    lazy: () => import('../pages/Proveedores'),
+    breadcrumb: 'Proveedores'
   },
 
   // ── ANALÍTICA ──────────────────────────────────────────────────
@@ -88,9 +108,41 @@ const moduleRegistry = [
     icon: 'FileText',
     section: 'analitica',
     requiredToggle: null,
-    requiredRoles: ['admin', 'gerente', 'supervisor'],
     lazy: () => import('../pages/Reports'),
     breadcrumb: 'Reportes y Analytics'
+  },
+  {
+    id: 'kardex',
+    label: 'Kardex (Inventario)',
+    path: '/kardex',
+    icon: 'ClipboardList',
+    section: 'analitica',
+    requiredToggle: null,
+    requiredRoles: ['admin', 'gerente'],
+    lazy: () => import('../pages/Kardex'),
+    breadcrumb: 'Kardex Valorizado'
+  },
+  {
+    id: 'cuentas-cobrar',
+    label: 'Cuentas por Cobrar',
+    path: '/cuentas-cobrar',
+    icon: 'Briefcase',
+    section: 'analitica',
+    requiredToggle: null,
+    requiredRoles: ['admin', 'gerente'],
+    lazy: () => import('../pages/CuentasCobrar'),
+    breadcrumb: 'Cuentas por Cobrar (Deudores)'
+  },
+  {
+    id: 'cuentas-pagar',
+    label: 'Cuentas por Pagar',
+    path: '/cuentas-pagar',
+    icon: 'Landmark',
+    section: 'analitica',
+    requiredToggle: null,
+    requiredRoles: ['admin', 'gerente'],
+    lazy: () => import('../pages/CuentasPagar'),
+    breadcrumb: 'Cuentas por Pagar (Acreedores)'
   },
 
   // ── ADMINISTRACIÓN ────────────────────────────────────────────
@@ -199,12 +251,16 @@ export default moduleRegistry;
  * @returns {Array} módulos accesibles
  */
 export function getAccessibleModules(featureToggles = {}, userRole = '') {
+  // Garantizar que toggles sea SIEMPRE un objeto, incluso si llega explícitamente null desde la BD
+  const toggles = featureToggles || {};
   return moduleRegistry.filter(mod => {
     // Verificar toggle requerido
-    if (mod.requiredToggle && !featureToggles[mod.requiredToggle]) return false;
-    // Verificar rol
-    if (mod.requiredRoles.includes('*')) return true;
-    return mod.requiredRoles.includes(userRole);
+    if (mod.requiredToggle && !toggles[mod.requiredToggle]) return false;
+    
+    // Verificar rol seguro contra undefined
+    const roles = mod.requiredRoles || ['*'];
+    if (roles.includes('*')) return true;
+    return roles.includes(userRole);
   });
 }
 

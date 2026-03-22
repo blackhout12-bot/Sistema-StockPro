@@ -67,7 +67,13 @@ router.use('/movimientos', authenticate, tenantContext, require('../modules/movi
 router.use('/marketplace', authenticate, tenantContext, require('../modules/marketplace/marketplace.routes.v1'));
 router.use('/empresa', authenticate, tenantContext, require('../modules/empresa/empresa.controller'));
 router.use('/clientes', authenticate, tenantContext, require('../modules/clientes/clientes.controller'));
+router.use('/proveedores', authenticate, tenantContext, require('../modules/proveedores/proveedores.controller'));
+router.use('/compras', authenticate, tenantContext, require('../modules/compras/compras.controller'));
+router.use('/cuentas-pagar', authenticate, tenantContext, require('../modules/cuentas_pagar/cuentas_pagar.controller'));
+router.use('/cuentas-cobrar', authenticate, tenantContext, require('../modules/cuentas_cobrar/cuentas_cobrar.controller'));
+router.use('/kardex', authenticate, tenantContext, require('../modules/kardex/kardex.controller'));
 router.use('/facturacion', authenticate, tenantContext, require('../modules/facturacion/facturacion.controller'));
+router.use('/pos', authenticate, tenantContext, require('../modules/pos/pos.controller'));
 router.use('/payments', authenticate, require('../modules/payments/payments.controller'));
 router.use('/importacion', authenticate, tenantContext, require('../modules/importacion/importacion.controller'));
 router.use('/monedas', authenticate, require('../modules/configuracion/monedas.controller'));
