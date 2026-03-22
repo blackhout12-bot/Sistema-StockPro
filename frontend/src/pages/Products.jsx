@@ -68,7 +68,8 @@ const Products = () => {
     const addMutation = useMutation({
         mutationFn: (productFormData) => api.post('/productos/crear', productFormData, { headers: { 'Content-Type': 'multipart/form-data' }}),
         onSuccess: () => {
-            queryClient.invalidateQueries(['productos']);
+            queryClient.invalidateQueries({ queryKey: ['productos'] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard'] });
             setShowModal(false);
             toast.success('Producto creado exitosamente');
         },
@@ -78,7 +79,8 @@ const Products = () => {
     const updateMutation = useMutation({
         mutationFn: ({ id, productData }) => api.put(`/productos/editar/${id}`, productData, { headers: { 'Content-Type': 'multipart/form-data' }}),
         onSuccess: () => {
-            queryClient.invalidateQueries(['productos']);
+            queryClient.invalidateQueries({ queryKey: ['productos'] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard'] });
             setShowModal(false);
             setEditingProduct(null);
             toast.success('Producto actualizado exitosamente');
@@ -90,6 +92,7 @@ const Products = () => {
         mutationFn: (id) => api.delete(`/productos/eliminar/${id}`),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['productos'] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard'] });
             toast.success('Producto eliminado exitosamente');
             if (products.length === 1 && currentPage > 1) {
                 setCurrentPage(p => p - 1);

@@ -78,11 +78,11 @@ router.get('/', checkPermiso('productos', 'leer'), async (req, res, next) => {
 
 // Crear producto
 router.post('/crear', checkPermiso('productos', 'crear'), upload.single('imagen'), validateBody(productoSchema), audit('crear', 'Producto'), async (req, res, next) => {
-  const { nombre, descripcion, precio, stock, categoria, sku, stock_min, stock_max, moneda_id, custom_fields } = req.body;
+  const { nombre, descripcion, precio, stock, categoria, sku, stock_min, stock_max, moneda_id, custom_fields, nro_lote, fecha_vto } = req.body;
   const image_url = req.file ? '/uploads/productos/' + req.file.filename : req.body.image_url;
   
   try {
-    const producto = await productosService.agregarProducto(nombre, descripcion, precio, stock, categoria, req.tenant_id, sku, moneda_id, custom_fields, image_url);
+    const producto = await productosService.agregarProducto(nombre, descripcion, precio, stock, categoria, req.tenant_id, sku, moneda_id, custom_fields, image_url, nro_lote, fecha_vto);
     res.locals.insertedId = producto.id;
     res.status(201).json(producto);
   } catch (err) {

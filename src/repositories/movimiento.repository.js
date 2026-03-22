@@ -151,26 +151,13 @@ class MovimientoRepository {
 
             // 4. Manejo de Lotes (Nuevo)
             if (tipo === 'entrada' && (data.nro_lote !== undefined && data.nro_lote !== null && data.nro_lote !== '')) {
-                const empRes = await transaction.request()
-                    .input('eid_toggles', sql.Int, empresa_id)
-                    .query("SELECT feature_toggles FROM Empresa WHERE id = @eid_toggles");
-                
-                let toggles = {};
-                if (empRes.recordset.length > 0 && empRes.recordset[0].feature_toggles) {
-                    try { toggles = JSON.parse(empRes.recordset[0].feature_toggles); } catch(e){}
-                }
-
-                if (toggles.mod_lotes) {
-                    const loteRepo = require('./lote.repository');
-                    await loteRepo.create(transaction, {
-                        producto_id: productoId,
-                        nro_lote: data.nro_lote,
-                        cantidad: cantidad,
-                        fecha_vto: data.fecha_vto
-                    }, empresa_id);
-                } else {
-                    logger.warn({ empresa_id, productoId }, "Se intentó registrar un lote pero el módulo de Lotes está desactivado.");
-                }
+                const loteRepo = require('./lote.repository');
+                await loteRepo.create(transaction, {
+                    producto_id: productoId,
+                    nro_lote: data.nro_lote,
+                    cantidad: cantidad,
+                    fecha_vto: data.fecha_vto
+                }, empresa_id);
             }
 
             // 5. Notificación si stock bajo

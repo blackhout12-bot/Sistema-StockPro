@@ -11,6 +11,8 @@ const productoSchema = z.object({
     stock_min: z.coerce.number().int().min(0).nullable().optional().default(0),
     stock_max: z.coerce.number().int().min(0).nullable().optional(),
     categoria: z.string().max(100).nullable().optional(),
+    nro_lote: z.string().nullable().optional(),
+    fecha_vto: z.string().nullable().optional(),
     moneda_id: z.string().max(3).nullable().optional().default('ARS'),
     custom_fields: z.union([z.string(), z.record(z.string(), z.any())]).nullable().optional()
 }).strict();

@@ -24,6 +24,8 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
   const [descripcion, setDescripcion] = useState(initialData?.descripcion || '');
   const [precio, setPrecio] = useState(initialData?.precio || '');
   const [stock, setStock] = useState(initialData?.stock || '');
+  const [lote, setLote] = useState('');
+  const [fechaVto, setFechaVto] = useState('');
   const [categoria, setCategoria] = useState(initialData?.categoria || '');
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(initialData?.image_url ? `${import.meta.env.VITE_API_URL || ''}${initialData.image_url}` : null);
@@ -38,6 +40,8 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
     }
     return getRubroSchema(empresaConfig?.rubro || 'general');
   }, [dynamicSchemas, empresaConfig?.rubro]);
+
+  const hasLotes = featureToggles?.mod_lotes || activeSchema.stockRules?.requires_lote;
   
   // Rubro dynamic fields state — lee custom_fields excluyendo keys del sistema
   const SYSTEM_KEYS = ['es_materia_prima', 'publicar_ecommerce'];
@@ -117,6 +121,8 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
     formData.append('descripcion', descripcion);
     formData.append('precio', parseFloat(precio));
     formData.append('stock', parseInt(stock) || 0);
+    if (!initialData && lote.trim()) formData.append('nro_lote', lote.trim());
+    if (!initialData && fechaVto) formData.append('fecha_vto', fechaVto);
     if (categoria) formData.append('categoria', categoria);
     formData.append('custom_fields', JSON.stringify(custom_fields));
     
@@ -138,6 +144,8 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
       setDescripcion('');
       setPrecio('');
       setStock('');
+      setLote('');
+      setFechaVto('');
       setCategoria('');
       setCustomFieldsList([]);
       setEsMateriaPrima(false);
@@ -312,6 +320,20 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
                   <input type="number" min="0" className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-4 text-lg font-black focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 outline-none transition-all font-mono" value={stock} onChange={(e) => setStock(e.target.value)} placeholder="0" />
                 </div>
               </div>
+              
+              {/* Batch Entry on Creation */}
+              {!initialData && hasLotes && parseInt(stock) > 0 && (
+                <div className="grid grid-cols-2 gap-4 animate-in slide-in-from-top-2 duration-300">
+                   <div>
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Lote / Serie Inicial</label>
+                      <input type="text" className="w-full bg-emerald-50/50 border border-emerald-100 rounded-xl px-4 py-3 text-sm font-black focus:ring-4 focus:ring-emerald-500/5 outline-none font-mono uppercase" value={lote} onChange={(e) => setLote(e.target.value)} placeholder="OPCIONAL..." />
+                   </div>
+                   <div>
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Vencimiento Inicial</label>
+                      <input type="date" className="w-full bg-emerald-50/50 border border-emerald-100 rounded-xl px-4 py-3 text-sm font-black focus:ring-4 focus:ring-emerald-500/5 outline-none font-mono uppercase" value={fechaVto} onChange={(e) => setFechaVto(e.target.value)} />
+                   </div>
+                </div>
+              )}
               <div className="pt-4 border-t border-slate-100">
                 <div className="flex items-center justify-between mb-4">
                   <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Campos Personalizados (Metadata)</label>
