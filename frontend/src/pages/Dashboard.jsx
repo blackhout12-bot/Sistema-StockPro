@@ -31,7 +31,6 @@ const Dashboard = () => {
     const { data: dashData, isLoading: loading, refetch: fetchAll } = useQuery({
         queryKey: ['dashboard', 'main-stats'],
         enabled: !!token,
-        staleTime: 5 * 60 * 1000, 
         queryFn: async () => {
             const now = new Date();
             const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
@@ -46,10 +45,6 @@ const Dashboard = () => {
             ]);
 
             const configPayload = confRes.status === 'fulfilled' ? confRes.value.data : null;
-            if (configPayload) {
-                const pendingData = configPayload.dash_kpis_visibles || '[]';
-                if (localStorage.getItem('dash_kpis') !== pendingData) localStorage.setItem('dash_kpis', pendingData);
-            }
 
             // Mapea todos los productos o usa los del topRes
             const productosCat = prodRes.status === 'fulfilled' ? prodRes.value.data : [];
