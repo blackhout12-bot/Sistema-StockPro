@@ -1,0 +1,24 @@
+Lanzando navegador...
+Navegando a localhost:5173...
+BROWSER ERROR: Failed to load resource: the server responded with a status of 404 (Not Found)
+HTML Body Length: 90025
+Tiene Formulario: true
+Tiene div#root: true
+TEXTO EN PANTALLA: Stock Pro
+
+Sistema de Gestión de Inventario
+
+SP
+Iniciar Sesión
+
+Accede a tu panel de control empresarial
+
+Correo Electrónico
+Contraseña
+¿Olvidaste tu contraseña?
+Continuar
+O CONTINUAR CON
+Google
+Microsoft 365
+¿Primera vez?
+Crea una nueva cuenta de empresa

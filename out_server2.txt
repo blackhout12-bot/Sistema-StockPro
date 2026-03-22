@@ -1,0 +1,28 @@
+[dotenv@17.3.1] injecting env (16) from .env -- tip: ÔÜÖ´©Å  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ­ƒñû agentic secret storage: https://dotenvx.com/as2
+(node:22000) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:22000) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+[23:21:44] [32mINFO[39m: [36m­ƒÜÇ Iniciando infraestructura de BullMQ (Graceful Degradation Mode)...[39m
+[23:21:44] [32mINFO[39m: [36malertWorker (Legacy) importado. Las tareas ahora son administradas por BullMQ cronQueue.[39m
+[23:21:44] [32mINFO[39m: [36m­ƒÜÇ Socket.io inicializado con soporte multi-tenant[39m
+node:events:486
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use 0.0.0.0:5001
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at node:net:2206:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1976:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:89:21) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '0.0.0.0',
+  port: 5001
+}
+
+Node.js v24.13.1

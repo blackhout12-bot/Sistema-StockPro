@@ -1,0 +1,1 @@
+import{j as e}from"./index-DZ9peVMc.js";function r(){return e.jsxs("div",{className:"p-6",children:[e.jsx("h1",{className:"text-2xl font-bold mb-4",children:"Cuentas por Pagar"}),e.jsx("p",{children:"Gestión de deuda con proveedores y registro de pagos. (En desarrollo)"})]})}export{r as default};

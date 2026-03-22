@@ -115,6 +115,42 @@ const Reports = () => {
         }
     };
 
+    const handleExport = async (type) => {
+        try {
+            let url = '';
+            let filename = '';
+            
+            const params = new URLSearchParams({
+                fechaInicio: startDate,
+                fechaFin: endDate,
+                ...(filterSucursal ? { sucursal_id: filterSucursal } : {})
+            }).toString();
+
+            if (type === 'ventas') {
+                url = `/reportes/ventas/excel?${params}`;
+                filename = 'Ventas_Consolidadas.xlsx';
+            } else if (type === 'cuentas_pagar') {
+                url = `/reportes/cuentas-pagar/excel`;
+                filename = 'Cuentas_Por_Pagar.xlsx';
+            } else if (type === 'kardex') {
+                url = `/reportes/kardex/pdf`;
+                filename = 'Kardex_Valorizado.pdf';
+            }
+
+            const response = await api.get(url, { responseType: 'blob' });
+            const blobUrl = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+        } catch (error) {
+            console.error('Error exportando reporte:', error);
+            alert('Hubo un error exportando el archivo. Verifique sus permisos de auditoría (RBAC).');
+        }
+    };
+
     const totalInventoryValue = useMemo(() => stockData.reduce((acc, curr) => acc + curr.valor, 0), [stockData]);
     const lowStockCount = useMemo(() => stockData.filter(p => p.stock < 10).length, [stockData]);
     const totalVentas = useMemo(() => ventasData.reduce((s, d) => s + d.total, 0), [ventasData]);
@@ -134,9 +170,22 @@ const Reports = () => {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
+                    {/* Botones de Exportación Avanzada (PDF/Excel) */}
+                    <div className="flex items-center gap-2 mr-2">
+                        <button onClick={() => handleExport('ventas')} className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition-colors rounded-xl px-3 py-2 text-xs font-bold uppercase tracking-wide shadow-sm">
+                            <Download size={14} /> Ventas (Excel)
+                        </button>
+                        <button onClick={() => handleExport('cuentas_pagar')} className="flex items-center gap-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors rounded-xl px-3 py-2 text-xs font-bold uppercase tracking-wide shadow-sm">
+                            <Download size={14} /> Deudas (Excel)
+                        </button>
+                        <button onClick={() => handleExport('kardex')} className="flex items-center gap-1.5 bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 transition-colors rounded-xl px-3 py-2 text-xs font-bold uppercase tracking-wide shadow-sm">
+                            <Download size={14} /> Kardex (PDF)
+                        </button>
+                    </div>
+
                     {/* Filtro Sucursal */}
                     {sucursales.length > 1 && (
-                        <div className="flex items-center gap-1.5 bg-white border border-slate-100 rounded-xl px-3 py-2">
+                        <div className="flex items-center gap-1.5 bg-white border border-slate-200 shadow-sm rounded-xl px-3 py-2">
                             <Building2 size={13} className="text-slate-400" />
                             <select
                                 value={filterSucursal}

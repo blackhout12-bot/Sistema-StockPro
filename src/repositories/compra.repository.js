@@ -1,5 +1,5 @@
 const sql = require('mssql');
-const logger = require('../../utils/logger');
+const logger = require('../utils/logger');
 
 class CompraRepository {
     async getAll(pool, empresa_id) {

@@ -1,0 +1,1 @@
+import{j as a}from"./index-DZ9peVMc.js";function s(){return a.jsxs("div",{className:"p-6",children:[a.jsx("h1",{className:"text-2xl font-bold mb-4",children:"Inventario Valorizado / Kardex"}),a.jsx("p",{children:"Trazabilidad exhaustiva de movimientos de almacén y costeos. (En desarrollo)"})]})}export{s as default};
