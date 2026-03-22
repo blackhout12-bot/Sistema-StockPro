@@ -6,12 +6,17 @@ import ProductList from '../ProductList';
 import ProductForm from '../ProductForm';
 import { Plus, Search, Filter, ChevronLeft, ChevronRight, AlertCircle, RefreshCw, UploadCloud } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { getRubroSchema } from '../config/rubroSchemas';
 
 const LIMIT = 20;
 
 const Products = () => {
-    const { user, featureToggles } = useAuth();
+    const { user, featureToggles, empresaConfig } = useAuth();
     const queryClient = useQueryClient();
+
+    // Determina si los lotes están habilitados por módulo o por regla natural del rubro
+    const activeSchema = getRubroSchema(empresaConfig?.rubro || 'general');
+    const hasLotes = featureToggles?.mod_lotes || activeSchema.stockRules?.requires_lote;
 
     // ── Estado de UI & Paginación ────────────────────────────────
     const [currentPage, setCurrentPage] = useState(1);
@@ -274,7 +279,7 @@ const Products = () => {
                         onViewLots={handleViewLots}
                         onAddStock={handleAddStock}
                         userRole={user?.rol}
-                        hasLotesToggle={featureToggles?.mod_lotes}
+                        hasLotesToggle={hasLotes}
                         featureToggles={featureToggles}
                     />
 
@@ -384,7 +389,7 @@ const Products = () => {
                                         min="1"
                                     />
                                 </div>
-                                {featureToggles?.mod_lotes && (
+                                {hasLotes && (
                                     <div>
                                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Número de Lote</label>
                                         <input
@@ -397,7 +402,7 @@ const Products = () => {
                                     </div>
                                 )}
                             </div>
-                            {featureToggles?.mod_lotes && (
+                            {hasLotes && (
                                 <div>
                                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Fecha de Vencimiento</label>
                                     <input

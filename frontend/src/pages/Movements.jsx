@@ -3,15 +3,19 @@ import api from '../utils/axiosConfig';
 import { useAuth } from '../context/AuthContext';
 import { Plus, ArrowDownRight, ArrowUpRight, ArrowRightLeft, Hammer } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { getRubroSchema } from '../config/rubroSchemas';
 
 const Movements = () => {
-    const { token, featureToggles } = useAuth();
+    const { token, featureToggles, empresaConfig } = useAuth();
     const [movements, setMovements] = useState([]);
     const [products, setProducts] = useState([]);
     const [depositos, setDepositos] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [showTransferModal, setShowTransferModal] = useState(false);
     const [showProdModal, setShowProdModal] = useState(false);
+
+    const activeSchema = getRubroSchema(empresaConfig?.rubro || 'general');
+    const hasLotes = featureToggles?.mod_lotes || activeSchema.stockRules?.requires_lote;
 
     // Form state (Ajuste)
     const [formData, setFormData] = useState({
@@ -346,7 +350,7 @@ const Movements = () => {
                                     </div>
                                 </div>
 
-                                {formData.tipo === 'entrada' && (
+                                {formData.tipo === 'entrada' && hasLotes && (
                                     <div className="grid grid-cols-2 gap-4 animate-in slide-in-from-top-2 duration-300">
                                         <div>
                                             <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Referencia Lote</label>
