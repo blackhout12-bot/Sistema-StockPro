@@ -156,21 +156,21 @@ const Dashboard = () => {
                                 total_clientes: <MiniKpi key="5" icon={Users} label="Clientes" value={`${totalClientes}`} colorClass="bg-violet-500" iconColor="text-violet-600" />
                             };
                             let visibleKpis = ['total_ventas', 'total_productos', 'total_clientes'];
-                            try {
-                                const localDash = localStorage.getItem('dash_kpis');
-                                if (localDash && localDash !== '[]') {
-                                    const parsed = JSON.parse(localDash);
-                                    if (Array.isArray(parsed) && parsed.length > 0) {
-                                        visibleKpis = parsed;
-                                    }
-                                } else if (config?.dash_kpis_visibles) {
+                            if (config && config.dash_kpis_visibles) {
+                                try {
                                     const parsed = JSON.parse(config.dash_kpis_visibles);
-                                    if (Array.isArray(parsed) && parsed.length > 0) {
+                                    if (Array.isArray(parsed)) {
                                         visibleKpis = parsed;
                                     }
+                                } catch (e) {
+                                    console.error("Dashboard KPI parsing error:", e);
                                 }
-                            } catch(e) {}
-                            return visibleKpis.slice(0,4).map(k => kpiMap[k]);
+                            }
+                            // Validamos y filtramos cualquier KPI huérfano (ej: 'undefined' en kpiMap)
+                            return visibleKpis
+                                .slice(0, 4)
+                                .map(k => kpiMap[k])
+                                .filter(Boolean);
                         })()}
                     </div>
                 </div>
