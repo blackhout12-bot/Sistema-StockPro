@@ -9,6 +9,7 @@ import {
     CheckCircle, Crown, Calendar, RefreshCw, Shield, Eye, Check, X as XIcon
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { useQueryClient } from '@tanstack/react-query';
 import TabRoles from '../components/TabRoles';
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
@@ -84,6 +85,7 @@ const inputCls = 'w-full px-3 py-2 border border-gray-300 rounded-lg text-sm foc
 const Empresa = () => {
     const { user, fetchConfiguracionGlobal } = useAuth();
     const isAdmin = user?.rol?.toLowerCase() === 'admin';
+    const queryClient = useQueryClient();
 
     const [tab, setTab] = useState('perfil');
     const [loading, setLoading] = useState(true);
@@ -406,9 +408,9 @@ const Empresa = () => {
                 api.put('/empresa/configuracion/impuestos', impuestos),
                 api.put('/empresa/configuracion/integraciones', integracionesPayload),
                 api.put('/empresa/configuracion/dashboard', dashboardPayload).then(() => {
-                    localStorage.setItem('dash_kpis', dashboard.kpis_visibles);
-                    // Disparar evento para que el Dashboard se entere en tiempo real
-                    window.dispatchEvent(new Event('storage'));
+                    // Forzar el redibujado instantáneo del Dashboard sin F5 invalidando su cache
+                    queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+                    queryClient.invalidateQueries({ queryKey: ['empresa-config'] });
                 })
             ]);
             await fetchConfiguracionGlobal();

@@ -24,13 +24,19 @@ const RubroShowcaseCard = ({ producto, rubro }) => {
         } catch(e) {}
     }
 
-    const parsedImageUrl = Array.isArray(producto.image_url) 
-        ? producto.image_url[0] 
-        : producto.image_url;
-    
-    const isAbsolute = typeof parsedImageUrl === 'string' && parsedImageUrl.startsWith('http');
-    const imageUrl = typeof parsedImageUrl === 'string' && parsedImageUrl
-        ? (isAbsolute ? parsedImageUrl : `${import.meta.env.VITE_API_URL}${parsedImageUrl}`)
+    let finalImageStr = null;
+    if (producto.image_url) {
+        try {
+            const parsed = typeof producto.image_url === 'string' ? JSON.parse(producto.image_url) : producto.image_url;
+            finalImageStr = Array.isArray(parsed) && parsed.length > 0 ? parsed[0] : (typeof parsed === 'string' ? parsed : null);
+        } catch(e) {
+            finalImageStr = typeof producto.image_url === 'string' ? producto.image_url : null;
+        }
+    }
+
+    const isAbsolute = typeof finalImageStr === 'string' && finalImageStr.startsWith('http');
+    const imageUrl = finalImageStr
+        ? (isAbsolute ? finalImageStr : `${import.meta.env.VITE_API_URL}${finalImageStr.startsWith('/') ? '' : '/'}${finalImageStr}`)
         : (fallbacks[rubro?.toLowerCase()] || fallbacks.general);
 
     return (
@@ -77,6 +83,7 @@ const RubroShowcaseCard = ({ producto, rubro }) => {
                     src={imageUrl} 
                     alt={producto.nombre}
                     className="w-full h-full object-contain filter drop-shadow-[0_20px_20px_rgba(0,0,0,0.3)]"
+                    onError={(e) => { e.target.onerror = null; e.target.src = fallbacks[rubro?.toLowerCase()] || fallbacks.general; }}
                 />
             </div>
             
