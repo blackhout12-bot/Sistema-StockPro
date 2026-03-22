@@ -169,6 +169,17 @@ const moduleRegistry = [
     breadcrumb: 'Configuración de Empresa'
   },
   {
+    id: 'sucursales',
+    label: 'Sucursales',
+    path: '/sucursales',
+    icon: 'MapPin',
+    section: 'administracion',
+    requiredToggle: null,
+    requiredRoles: ['admin'],
+    lazy: () => import('../pages/Sucursales'),
+    breadcrumb: 'Gestión de Sucursales'
+  },
+  {
     id: 'auditoria',
     label: 'Auditoría',
     path: '/auditoria',

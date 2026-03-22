@@ -12,7 +12,11 @@ const publicApiLimiter = rateLimit({
     keyGenerator: (req) => req.headers['x-api-key'] || req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'anonymous',
     message: { error: 'Límite de peticiones a la API Pública excedido. Por favor intente más tarde.' }
 });
+const mercadolibreController = require('../modules/mercadolibre/mercadolibre.controller');
 
+// Endpoints Públicos de MercadoLibre (Callbacks y Webhooks - No requieren ApiKey ni JWT)
+router.get('/mercadolibre/callback', mercadolibreController.callback);
+router.post('/mercadolibre/webhook', mercadolibreController.handleWebhook);
 router.use(verifyApiKey);
 router.use(publicApiLimiter);
 

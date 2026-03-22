@@ -1,1 +1,0 @@
-import{j as e}from"./index-DZ9peVMc.js";function s(){return e.jsxs("div",{className:"p-6",children:[e.jsx("h1",{className:"text-2xl font-bold mb-4",children:"Módulo de Proveedores"}),e.jsx("p",{children:"Este módulo permite gestionar los proveedores de la empresa. (En desarrollo)"})]})}export{s as default};

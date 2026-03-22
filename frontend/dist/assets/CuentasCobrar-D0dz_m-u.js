@@ -1,1 +1,0 @@
-import{j as e}from"./index-DZ9peVMc.js";function s(){return e.jsxs("div",{className:"p-6",children:[e.jsx("h1",{className:"text-2xl font-bold mb-4",children:"Cuentas por Cobrar"}),e.jsx("p",{children:"Gestión de deuda de clientes por ventas a crédito y registro de cobranzas. (En desarrollo)"})]})}export{s as default};
