@@ -166,11 +166,11 @@ const Dashboard = () => {
                                     console.error("Dashboard KPI parsing error:", e);
                                 }
                             }
-                            // Validamos y filtramos cualquier KPI huérfano (ej: 'undefined' en kpiMap)
+                            // Validamos y filtramos cualquier KPI huérfano ANTES de recortar a 4
                             return visibleKpis
+                                .filter(k => kpiMap.hasOwnProperty(k))
                                 .slice(0, 4)
-                                .map(k => kpiMap[k])
-                                .filter(Boolean);
+                                .map(k => kpiMap[k]);
                         })()}
                     </div>
                 </div>

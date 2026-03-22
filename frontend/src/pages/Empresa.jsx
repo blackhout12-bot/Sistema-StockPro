@@ -194,11 +194,15 @@ const Empresa = () => {
             current = JSON.parse(dashboard.kpis_visibles || '[]');
         } catch { current = []; }
 
-        const next = current.includes(id)
-            ? current.filter(x => x !== id)
-            : [...current, id];
+        // Sanitize legacy keys out of the array before toggling
+        const validIds = KPI_OPTIONS.map(k => k.id);
+        const next = current.filter(x => validIds.includes(x));
 
-        setDashboard(d => ({ ...d, kpis_visibles: JSON.stringify(next) }));
+        if (next.includes(id)) {
+            setDashboard(d => ({ ...d, kpis_visibles: JSON.stringify(next.filter(x => x !== id)) }));
+        } else {
+            setDashboard(d => ({ ...d, kpis_visibles: JSON.stringify([...next, id]) }));
+        }
     };
 
     const [comprobantes, setComprobantes] = useState([]);
@@ -382,9 +386,17 @@ const Empresa = () => {
                 afip_punto_venta: integraciones.afip_punto_venta === '' ? null : Number(integraciones.afip_punto_venta)
             };
 
+            // Limpieza y sanitización de KPIs antes de enviar al backend
+            let kpisClean = [];
+            try {
+                const currentKpis = typeof dashboard.kpis_visibles === 'string' ? JSON.parse(dashboard.kpis_visibles || '[]') : dashboard.kpis_visibles;
+                const validIds = KPI_OPTIONS.map(k => k.id);
+                kpisClean = currentKpis.filter(x => validIds.includes(x));
+            } catch { kpisClean = []; }
+
             const dashboardPayload = {
                 ...dashboard,
-                kpis_visibles: typeof dashboard.kpis_visibles === 'string' ? dashboard.kpis_visibles : JSON.stringify(dashboard.kpis_visibles),
+                kpis_visibles: JSON.stringify(kpisClean),
                 widgets_visibles: typeof dashboard.widgets_visibles === 'string' ? dashboard.widgets_visibles : JSON.stringify(dashboard.widgets_visibles)
             };
 
