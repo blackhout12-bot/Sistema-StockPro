@@ -182,12 +182,10 @@ const Empresa = () => {
 
     const KPI_OPTIONS = [
         { id: 'total_productos', label: 'Total Productos', desc: 'Conteo total del catálogo' },
-        { id: 'stock_bajo', label: 'Stock Bajo', desc: 'Alertas de reposición crítica' },
+        { id: 'low_stock', label: 'Stock Bajo', desc: 'Alertas de reposición crítica' },
         { id: 'valor_inventario', label: 'Valorización', desc: 'Total monetario en stock' },
-        { id: 'ventas_mes', label: 'Ventas Mensuales', desc: 'Total facturado este mes' },
-        { id: 'clientes_nuevos', label: 'Clientes', desc: 'Nuevos usuarios registrados' },
-        { id: 'movimientos', label: 'Movimientos', desc: 'Flujo de stock reciente' },
-        { id: 'pagos_externos', label: 'Pagos Externos', desc: 'Pasarelas Stripe/MercadoPago' }
+        { id: 'total_ventas', label: 'Ventas del Período', desc: 'Total facturado en el sistema' },
+        { id: 'total_clientes', label: 'Clientes Activos', desc: 'Todos nuestros clientes' }
     ];
 
     const toggleKpi = (id) => {

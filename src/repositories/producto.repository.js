@@ -108,16 +108,18 @@ class ProductoRepository {
         const hasStockMinColumn = await pool.request().query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'stock_min'`).then(r => r.recordset.length > 0);
         const hasCustomFieldsColumn = await pool.request().query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'custom_fields'`).then(r => r.recordset.length > 0);
         const hasImageUrlColumn = await pool.request().query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'image_url'`).then(r => r.recordset.length > 0);
+        const hasMonedaIdColumn = await pool.request().query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'moneda_id'`).then(r => r.recordset.length > 0);
 
         const cFieldsStr = typeof data.custom_fields === 'object' ? JSON.stringify(data.custom_fields) : (data.custom_fields || '{}');
 
         let newProductId;
         if (hasSkuColumn && hasStockMinColumn) {
-            let queryStr = `INSERT INTO Productos (sku, nombre, descripcion, precio, stock, stock_min, stock_max, moneda_id, empresa_id`;
-            let valStr = `VALUES (@sku, @nombre, @descripcion, @precio, @stock, @stock_min, @stock_max, @moneda_id, @empresa_id`;
+            let queryStr = `INSERT INTO Productos (sku, nombre, descripcion, precio, stock, stock_min, stock_max, empresa_id`;
+            let valStr = `VALUES (@sku, @nombre, @descripcion, @precio, @stock, @stock_min, @stock_max, @empresa_id`;
 
             if (hasCustomFieldsColumn) { queryStr += `, custom_fields`; valStr += `, @custom_fields`; }
             if (hasImageUrlColumn) { queryStr += `, image_url`; valStr += `, @image_url`; }
+            if (hasMonedaIdColumn) { queryStr += `, moneda_id`; valStr += `, @moneda_id`; }
 
             queryStr += `) OUTPUT INSERTED.id ${valStr})`;
 
@@ -129,11 +131,11 @@ class ProductoRepository {
                 .input('stock', sql.Int, stock || 0)
                 .input('stock_min', sql.Int, stock_min)
                 .input('stock_max', sql.Int, stock_max || null)
-                .input('moneda_id', sql.NVarChar(3), data.moneda_id || 'ARS')
                 .input('empresa_id', sql.Int, empresa_id);
 
             if (hasCustomFieldsColumn) request.input('custom_fields', sql.NVarChar(sql.MAX), cFieldsStr);
             if (hasImageUrlColumn) request.input('image_url', sql.NVarChar(255), image_url || null);
+            if (hasMonedaIdColumn) request.input('moneda_id', sql.NVarChar(3), data.moneda_id || 'ARS');
 
             const result = await request.query(queryStr);
             newProductId = result.recordset[0].id;
@@ -190,6 +192,7 @@ class ProductoRepository {
         const hasSkuColumn = await pool.request().query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'sku'`).then(r => r.recordset.length > 0);
         const hasCustomFieldsColumn = await pool.request().query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'custom_fields'`).then(r => r.recordset.length > 0);
         const hasImageUrlColumn = await pool.request().query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'image_url'`).then(r => r.recordset.length > 0);
+        const hasMonedaIdColumn = await pool.request().query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'moneda_id'`).then(r => r.recordset.length > 0);
 
         const cFieldsStr = typeof custom_fields === 'object' ? JSON.stringify(custom_fields) : (custom_fields || '{}');
 
@@ -199,9 +202,10 @@ class ProductoRepository {
           descripcion = @descripcion,
           precio = @precio,
           stock = @stock,
-          categoria = @categoria,
-          moneda_id = @moneda_id
+          categoria = @categoria
     `;
+
+        if (hasMonedaIdColumn) queryStr += `, moneda_id = @moneda_id `;
 
         if (hasSkuColumn && sku !== undefined) queryStr += `, sku = @sku `;
         if (hasCustomFieldsColumn && custom_fields !== undefined) queryStr += `, custom_fields = @custom_fields `;
@@ -216,8 +220,9 @@ class ProductoRepository {
             .input('precio', sql.Decimal(12, 2), precio)
             .input('stock', sql.Int, stock)
             .input('categoria', sql.NVarChar, categoria || null)
-            .input('moneda_id', sql.NVarChar(3), data.moneda_id || 'ARS')
             .input('empresa_id', sql.Int, empresa_id);
+
+        if (hasMonedaIdColumn) request.input('moneda_id', sql.NVarChar(3), data.moneda_id || 'ARS');
 
         if (hasSkuColumn && sku !== undefined) request.input('sku', sql.NVarChar, sku || null);
         if (hasCustomFieldsColumn && custom_fields !== undefined) request.input('custom_fields', sql.NVarChar(sql.MAX), cFieldsStr);
