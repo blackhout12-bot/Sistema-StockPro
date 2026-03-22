@@ -85,10 +85,10 @@ export const rubroSchemas = {
       { key: 'apto_celiac',    label: 'Apto Celíaco',         type: 'checkbox',required: false, section: 'Información Nutricional' },
       { key: 'apto_vegano',    label: 'Apto Vegano',          type: 'checkbox',required: false, section: 'Información Nutricional' }
     ],
-    posValidations: ['check_perecederos'],
+    posValidations: ['check_perecederos', 'check_vencimiento_lote'],
     posPromotions: ['combo_menu', 'happy_hour', 'descuento_porcentaje'],
     taxRules: { iva: 21, iibb: 3, tasa_municipal: 0 },
-    stockRules: { tracks_vencimiento: true, is_consumable: true }
+    stockRules: { requires_lote: true, tracks_vencimiento: true, is_consumable: true }
   },
 
   // ── Supermercado ──────────────────────────────────────────────
