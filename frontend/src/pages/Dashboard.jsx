@@ -162,7 +162,13 @@ const Dashboard = () => {
                             };
                             let visibleKpis = ['total_ventas', 'total_productos', 'total_clientes'];
                             try {
-                                if (config?.dash_kpis_visibles) {
+                                const localDash = localStorage.getItem('dash_kpis');
+                                if (localDash && localDash !== '[]') {
+                                    const parsed = JSON.parse(localDash);
+                                    if (Array.isArray(parsed) && parsed.length > 0) {
+                                        visibleKpis = parsed;
+                                    }
+                                } else if (config?.dash_kpis_visibles) {
                                     const parsed = JSON.parse(config.dash_kpis_visibles);
                                     if (Array.isArray(parsed) && parsed.length > 0) {
                                         visibleKpis = parsed;
