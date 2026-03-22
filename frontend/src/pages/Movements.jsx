@@ -15,7 +15,7 @@ const Movements = () => {
     const [showProdModal, setShowProdModal] = useState(false);
 
     const activeSchema = getRubroSchema(empresaConfig?.rubro || 'general');
-    const hasLotes = featureToggles?.mod_lotes || activeSchema.stockRules?.requires_lote;
+    const hasLotes = featureToggles?.mod_lotes || activeSchema.stockRules?.requires_lote || activeSchema.stockRules?.tracks_vencimiento;
 
     // Form state (Ajuste)
     const [formData, setFormData] = useState({

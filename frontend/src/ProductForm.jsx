@@ -31,17 +31,22 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
   const [imagePreview, setImagePreview] = useState(initialData?.image_url ? `${import.meta.env.VITE_API_URL || ''}${initialData.image_url}` : null);
 
   const activeSchema = useMemo(() => {
-    // El esquema activo DEPENDE del rubro de la empresa, NUNCA de la categoría tipeada
+    // El esquema activo DEPENDE del rubro de la empresa
+    const baseSchema = getRubroSchema(empresaConfig?.rubro || 'general');
     const found = dynamicSchemas.find(s => s.nombre_rubro === empresaConfig?.rubro);
+    
     if (found && found.esquema_json) {
        const parsed = typeof found.esquema_json === 'string' ? JSON.parse(found.esquema_json) : found.esquema_json;
-       if (!parsed.productFields) parsed.productFields = [];
-       return parsed;
+       return {
+           ...baseSchema,
+           ...parsed,
+           productFields: parsed.productFields || []
+       };
     }
-    return getRubroSchema(empresaConfig?.rubro || 'general');
+    return baseSchema;
   }, [dynamicSchemas, empresaConfig?.rubro]);
 
-  const hasLotes = featureToggles?.mod_lotes || activeSchema.stockRules?.requires_lote;
+  const hasLotes = featureToggles?.mod_lotes || activeSchema.stockRules?.requires_lote || activeSchema.stockRules?.tracks_vencimiento;
   
   // Rubro dynamic fields state — lee custom_fields excluyendo keys del sistema
   const SYSTEM_KEYS = ['es_materia_prima', 'publicar_ecommerce'];

@@ -69,7 +69,7 @@ const Products = () => {
         mutationFn: (productFormData) => api.post('/productos/crear', productFormData, { headers: { 'Content-Type': 'multipart/form-data' }}),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['productos'] });
-            queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard', 'main-stats'] });
             setShowModal(false);
             toast.success('Producto creado exitosamente');
         },
@@ -80,7 +80,7 @@ const Products = () => {
         mutationFn: ({ id, productData }) => api.put(`/productos/editar/${id}`, productData, { headers: { 'Content-Type': 'multipart/form-data' }}),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['productos'] });
-            queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard', 'main-stats'] });
             setShowModal(false);
             setEditingProduct(null);
             toast.success('Producto actualizado exitosamente');
@@ -92,7 +92,7 @@ const Products = () => {
         mutationFn: (id) => api.delete(`/productos/eliminar/${id}`),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['productos'] });
-            queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard', 'main-stats'] });
             toast.success('Producto eliminado exitosamente');
             if (products.length === 1 && currentPage > 1) {
                 setCurrentPage(p => p - 1);

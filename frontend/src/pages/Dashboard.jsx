@@ -57,7 +57,7 @@ const Dashboard = () => {
                 if(iA > -1 && iB > -1) return iA - iB;
                 if(iA > -1) return -1;
                 if(iB > -1) return 1;
-                return new Date(b.creado_en) - new Date(a.creado_en);
+                return b.id - a.id;
             });
 
             return {

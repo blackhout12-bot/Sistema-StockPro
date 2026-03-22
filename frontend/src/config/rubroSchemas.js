@@ -150,7 +150,8 @@ export const rubroSchemas = {
  * @returns {object}
  */
 export function getRubroSchema(rubro) {
-  return rubroSchemas[rubro] || rubroSchemas.general;
+  const norm = rubro ? rubro.toLowerCase() : 'general';
+  return rubroSchemas[norm] || rubroSchemas.general;
 }
 
 /**
