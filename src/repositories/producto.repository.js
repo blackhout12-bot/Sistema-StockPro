@@ -193,6 +193,7 @@ class ProductoRepository {
         const hasCustomFieldsColumn = await pool.request().query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'custom_fields'`).then(r => r.recordset.length > 0);
         const hasImageUrlColumn = await pool.request().query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'image_url'`).then(r => r.recordset.length > 0);
         const hasMonedaIdColumn = await pool.request().query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'moneda_id'`).then(r => r.recordset.length > 0);
+        const hasActualizadoEnColumn = await pool.request().query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'actualizado_en'`).then(r => r.recordset.length > 0);
 
         const cFieldsStr = typeof custom_fields === 'object' ? JSON.stringify(custom_fields) : (custom_fields || '{}');
 
@@ -210,6 +211,7 @@ class ProductoRepository {
         if (hasSkuColumn && sku !== undefined) queryStr += `, sku = @sku `;
         if (hasCustomFieldsColumn && custom_fields !== undefined) queryStr += `, custom_fields = @custom_fields `;
         if (hasImageUrlColumn && image_url !== undefined) queryStr += `, image_url = @image_url `;
+        if (hasActualizadoEnColumn) queryStr += `, actualizado_en = GETDATE() `;
 
         queryStr += ` WHERE id = @id AND empresa_id = @empresa_id`;
 
