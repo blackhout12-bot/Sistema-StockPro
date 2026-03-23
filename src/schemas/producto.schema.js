@@ -14,7 +14,8 @@ const productoSchema = z.object({
     nro_lote: z.string().nullable().optional(),
     fecha_vto: z.string().nullable().optional(),
     moneda_id: z.string().max(3).nullable().optional().default('ARS'),
-    custom_fields: z.union([z.string(), z.record(z.string(), z.any())]).nullable().optional()
+    custom_fields: z.union([z.string(), z.record(z.string(), z.any())]).nullable().optional(),
+    image_url: z.string().nullable().optional()
 }).strict();
 
 module.exports = {

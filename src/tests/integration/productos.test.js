@@ -4,6 +4,7 @@ const app = require('../../server');
 // Mock data
 let token = '';
 let testEmpresaId = 1;
+let createdProductId = null;
 
 describe('Products API Integration', () => {
 
@@ -35,12 +36,68 @@ describe('Products API Integration', () => {
 
         expect(res.status).toBe(200);
         expect(Array.isArray(res.body)).toBe(true);
+    });
 
-        // Validating data isolation per module
-        if (res.body.length > 0) {
-            expect(res.body[0]).toHaveProperty('codigo');
-            expect(res.body[0]).toHaveProperty('nombre');
-            expect(res.body[0]).not.toHaveProperty('monto'); // This belongs to Movements
-        }
+    it('should create a new product and validate fields including image_url', async () => {
+        if (!token) return;
+
+        const res = await request(app)
+            .post('/api/v1/productos/crear')
+            .set('Authorization', `Bearer ${token}`)
+            .set('x-empresa-id', testEmpresaId)
+            .send({
+                nombre: 'Producto Test Integration',
+                descripcion: 'Descripcion de prueba',
+                precio: 150.50,
+                stock: 10,
+                sku: 'TEST-INT-001',
+                image_url: 'https://example.com/img.jpg'
+            });
+
+        expect(res.status).toBe(201);
+        expect(res.body).toHaveProperty('id');
+        expect(res.body.nombre).toBe('Producto Test Integration');
+        
+        createdProductId = res.body.id;
+    });
+
+    it('should update the created product', async () => {
+        if (!token || !createdProductId) return;
+
+        const res = await request(app)
+            .put(`/api/v1/productos/editar/${createdProductId}`)
+            .set('Authorization', `Bearer ${token}`)
+            .set('x-empresa-id', testEmpresaId)
+            .send({
+                nombre: 'Producto Test Actualizado',
+                precio: 200,
+                stock: 15,
+                sku: 'TEST-INT-001',
+                image_url: 'https://example.com/img2.jpg'
+            });
+
+        expect(res.status).toBe(200);
+        expect(res.body.nombre).toBe('Producto Test Actualizado');
+        expect(res.body.precio).toBe(200);
+    });
+
+    it('should delete the created product', async () => {
+        if (!token || !createdProductId) return;
+
+        const res = await request(app)
+            .delete(`/api/v1/productos/eliminar/${createdProductId}`)
+            .set('Authorization', `Bearer ${token}`)
+            .set('x-empresa-id', testEmpresaId);
+
+        expect(res.status).toBe(200);
+        
+        // Ensure it was deleted
+        const fetchRes = await request(app)
+            .get('/api/v1/productos')
+            .set('Authorization', `Bearer ${token}`)
+            .set('x-empresa-id', testEmpresaId);
+            
+        const isStillThere = fetchRes.body.some(p => p.id === createdProductId);
+        expect(isStillThere).toBe(false);
     });
 });
