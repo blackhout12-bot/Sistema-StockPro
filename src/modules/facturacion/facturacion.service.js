@@ -3,6 +3,7 @@ const facturacionRepository = require('../../repositories/facturacion.repository
 const { deleteCache } = require('../../config/redis');
 const { notifyEvent } = require('../../utils/webhook.service');
 const { afipQueue } = require('../../config/queue');
+const logger = require('../../utils/logger');
 
 class FacturacionService {
     async getAllFacturas(empresa_id, sucursal_id = null) {
