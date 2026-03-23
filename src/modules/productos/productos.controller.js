@@ -9,7 +9,7 @@ const checkPermiso = require('../../middlewares/rbac');
 const requireFeature = require('../../middlewares/features');
 const audit = require('../../middlewares/audit');
 const { validateBody } = require('../../middlewares/validateRequest');
-const { productoSchema } = require('../../schemas/producto.schema');
+const { productoSchema, categoriaEsquemaSchema } = require('../../schemas/producto.schema');
 const productosService = require('./productos.service');
 
 // Configuración de Multer para imágenes de alta fidelidad
@@ -43,7 +43,7 @@ router.get('/categorias/esquemas', authenticate, async (req, res, next) => {
 });
 
 // ── POST /productos/categorias/esquemas ─────────
-router.post('/categorias/esquemas', checkPermiso('productos', 'crear'), audit('crear', 'EsquemaCategoria'), async (req, res, next) => {
+router.post('/categorias/esquemas', checkPermiso('productos', 'crear'), validateBody(categoriaEsquemaSchema), audit('crear', 'EsquemaCategoria'), async (req, res, next) => {
   try {
     const { nombre_rubro, icon, esquema_json } = req.body;
     const esquema = await productosService.crearCategoriaEsquema(req.tenant_id, nombre_rubro, icon || '📦', esquema_json);

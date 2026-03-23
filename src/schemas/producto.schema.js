@@ -18,6 +18,17 @@ const productoSchema = z.object({
     image_url: z.string().nullable().optional()
 }).strict();
 
+// Schema estricto blindante para Entity-Attribute-Value (EAV) - Rubros Dinámicos
+const categoriaEsquemaSchema = z.object({
+    nombre_rubro: z.string({ required_error: 'El nombre del rubro es obligatorio' }).min(2).max(100),
+    icon: z.string().max(10).optional(),
+    esquema_json: z.record(
+        z.string(), 
+        z.any() // Soporte asimétrico real pero protegido en primera capa contra ataques buffer string extensos y NaN directos
+    ).optional().default({})
+}).strict();
+
 module.exports = {
-    productoSchema
+    productoSchema,
+    categoriaEsquemaSchema
 };

@@ -99,5 +99,48 @@ describe('Products API Integration', () => {
             
         const isStillThere = fetchRes.body.some(p => p.id === createdProductId);
         expect(isStillThere).toBe(false);
+    });    // ---- Rubros y Configuracion Dinamica Tests ----
+    it('should create a valid EAV dynamic category (Rubro)', async () => {
+        if (!token) return;
+
+        const payload = {
+            nombre_rubro: 'Invernadero API Test',
+            icon: '🌿',
+            esquema_json: {
+                color: "string",
+                fase: "enum"
+            }
+        };
+
+        const res = await request(app)
+            .post('/api/v1/productos/categorias/esquemas')
+            .set('Authorization', `Bearer ${token}`)
+            .set('x-empresa-id', testEmpresaId)
+            .send(payload);
+
+        expect(res.status).toBe(201);
+        expect(res.body).toHaveProperty('id');
+        expect(res.body.nombre_rubro).toBe('Invernadero API Test');
     });
+
+    it('should hard reject malformed EAV payload JSON pollution on dynamic categories', async () => {
+        if (!token) return;
+
+        const payload = {
+            nombre_rubro: 'Hacked Rubro Test',
+            icon: '🔥',
+            // En un ecosistema Zod Stringificado, si le pasamos un string literal donde espera record lo va a rebotar.
+            esquema_json: "esto no es un JSON, o quiza es un JSON array destructivo [1,2,3...100K]"
+        };
+
+        const res = await request(app)
+            .post('/api/v1/productos/categorias/esquemas')
+            .set('Authorization', `Bearer ${token}`)
+            .set('x-empresa-id', testEmpresaId)
+            .send(payload);
+
+        expect(res.status).toBe(400); 
+        // Interceptado exitosamente
+    });
+
 });
