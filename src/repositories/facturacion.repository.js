@@ -165,16 +165,21 @@ class FacturacionModel {
         const pendingEvents = [];
 
         try {
-            // Validar cliente pertenece a la empresa
-            const clienteCheck = await new sql.Request(transaction)
-                .input('cli_id', sql.Int, cliente_id)
-                .input('emp_id', sql.Int, empresa_id)
-                .query('SELECT nombre, documento_identidad FROM Clientes WHERE id = @cli_id AND empresa_id = @emp_id');
+            // Validar cliente pertenece a la empresa (o es Consumidor Final)
+            let clienteData;
+            if (!cliente_id || cliente_id === 0) {
+                clienteData = { nombre: 'Consumidor Final', documento_identidad: '99999999' };
+            } else {
+                const clienteCheck = await new sql.Request(transaction)
+                    .input('cli_id', sql.Int, cliente_id)
+                    .input('emp_id', sql.Int, empresa_id)
+                    .query('SELECT nombre, documento_identidad FROM Clientes WHERE id = @cli_id AND empresa_id = @emp_id');
 
-            if (clienteCheck.recordset.length === 0) {
-                throw new Error('Cliente inválido o no pertenece a tu empresa.');
+                if (clienteCheck.recordset.length === 0) {
+                    throw new Error('Cliente inválido o no pertenece a tu empresa.');
+                }
+                clienteData = clienteCheck.recordset[0];
             }
-            const clienteData = clienteCheck.recordset[0];
 
             // Obtener datos del vendedor
             const vendedorData = await new sql.Request(transaction)
@@ -253,7 +258,7 @@ class FacturacionModel {
 
             const reqFact = new sql.Request(transaction)
                 .input('nro_factura', sql.VarChar(50), nro_factura_final)
-                .input('cliente_id', sql.Int, cliente_id)
+                .input('cliente_id', sql.Int, (!cliente_id || cliente_id === 0) ? null : cliente_id)
                 .input('usuario_id', sql.Int, usuario_id)
                 .input('total', sql.Decimal(10, 2), total)
                 .input('empresa_id', sql.Int, empresa_id);
@@ -283,6 +288,14 @@ class FacturacionModel {
             addFactCol('origen_venta', facturaData.origen_venta || 'Local', sql.VarChar(50));
             if (facturaData.sucursal_id) {
                 addFactCol('sucursal_id', facturaData.sucursal_id, sql.Int);
+            }
+            
+            // Agregados Impositivos Contextuales
+            if (facturaData.subtotal !== undefined) {
+                addFactCol('subtotal', facturaData.subtotal, sql.Decimal(18, 2));
+            }
+            if (facturaData.impuestos !== undefined) {
+                addFactCol('impuestos', facturaData.impuestos, sql.Decimal(18, 2));
             }
 
             const insertFactQuery = `INSERT INTO Facturas (${factFields.join(', ')}) OUTPUT INSERTED.id VALUES (${factValues.join(', ')})`;
@@ -500,7 +513,7 @@ class FacturacionModel {
             const esCredito = facturaData.metodo_pago === 'Cuenta Corriente' || facturaData.metodo_pago === 'A Crédito';
             const reqCxc = new sql.Request(transaction)
                 .input('empresa_id', sql.Int, empresa_id)
-                .input('cliente_id', sql.Int, cliente_id)
+                .input('cliente_id', sql.Int, (!cliente_id || cliente_id === 0) ? null : cliente_id)
                 .input('factura_id', sql.Int, factura_id)
                 .input('monto_adeudado', sql.Decimal(18,2), total)
                 .input('monto_cobrado', sql.Decimal(18,2), esCredito ? 0 : total)
@@ -516,7 +529,7 @@ class FacturacionModel {
             if (!esCredito) {
                 await new sql.Request(transaction)
                     .input('empresa_id', sql.Int, empresa_id)
-                    .input('cliente_id', sql.Int, cliente_id)
+                    .input('cliente_id', sql.Int, (!cliente_id || cliente_id === 0) ? null : cliente_id)
                     .input('cuenta_cobrar_id', sql.Int, cxc_id)
                     .input('monto_cobrado', sql.Decimal(18,2), total)
                     .input('metodo_pago', sql.NVarChar, facturaData.metodo_pago || 'Efectivo')

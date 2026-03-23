@@ -181,7 +181,7 @@ const Facturacion = () => {
     };
 
     // Estado del POS
-    const [clienteId, setClienteId] = useState('');
+    const [clienteId, setClienteId] = useState('0');
     const [carrito, setCarrito] = useState([]);
     const [facturaAnterior, setFacturaAnterior] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -209,12 +209,25 @@ const Facturacion = () => {
     const [paymentApproved, setPaymentApproved] = useState(false);
 
     const totalFacturaOriginal = useMemo(() => carrito.reduce((sum, item) => sum + item.subtotal, 0), [carrito]);
+    
+    // Extracción Impositiva asumiendo precios finales (factura consumidor / B2C mixta)
+    const desgloseImpuestos = useMemo(() => {
+        const iva_porcentaje = 21;
+        const neto = totalFacturaOriginal / (1 + (iva_porcentaje / 100));
+        return {
+            subtotal_neto: neto,
+            iva: iva_porcentaje,
+            iva_monto: totalFacturaOriginal - neto,
+            total: totalFacturaOriginal
+        };
+    }, [totalFacturaOriginal]);
+
     const totalFactura = useMemo(() => {
         if (monedaId === 'USD') {
-            return totalFacturaOriginal / (cotizaciones.USD || 1050);
+            return desgloseImpuestos.total / (cotizaciones.USD || 1050);
         }
-        return totalFacturaOriginal;
-    }, [totalFacturaOriginal, monedaId, cotizaciones]);
+        return desgloseImpuestos.total;
+    }, [desgloseImpuestos, monedaId, cotizaciones]);
 
     useEffect(() => {
         const pago = pagoCon === '' ? totalFactura : (parseFloat(pagoCon) || 0);
@@ -241,8 +254,8 @@ const Facturacion = () => {
     }, [productos, searchTerm]);
 
     const handleAddFast = (prod) => {
-        if (!clienteId) {
-            toast.error('Debe seleccionar un cliente primero');
+        if (clienteId === '') {
+            toast.error('Seleccione un Cliente o Consumidor Final primero');
             return;
         }
 
@@ -375,8 +388,8 @@ const Facturacion = () => {
     };
 
     const facturar = () => {
-        if (!clienteId) {
-            toast.error('Debe seleccionar un cliente antes de completar la venta');
+        if (clienteId === '') {
+            toast.error('Debe seleccionar un cliente o Consumidor Final antes de completar la venta');
             return;
         }
         if (!tipoComprobante) {
@@ -395,8 +408,10 @@ const Facturacion = () => {
         }
 
         const payload = {
-            cliente_id: parseInt(clienteId),
-            total: parseFloat(totalFactura.toFixed(2)),
+            cliente_id: clienteId === '0' ? null : parseInt(clienteId),
+            subtotal: parseFloat(desgloseImpuestos.subtotal_neto.toFixed(2)),
+            impuestos: parseFloat(desgloseImpuestos.iva_monto.toFixed(2)),
+            total: parseFloat(desgloseImpuestos.total.toFixed(2)),
             detalles: carrito.map(item => ({ ...item, deposito_id: depositoActivo?.id })),
             tipo_comprobante: tipoComprobante,
             metodo_pago: metodoPago,
@@ -539,16 +554,24 @@ const Facturacion = () => {
                                     <tr key={idx}>
                                         <td className="py-5 px-4 text-xs font-black text-slate-800 uppercase tracking-tight">{d.producto_nombre || d.nombre}</td>
                                         <td className="py-5 px-4 text-center text-xs font-black text-slate-400 font-mono">x{d.cantidad}</td>
-                                        <td className="py-5 px-4 text-right text-sm font-black text-slate-900 font-mono tracking-tighter">${Number(d.subtotal).toLocaleString()}</td>
+                                        <td className="py-5 px-4 text-right text-sm font-black text-slate-900 font-mono tracking-tighter">${Number(d.subtotal).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                         <div className="flex justify-end pt-6 border-t border-slate-100">
-                            <div className="w-full max-w-[240px] space-y-3">
+                            <div className="w-full max-w-[280px] space-y-3">
                                 <div className="flex justify-between items-center px-1">
-                                    <span className="font-black text-slate-900 text-xs uppercase tracking-tighter">Total Liquidado</span>
-                                    <span className="text-3xl font-black text-primary-600 font-mono tracking-tighter">${Number(facturaAnterior.total).toLocaleString()}</span>
+                                    <span className="font-bold text-slate-500 text-xs uppercase tracking-tighter">Subtotal Neto</span>
+                                    <span className="text-sm font-black text-slate-700 font-mono tracking-tighter">${Number(facturaAnterior.subtotal || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
+                                </div>
+                                <div className="flex justify-between items-center px-1">
+                                    <span className="font-bold text-slate-500 text-xs uppercase tracking-tighter">Impuestos (IVA)</span>
+                                    <span className="text-sm font-black text-slate-700 font-mono tracking-tighter">${Number(facturaAnterior.impuestos || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
+                                </div>
+                                <div className="pt-3 border-t border-slate-100 flex justify-between items-center px-1">
+                                    <span className="font-black text-slate-900 text-xs uppercase tracking-tighter">Liquidación Total</span>
+                                    <span className="text-3xl font-black text-primary-600 font-mono tracking-tighter">${Number(facturaAnterior.total).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
                                 </div>
                             </div>
                         </div>
@@ -685,7 +708,8 @@ const Facturacion = () => {
                             </label>
                             <select className="w-full bg-surface-50 border border-slate-100 focus:bg-white focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 rounded-2xl px-5 py-4 text-sm font-black text-slate-700 transition-all outline-none cursor-pointer appearance-none shadow-sm"
                                 value={clienteId} onChange={(e) => setClienteId(e.target.value)}>
-                                <option value="">Seleccionar Cliente...</option>
+                                <option value="0">Consumidor Final (CF)</option>
+                                <option disabled value="">────────────────────</option>
                                 {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre} · {c.documento_identidad}</option>)}
                             </select>
                             <div className="mt-4 flex items-center gap-2 ml-1">
@@ -805,8 +829,10 @@ const Facturacion = () => {
                                     >USD</button>
                                 </div>
                             </div>
-                            <StatDetail label="Subtotal (Neto)" value={`${monedaId === 'USD' ? 'U$D' : '$'} ${totalFactura.toLocaleString()}`} />
-                            <StatDetail label={`IVA (${configEmpresa?.config_iva_defecto || 21}%)`} value={`${monedaId === 'USD' ? 'U$D' : '$'} ${(totalFactura * (configEmpresa?.config_iva_defecto || 21) / 100).toLocaleString()}`} />
+                            <StatDetail label="Subtotal (Neto)" value={`${monedaId === 'USD' ? 'U$D' : '$'} ${(monedaId === 'USD' ? desgloseImpuestos.subtotal_neto / (cotizaciones.USD || 1050) : desgloseImpuestos.subtotal_neto).toLocaleString('es-AR', {minimumFractionDigits: 2})}`} />
+                            {desgloseImpuestos.iva > 0 && (
+                                <StatDetail label={`IVA (${desgloseImpuestos.iva}%)`} value={`${monedaId === 'USD' ? 'U$D' : '$'} ${(monedaId === 'USD' ? desgloseImpuestos.iva_monto / (cotizaciones.USD || 1050) : desgloseImpuestos.iva_monto).toLocaleString('es-AR', {minimumFractionDigits: 2})}`} color="text-indigo-600" />
+                            )}
                             
                             {monedaId === 'USD' && (
                                 <div className="py-2 px-3 bg-amber-50 border border-amber-100 rounded-xl text-[9px] font-black text-amber-700 uppercase tracking-tight flex justify-between items-center">

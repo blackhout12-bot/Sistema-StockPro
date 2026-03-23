@@ -9,7 +9,9 @@ const detalleFacturaSchema = z.object({
 });
 
 const facturacionSchema = z.object({
-    cliente_id: z.number({ required_error: 'El cliente es obligatorio' }).int().positive('ID de cliente inválido'),
+    cliente_id: z.number().int().nonnegative('ID de cliente inválido').nullable().optional(),
+    subtotal: z.number().min(0).optional().default(0),
+    impuestos: z.number().min(0).optional().default(0),
     total: z.number({ required_error: 'El total es obligatorio' }).min(0),
     detalles: z.array(detalleFacturaSchema).min(1, 'La factura debe contener al menos un producto'),
     tipo_comprobante: z.string().optional(), // ej: 'Factura A', 'Remito'
