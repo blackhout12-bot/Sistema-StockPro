@@ -47,58 +47,61 @@ const RubroShowcaseCard = ({ producto, rubro }) => {
         : (fallbacks[rubro?.toLowerCase()] || fallbacks.general);
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm hover:shadow-lg border border-slate-200 p-5 flex flex-col h-full transition-all duration-300">
-            {/* Cabecera: Imagen y Título en Flex */}
-            <div className="flex gap-4 mb-5 items-stretch">
-                {/* Contenedor de Imagen */}
-                <div className="w-24 h-24 flex-shrink-0 bg-slate-50/80 rounded-xl p-2.5 border border-slate-100 flex items-center justify-center relative overflow-hidden group">
-                    <img 
-                        src={imageUrl} 
-                        alt={producto.nombre}
-                        className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500 ease-out drop-shadow-sm"
-                        onError={(e) => { e.target.onerror = null; e.target.src = fallbacks[rubro?.toLowerCase()] || fallbacks.general; }}
-                    />
-                </div>
-                {/* Títulos */}
-                <div className="flex-1 flex flex-col justify-center min-w-0">
-                    <span className="text-[10px] font-black tracking-widest uppercase text-brand-base mb-1">
-                        {rubro === 'medicamento' ? 'Medicamento' : 'Producto'}
+        <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl border border-slate-200/60 overflow-hidden flex flex-col h-full transition-all duration-300 group">
+            {/* Image Container Header */}
+            <div className="relative h-44 w-full bg-slate-50/50 flex items-center justify-center p-4 border-b border-slate-100 overflow-hidden">
+                <img 
+                    src={imageUrl} 
+                    alt={producto.nombre}
+                    className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500 ease-out"
+                    onError={(e) => { e.target.onerror = null; e.target.src = fallbacks[rubro?.toLowerCase()] || fallbacks.general; }}
+                />
+                {/* Category Badge overlay */}
+                <div className="absolute top-3 left-3 px-2.5 py-1 bg-white/90 backdrop-blur-sm shadow-sm rounded-lg border border-slate-200/50">
+                    <span className="text-[9px] font-black tracking-widest uppercase text-brand-dark">
+                        {rubro === 'medicamento' ? 'Medicamento' : 'Catálogo'}
                     </span>
-                    <h3 className="text-sm font-black text-slate-800 leading-snug line-clamp-2" title={producto.nombre}>
-                        {producto.nombre}
-                    </h3>
-                    <div className="mt-2 flex items-center gap-2">
-                        <span className="text-[10px] font-bold text-slate-400 tracking-wider">SKU</span>
-                        <span className="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">{producto.codigo || 'S/N'}</span>
-                    </div>
                 </div>
             </div>
 
-            {/* Atributos en Grid elegante */}
-            {Object.keys(fields).length > 0 && (
-                <div className="grid grid-cols-2 gap-x-4 gap-y-3 mb-5 p-3.5 bg-slate-50 rounded-xl border border-slate-100/50">
-                    {Object.entries(fields).slice(0, 4).map(([key, rawval]) => {
-                        const label = key.replace(/_/g, ' ');
-                        const val = typeof rawval === 'boolean' || rawval === 'true' || rawval === 'false' 
-                            ? (rawval === 'true' || rawval === true ? 'Sí' : 'No') 
-                            : rawval;
-
-                        return (
-                            <div key={key} className="flex flex-col min-w-0">
-                                <span className="text-[9px] font-black tracking-wider uppercase text-slate-400 mb-0.5 truncate">{label}</span>
-                                <span className="text-xs font-semibold text-slate-700 truncate" title={val}>{val || '-'}</span>
-                            </div>
-                        );
-                    })}
+            {/* Content Container */}
+            <div className="p-5 flex flex-col flex-1">
+                {/* Header Text */}
+                <div className="mb-4">
+                    <h3 className="text-sm font-black text-slate-800 leading-snug line-clamp-2 mb-1" title={producto.nombre}>
+                        {producto.nombre}
+                    </h3>
+                    <p className="text-xs font-semibold text-slate-400">
+                        SKU: <span className="text-slate-600">{producto.codigo || 'S/N'}</span>
+                    </p>
                 </div>
-            )}
 
-            {/* Footer: Stock */}
-            <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Stock Info</span>
-                <div className="flex items-baseline gap-1.5 px-3 py-1 bg-brand-light/10 rounded-full border border-brand-light/20">
-                    <span className="text-lg font-black text-brand-dark">{producto.stock}</span>
-                    <span className="text-[10px] font-bold text-brand-base uppercase tracking-widest">Uds</span>
+                {/* Attributes (Floating Tags) */}
+                {Object.keys(fields).length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-5 mt-auto">
+                        {Object.entries(fields).slice(0, 4).map(([key, rawval]) => {
+                            const label = key.replace(/_/g, ' ');
+                            const val = typeof rawval === 'boolean' || rawval === 'true' || rawval === 'false' 
+                                ? (rawval === 'true' || rawval === true ? 'Sí' : 'No') 
+                                : rawval;
+
+                            return (
+                                <div key={key} className="inline-flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-100 rounded-md max-w-full">
+                                    <span className="text-[9px] font-bold uppercase text-slate-400 whitespace-nowrap">{label}:</span>
+                                    <span className="text-[10px] font-semibold text-slate-700 truncate">{val || '-'}</span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+
+                {/* Footer: Stock */}
+                <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Disponibilidad</span>
+                    <div className="flex items-baseline gap-1">
+                        <span className="text-lg font-black text-brand-dark">{producto.stock}</span>
+                        <span className="text-[10px] font-bold text-slate-500 uppercase">uds</span>
+                    </div>
                 </div>
             </div>
         </div>
