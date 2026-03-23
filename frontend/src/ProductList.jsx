@@ -35,9 +35,9 @@ const ProductList = ({ products, onEdit, onDelete, onViewLots, onAddStock, userR
               <td className="px-10 py-5">
                 <div className="flex flex-col md:flex-row md:items-center gap-3 mb-1">
                   <div className="w-10 h-10 rounded-xl bg-surface-50 border border-slate-100 flex-shrink-0 flex items-center justify-center overflow-hidden">
-                      {p.image_url ? (
+                      {p.image_url && typeof p.image_url === 'string' ? (
                           <img 
-                              src={`${import.meta.env.VITE_API_URL || ''}${typeof p.image_url === 'string' && p.image_url.startsWith('[') ? JSON.parse(p.image_url)[0].replace(/\\/g, '/') : p.image_url.replace(/\\/g, '/')}`} 
+                              src={`${import.meta.env.VITE_API_URL || ''}${p.image_url.startsWith('[') ? JSON.parse(p.image_url)[0].replace(/\\/g, '/') : p.image_url.replace(/\\/g, '/')}`} 
                               alt="product" 
                               className="w-full h-full object-cover"
                               onError={(e) => { e.target.onerror = null; e.target.src = 'https://cdn-icons-png.flaticon.com/512/411/411710.png'; }}

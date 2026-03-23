@@ -6,12 +6,17 @@ const eventBus = require('../../events/eventBus');
 
 async function listarProductos(empresa_id, deposito_id) {
   const pool = await connectDB();
-  return await productoRepository.getAll(pool, empresa_id, deposito_id);
+  const productos = await productoRepository.getAll(pool, empresa_id, deposito_id);
+  return productos.map(p => ({ ...p, image_url: p.image_url || "" }));
 }
 
 async function listarProductosPaginados({ empresa_id, page, limit, search, categoria }) {
   const pool = await connectDB();
-  return await productoRepository.getPaginated(pool, { empresa_id, page, limit, search, categoria });
+  const paginated = await productoRepository.getPaginated(pool, { empresa_id, page, limit, search, categoria });
+  if (paginated.data) {
+      paginated.data = paginated.data.map(p => ({ ...p, image_url: p.image_url || "" }));
+  }
+  return paginated;
 }
 
 async function agregarProducto(nombre, descripcion, precio, stock, categoria, empresa_id, usuario_id, sku, moneda_id, custom_fields, image_url, nro_lote, fecha_vto) {
@@ -40,7 +45,7 @@ async function agregarProducto(nombre, descripcion, precio, stock, categoria, em
     });
   }
   
-  return { id: insertId, nombre, descripcion, precio, stock, categoria, sku, moneda_id, custom_fields, image_url };
+  return { id: insertId, nombre, descripcion, precio, stock, categoria, sku, moneda_id, custom_fields, image_url: image_url || "" };
 }
 
 async function editarProducto(id, nombre, descripcion, precio, stockNuevo, categoria, empresa_id, usuario_id, sku, moneda_id, custom_fields, image_url) {
@@ -61,7 +66,7 @@ async function editarProducto(id, nombre, descripcion, precio, stockNuevo, categ
       }, usuario_id, empresa_id);
   }
 
-  return { id, nombre, descripcion, precio, stock: stockNuevo, categoria, sku, moneda_id, custom_fields, image_url };
+  return { id, nombre, descripcion, precio, stock: stockNuevo, categoria, sku, moneda_id, custom_fields, image_url: image_url || "" };
 }
 
 async function borrarProducto(id, empresa_id) {
