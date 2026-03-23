@@ -28,7 +28,7 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
   const [fechaVto, setFechaVto] = useState('');
   const [categoria, setCategoria] = useState(initialData?.categoria || '');
   const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(initialData?.image_url ? `${import.meta.env.VITE_API_URL || ''}${initialData.image_url}` : null);
+  const [imagePreview, setImagePreview] = useState(initialData?.image_url ? `${import.meta.env.VITE_API_URL || ''}${typeof initialData.image_url === 'string' && initialData.image_url.startsWith('[') ? JSON.parse(initialData.image_url)[0].replace(/\\/g, '/') : initialData.image_url.replace(/\\/g, '/')}` : null);
 
   const activeSchema = useMemo(() => {
     // El esquema activo DEPENDE del rubro de la empresa
@@ -191,10 +191,20 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Nombre del Producto *</label>
                     <input autoFocus type="text" required className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all placeholder:font-medium" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Monitor UltraWide 34'" />
                   </div>
-                  <div className="col-span-2">
+                  <div className="col-span-1">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Código / SKU</label>
+                    <input type="text" className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-black text-primary-600 focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all font-mono uppercase" value={sku} onChange={(e) => setSku(e.target.value)} placeholder="REF-000" />
+                  </div>
+                  <div className="col-span-1">
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Categoría</label>
-                    <input type="text" className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all" value={categoria} onChange={(e) => setCategoria(e.target.value)} placeholder="Agrega una categoría (Ej. Herramientas)" />
-                    <p className="text-[9px] font-bold text-slate-400 mt-1 ml-1 leading-tight">Clasificación interna para organizar tu inventario en la tienda o punto de venta.</p>
+                    <select className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all appearance-none cursor-pointer" value={categoria} onChange={(e) => setCategoria(e.target.value)}>
+                        <option value="">-- Autodefinir según Rol --</option>
+                        {dynamicSchemas.map(s => <option key={s.id || s.nombre_rubro} value={s.nombre_rubro}>{s.nombre_rubro}</option>)}
+                        {!dynamicSchemas.some(s => s.nombre_rubro === empresaConfig?.rubro) && empresaConfig?.rubro && (
+                            <option value={empresaConfig.rubro}>{empresaConfig.rubro.charAt(0).toUpperCase() + empresaConfig.rubro.slice(1)} (Rubro Activo)</option>
+                        )}
+                        <option value="General">General</option>
+                    </select>
                   </div>
                   <div className="col-span-2">
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Descripción Técnica</label>
@@ -311,14 +321,10 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
           {/* PASO 2: Inventario y Precios */}
           {step === 2 && (
             <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
-              <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Código / SKU</label>
-                <input autoFocus type="text" className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-3 text-base font-black text-primary-600 focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all font-mono uppercase" value={sku} onChange={(e) => setSku(e.target.value)} placeholder="REF-000" />
-              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Precio Unitario ($) *</label>
-                  <input type="number" required step="0.01" min="0" className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-4 text-lg font-black focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all font-mono" value={precio} onChange={(e) => setPrecio(e.target.value)} placeholder="0.00" />
+                  <input autoFocus type="number" required step="0.01" min="0" className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-4 text-lg font-black focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all font-mono" value={precio} onChange={(e) => setPrecio(e.target.value)} placeholder="0.00" />
                 </div>
                 <div>
                   <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">{initialData ? 'Stock Actual' : 'Stock Inicial'}</label>

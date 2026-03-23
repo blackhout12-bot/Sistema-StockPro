@@ -37,7 +37,7 @@ const ProductList = ({ products, onEdit, onDelete, onViewLots, onAddStock, userR
                   <div className="w-10 h-10 rounded-xl bg-surface-50 border border-slate-100 flex-shrink-0 flex items-center justify-center overflow-hidden">
                       {p.image_url ? (
                           <img 
-                              src={`${import.meta.env.VITE_API_URL || ''}${typeof p.image_url === 'string' && p.image_url.startsWith('[') ? JSON.parse(p.image_url)[0] : p.image_url}`} 
+                              src={`${import.meta.env.VITE_API_URL || ''}${typeof p.image_url === 'string' && p.image_url.startsWith('[') ? JSON.parse(p.image_url)[0].replace(/\\/g, '/') : p.image_url.replace(/\\/g, '/')}`} 
                               alt="product" 
                               className="w-full h-full object-cover"
                               onError={(e) => { e.target.onerror = null; e.target.src = 'https://cdn-icons-png.flaticon.com/512/411/411710.png'; }}
