@@ -28,8 +28,17 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
   const [fechaVto, setFechaVto] = useState('');
   const [categoria, setCategoria] = useState(initialData?.categoria || '');
   const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(initialData?.image_url && typeof initialData.image_url === 'string' ? `${import.meta.env.VITE_API_URL || ''}${initialData.image_url.startsWith('[') ? JSON.parse(initialData.image_url)[0].replace(/\\/g, '/') : initialData.image_url.replace(/\\/g, '/')}` : null);
-
+  const getInitialImagePreview = () => {
+      if (!initialData?.image_url || typeof initialData.image_url !== 'string') return null;
+      try {
+          const parsed = initialData.image_url.startsWith('[') ? JSON.parse(initialData.image_url)[0] : initialData.image_url;
+          if (typeof parsed !== 'string') return null;
+          const normalized = parsed.replace(/\\/g, '/');
+          const backendRoot = (import.meta.env.VITE_API_URL || '').replace(/\/api\/v\d+\/?$/, '');
+          return normalized.startsWith('http') ? normalized : `${backendRoot}${normalized.startsWith('/') ? '' : '/'}${normalized}`;
+      } catch (e) { return null; }
+  };
+  const [imagePreview, setImagePreview] = useState(getInitialImagePreview());
   const activeSchema = useMemo(() => {
     // El esquema activo DEPENDE del rubro de la empresa
     const baseSchema = getRubroSchema(empresaConfig?.rubro || 'general');
