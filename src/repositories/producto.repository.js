@@ -20,9 +20,7 @@ class ProductoRepository {
                    INNER JOIN Depositos d ON pd.deposito_id = d.id
                    WHERE pd.producto_id = p.id AND pd.cantidad > 0
                    FOR JSON PATH
-               ) as desglose_depositos,
-               CASE WHEN COL_LENGTH('Productos', 'sku') IS NOT NULL THEN (SELECT sku FROM Productos x WHERE x.id = p.id) ELSE NULL END as sku,
-               CASE WHEN COL_LENGTH('Productos', 'image_url') IS NOT NULL THEN (SELECT image_url FROM Productos x WHERE x.id = p.id) ELSE NULL END as image_url
+               ) as desglose_depositos
         FROM Productos p
         LEFT JOIN (
             SELECT productoId, SUM(cantidad) as num_ventas
@@ -48,8 +46,7 @@ class ProductoRepository {
                     INNER JOIN Depositos d ON pd.deposito_id = d.id
                     WHERE pd.producto_id = p.id AND pd.cantidad > 0
                     FOR JSON PATH
-                ) as desglose_depositos,
-                CASE WHEN COL_LENGTH('Productos', 'image_url') IS NOT NULL THEN (SELECT image_url FROM Productos x WHERE x.id = p.id) ELSE NULL END as image_url
+                ) as desglose_depositos
             FROM Productos p
             LEFT JOIN (
                 SELECT productoId, SUM(cantidad) as num_ventas
@@ -61,28 +58,35 @@ class ProductoRepository {
         `;
         let countQueryStr = `SELECT COUNT(*) as total FROM Productos p WHERE p.empresa_id = @empresa_id`;
 
-        const request = pool.request();
-        request.input('empresa_id', sql.Int, empresa_id);
-        request.input('limit', sql.Int, limit);
-        request.input('offset', sql.Int, offset);
+        // CRITICAL FIX: mssql no permite reutilizar el mismo request para dos queries paralelas.
+        // Se crean dos requests independientes con los mismos parámetros.
+        const itemsRequest = pool.request();
+        itemsRequest.input('empresa_id', sql.Int, empresa_id);
+        itemsRequest.input('limit', sql.Int, limit);
+        itemsRequest.input('offset', sql.Int, offset);
+
+        const countRequest = pool.request();
+        countRequest.input('empresa_id', sql.Int, empresa_id);
 
         if (search) {
             queryStr += ` AND (p.nombre LIKE @search OR p.sku LIKE @search OR p.descripcion LIKE @search)`;
             countQueryStr += ` AND (p.nombre LIKE @search OR p.sku LIKE @search OR p.descripcion LIKE @search)`;
-            request.input('search', sql.NVarChar, `%${search}%`);
+            itemsRequest.input('search', sql.NVarChar, `%${search}%`);
+            countRequest.input('search', sql.NVarChar, `%${search}%`);
         }
 
         if (categoria) {
             queryStr += ` AND p.categoria = @categoria`;
             countQueryStr += ` AND p.categoria = @categoria`;
-            request.input('categoria', sql.NVarChar, categoria);
+            itemsRequest.input('categoria', sql.NVarChar, categoria);
+            countRequest.input('categoria', sql.NVarChar, categoria);
         }
 
         queryStr += ` ORDER BY p.creado_en DESC OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY`;
 
         const [itemsResult, countResult] = await Promise.all([
-            request.query(queryStr),
-            request.query(countQueryStr)
+            itemsRequest.query(queryStr),
+            countRequest.query(countQueryStr)
         ]);
 
         return {
