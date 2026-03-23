@@ -67,7 +67,7 @@ router.post('/', checkPermiso('facturacion', 'crear'), validateBody(facturacionS
             return res.status(400).json({ error: 'Falta contexto de empresa (empresa_id) para generar la venta.' });
         }
 
-        const { cliente_id, detalles, metodo_pago, sucursal, total, subtotal, impuestos, descuento, observaciones, moneda_id = 'ARS', tipo_cambio = 1.0, tipo_comprobante, caja_id } = req.body;
+        const { cliente_id, detalles, metodo_pago, sucursal_id, total, subtotal, impuestos, descuento, observaciones, moneda_id = 'ARS', tipo_cambio = 1.0, tipo_comprobante, caja_id } = req.body;
         
         // ── Validación estricta de Sesión de Caja POS ──
         if (caja_id) {
@@ -84,7 +84,7 @@ router.post('/', checkPermiso('facturacion', 'crear'), validateBody(facturacionS
             detalles, 
             metodo_pago, 
             tipo_comprobante,
-            sucursal, 
+            sucursal_id, 
             total, 
             subtotal, 
             impuestos, 
