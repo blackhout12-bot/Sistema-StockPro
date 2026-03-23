@@ -47,55 +47,60 @@ const RubroShowcaseCard = ({ producto, rubro }) => {
         : (fallbacks[rubro?.toLowerCase()] || fallbacks.general);
 
     return (
-        <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-5 relative overflow-visible flex flex-col min-h-[16rem]">
-            {/* Header */}
-            <h3 className="text-[13px] font-black text-brand-dark mb-4 pr-[80px] break-words">
-                <span className="opacity-70">{rubro === 'medicamento' ? 'Medicamento: ' : 'Producto: '}</span> 
-                <br/>
-                <span className="text-slate-800 text-sm whitespace-normal leading-tight">{producto.nombre}</span>
-            </h3>
-
-            {/* Fields list */}
-            <div className="space-y-2 mb-6 relative z-10 w-2/3 flex-1 flex flex-col justify-center">
-                <div className="flex flex-col mb-1 border-b border-slate-50 pb-1">
-                    <span className="text-[10px] font-black tracking-widest uppercase text-slate-400">SKU</span>
-                    <span className="text-xs font-bold text-slate-700">{producto.codigo || 'S/N'}</span>
+        <div className="bg-white rounded-2xl shadow-sm hover:shadow-lg border border-slate-200 p-5 flex flex-col h-full transition-all duration-300">
+            {/* Cabecera: Imagen y Título en Flex */}
+            <div className="flex gap-4 mb-5 items-stretch">
+                {/* Contenedor de Imagen */}
+                <div className="w-24 h-24 flex-shrink-0 bg-slate-50/80 rounded-xl p-2.5 border border-slate-100 flex items-center justify-center relative overflow-hidden group">
+                    <img 
+                        src={imageUrl} 
+                        alt={producto.nombre}
+                        className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500 ease-out drop-shadow-sm"
+                        onError={(e) => { e.target.onerror = null; e.target.src = fallbacks[rubro?.toLowerCase()] || fallbacks.general; }}
+                    />
                 </div>
-                
-                {Object.entries(fields).slice(0, 4).map(([key, rawval]) => {
-                    const label = key.replace(/_/g, ' ');
-                    const val = typeof rawval === 'boolean' || rawval === 'true' || rawval === 'false' 
-                        ? (rawval === 'true' || rawval === true ? 'Sí' : 'No') 
-                        : rawval;
-
-                    return (
-                        <div key={key} className="flex flex-col py-0.5">
-                            <span className="text-[10px] font-black tracking-widest uppercase text-brand-base/80">{label}</span>
-                            <span className="text-[11px] font-semibold text-slate-700">{val || '-'}</span>
-                        </div>
-                    );
-                })}
+                {/* Títulos */}
+                <div className="flex-1 flex flex-col justify-center min-w-0">
+                    <span className="text-[10px] font-black tracking-widest uppercase text-brand-base mb-1">
+                        {rubro === 'medicamento' ? 'Medicamento' : 'Producto'}
+                    </span>
+                    <h3 className="text-sm font-black text-slate-800 leading-snug line-clamp-2" title={producto.nombre}>
+                        {producto.nombre}
+                    </h3>
+                    <div className="mt-2 flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-slate-400 tracking-wider">SKU</span>
+                        <span className="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">{producto.codigo || 'S/N'}</span>
+                    </div>
+                </div>
             </div>
 
-            {/* Bottom: Stock */}
-            <div className="mt-auto pt-3 border-t border-slate-100 relative z-10">
-                <span className="text-[10px] font-black text-brand-base uppercase tracking-widest mr-2">Stock Actual:</span>
-                <span className="text-lg font-black text-slate-900">{producto.stock}</span>
-                <span className="text-xs font-bold text-slate-500 ml-1">unidades</span>
-            </div>
+            {/* Atributos en Grid elegante */}
+            {Object.keys(fields).length > 0 && (
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3 mb-5 p-3.5 bg-slate-50 rounded-xl border border-slate-100/50">
+                    {Object.entries(fields).slice(0, 4).map(([key, rawval]) => {
+                        const label = key.replace(/_/g, ' ');
+                        const val = typeof rawval === 'boolean' || rawval === 'true' || rawval === 'false' 
+                            ? (rawval === 'true' || rawval === true ? 'Sí' : 'No') 
+                            : rawval;
 
-            {/* Floating Image 3D Pop Exagerado (AJUSTADO PARA PRODUCTOS REALES CON FONDO) */}
-            <div className="absolute -right-4 top-[50%] -translate-y-[50%] w-36 h-36 z-30 pointer-events-none transition-transform hover:scale-110 duration-500">
-                <img 
-                    src={imageUrl} 
-                    alt={producto.nombre}
-                    className="w-full h-full object-contain filter drop-shadow-xl mix-blend-multiply"
-                    onError={(e) => { e.target.onerror = null; e.target.src = fallbacks[rubro?.toLowerCase()] || fallbacks.general; }}
-                />
+                        return (
+                            <div key={key} className="flex flex-col min-w-0">
+                                <span className="text-[9px] font-black tracking-wider uppercase text-slate-400 mb-0.5 truncate">{label}</span>
+                                <span className="text-xs font-semibold text-slate-700 truncate" title={val}>{val || '-'}</span>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+
+            {/* Footer: Stock */}
+            <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Stock Info</span>
+                <div className="flex items-baseline gap-1.5 px-3 py-1 bg-brand-light/10 rounded-full border border-brand-light/20">
+                    <span className="text-lg font-black text-brand-dark">{producto.stock}</span>
+                    <span className="text-[10px] font-bold text-brand-base uppercase tracking-widest">Uds</span>
+                </div>
             </div>
-            
-            {/* Background Accent */}
-            <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-brand-light/40 to-transparent rounded-r-2xl z-0 pointer-events-none" />
         </div>
     );
 };
