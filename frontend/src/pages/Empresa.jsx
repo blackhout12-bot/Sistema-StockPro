@@ -203,8 +203,6 @@ const Empresa = () => {
         }
     };
 
-    const [comprobantes, setComprobantes] = useState([]);
-
     // ── Carga de datos ──────────────────────────────────────────
     const fetchEmpresa = useCallback(async () => {
         setLoading(true);

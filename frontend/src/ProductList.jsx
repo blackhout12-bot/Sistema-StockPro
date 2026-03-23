@@ -77,7 +77,7 @@ const ProductList = ({ products, onEdit, onDelete, onViewLots, onAddStock, userR
                     {p.categoria}
                   </span>
                 ) : (
-                  <span className="text-slate-300 italic text-[10px] font-bold">General</span>
+                  <span className="text-slate-300 italic text-[10px] font-bold">Principal</span>
                 )}
               </td>
               {/* Descripción */}

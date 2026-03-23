@@ -198,12 +198,11 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
                   <div className="col-span-1">
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Categoría</label>
                     <select className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all appearance-none cursor-pointer" value={categoria} onChange={(e) => setCategoria(e.target.value)}>
-                        <option value="">-- Autodefinir según Rol --</option>
+                        <option value="">-- Autodefinir según Rol ({empresaConfig?.rubro || 'N/A'}) --</option>
                         {dynamicSchemas.map(s => <option key={s.id || s.nombre_rubro} value={s.nombre_rubro}>{s.nombre_rubro}</option>)}
                         {!dynamicSchemas.some(s => s.nombre_rubro === empresaConfig?.rubro) && empresaConfig?.rubro && (
                             <option value={empresaConfig.rubro}>{empresaConfig.rubro.charAt(0).toUpperCase() + empresaConfig.rubro.slice(1)} (Rubro Activo)</option>
                         )}
-                        <option value="General">General</option>
                     </select>
                   </div>
                   <div className="col-span-2">
@@ -332,16 +331,16 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
                 </div>
               </div>
               
-              {/* Batch Entry on Creation */}
-              {!initialData && hasLotes && (
+              {/* Batch Entry on Creation / Visibility on Edit */}
+              {hasLotes && (
                 <div className="grid grid-cols-2 gap-4 transition-all duration-300">
                    <div>
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Lote / Serie Inicial</label>
-                      <input type="text" className="w-full bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 text-sm font-black focus:ring-4 focus:ring-emerald-500/5 outline-none font-mono uppercase" value={lote} onChange={(e) => setLote(e.target.value)} placeholder="OPCIONAL..." />
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Lote / Serie {initialData ? '(Solo para visualización)' : 'Inicial'}</label>
+                      <input type="text" disabled={!!initialData} className={`w-full ${initialData ? 'bg-slate-50 text-slate-400 border-slate-100 cursor-not-allowed' : 'bg-emerald-50 border-emerald-100'} rounded-xl px-4 py-3 text-sm font-black focus:ring-4 focus:ring-emerald-500/5 outline-none font-mono uppercase`} value={initialData ? initialData.lote : lote} onChange={(e) => setLote(e.target.value)} placeholder={initialData ? (initialData.lote || 'Sin lote asig.') : 'OPCIONAL...'} />
                    </div>
                    <div>
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Vencimiento Inicial</label>
-                      <input type="date" className="w-full bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 text-sm font-black focus:ring-4 focus:ring-emerald-500/5 outline-none font-mono uppercase" value={fechaVto} onChange={(e) => setFechaVto(e.target.value)} />
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Vencimiento {initialData ? '(Solo para visualización)' : 'Inicial'}</label>
+                      <input type={initialData && !initialData.fecha_vencimiento ? 'text' : 'date'} disabled={!!initialData} className={`w-full ${initialData ? 'bg-slate-50 text-slate-400 border-slate-100 cursor-not-allowed' : 'bg-emerald-50 border-emerald-100'} rounded-xl px-4 py-3 text-sm font-black focus:ring-4 focus:ring-emerald-500/5 outline-none font-mono uppercase`} value={initialData ? (initialData.fecha_vencimiento ? new Date(initialData.fecha_vencimiento).toISOString().slice(0, 10) : 'Sin expiración') : fechaVto} onChange={(e) => setFechaVto(e.target.value)} />
                    </div>
                 </div>
               )}
