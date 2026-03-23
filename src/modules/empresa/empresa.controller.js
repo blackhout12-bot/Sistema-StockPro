@@ -210,6 +210,8 @@ router.put('/', checkPermiso('empresa', 'actualizar'), audit('actualizar', 'Empr
 });
 
 // ── ROLES DINÁMICOS ──────────
+const { rolSchema } = require('../../schemas/rol.schema');
+
 router.get('/roles', checkPermiso('empresa', 'leer'), async (req, res, next) => {
     try {
         const pool = await require('../../config/db').connectDB();
@@ -220,7 +222,7 @@ router.get('/roles', checkPermiso('empresa', 'leer'), async (req, res, next) => 
     } catch (err) { next(err); }
 });
 
-router.post('/roles', checkPermiso('empresa', 'crear'), audit('crear', 'Rol'), async (req, res, next) => {
+router.post('/roles', checkPermiso('empresa', 'crear'), validateBody(rolSchema), audit('crear', 'Rol'), async (req, res, next) => {
     try {
         const { nombre, codigo_rol, permisos } = req.body;
         const pool = await require('../../config/db').connectDB();
@@ -239,7 +241,7 @@ router.post('/roles', checkPermiso('empresa', 'crear'), audit('crear', 'Rol'), a
     } catch (err) { next(err); }
 });
 
-router.put('/roles/:id', checkPermiso('empresa', 'actualizar'), audit('actualizar', 'Rol'), async (req, res, next) => {
+router.put('/roles/:id', checkPermiso('empresa', 'actualizar'), validateBody(rolSchema), audit('actualizar', 'Rol'), async (req, res, next) => {
     try {
         const { nombre, codigo_rol, permisos, activo } = req.body;
         const pool = await require('../../config/db').connectDB();
