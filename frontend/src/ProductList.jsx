@@ -30,6 +30,14 @@ const ProductList = ({ products, onEdit, onDelete, onViewLots, onAddStock, userR
                 ) : (
                   <span className="text-slate-300 text-[10px] font-black uppercase tracking-widest opacity-40">Sin SKU</span>
                 )}
+                {p.lote && (
+                  <div className="mt-2 flex flex-col gap-0.5">
+                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-tight">Lote: {p.lote}</span>
+                    {p.fecha_vencimiento && (
+                      <span className="text-[9px] font-bold text-amber-500 uppercase tracking-tight">Vto: {new Date(p.fecha_vencimiento).toLocaleDateString()}</span>
+                    )}
+                  </div>
+                )}
               </td>
               {/* Nombre e Imagen */}
               <td className="px-10 py-5">
