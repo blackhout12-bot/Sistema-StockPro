@@ -110,7 +110,7 @@ jobs:
 
       - name: Set up Kubeconfig
         env:
-          KUBE_CONFIG: ${{ secrets['KUBE_CONFIG'] }}
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
         run: |
           mkdir -p ~/.kube
           echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config
@@ -122,10 +122,10 @@ jobs:
 
       - name: Deploy to Kubernetes
         env:
-          DB_PASSWORD: ${{ secrets['DB_PASSWORD'] }}
-          JWT_SECRET: ${{ secrets['JWT_SECRET'] }}
-          MELI: ${{ secrets['MELI'] }}
-          REDIS_PASSWORD: ${{ secrets['REDIS_PASSWORD'] }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MELI: ${{ secrets.MELI }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
         run: |
           echo "Ejecutando Despliegue con Helm..."
           helm upgrade --install stock-system ./k8s/helm/stock-system \
@@ -150,7 +150,7 @@ jobs:
 
       - name: Set up Kubeconfig
         env:
-          KUBE_CONFIG: ${{ secrets['KUBE_CONFIG'] }}
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
         run: |
           mkdir -p ~/.kube
           echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config

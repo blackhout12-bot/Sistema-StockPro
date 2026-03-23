@@ -40,7 +40,34 @@ class RabbitMQConnection {
         }
         return this.channel;
     }
+
+    async close() {
+        try {
+            if (this.channel) {
+                await this.channel.close();
+                this.channel = null;
+            }
+            if (this.connection) {
+                await this.connection.close();
+                this.connection = null;
+            }
+            logger.info('🐇 RabbitMQ gracefully disconnected');
+        } catch (error) {
+            logger.error({ err: error.message }, 'Failed closing RabbitMQ gracefully');
+        }
+    }
 }
 
 const rabbitMQ = new RabbitMQConnection();
+
+process.on('SIGTERM', async () => {
+    logger.info('Received SIGTERM, closing RabbitMQ...');
+    await rabbitMQ.close();
+});
+
+process.on('SIGINT', async () => {
+    logger.info('Received SIGINT, closing RabbitMQ...');
+    await rabbitMQ.close();
+});
+
 module.exports = rabbitMQ;
