@@ -168,10 +168,9 @@ const Dashboard = () => {
                                     console.error("Dashboard KPI parsing error:", e);
                                 }
                             }
-                            // Validamos y filtramos cualquier KPI huérfano ANTES de recortar a 4
+                            // Validamos y renderizamos TODOS los KPIs activos (el contenedor tiene overflow-x-auto)
                             return visibleKpis
                                 .filter(k => kpiMap.hasOwnProperty(k))
-                                .slice(0, 4)
                                 .map(k => kpiMap[k]);
                         })()}
                     </div>
