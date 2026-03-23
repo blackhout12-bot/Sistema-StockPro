@@ -7,10 +7,7 @@ class BIController {
         try {
             const pool = await connectDB();
             
-            // Requerir permisos fuertes (RBAC) para extraer PowerBI Metrics
-            if (req.user.rol !== 'admin' && req.user.rol !== 'gerente') {
-                return res.status(403).json({ error: 'Acceso denegado a métricas BI. Requiere rol gerencial.' });
-            }
+            // El chequeo de permisos (RBAC dinámico) se maneja en el middleware de bi.routes.js
 
             // Consultar Múltiples Tablas y Consolidar en formato Analítico Flat
             const result = await pool.request()
@@ -41,9 +38,7 @@ class BIController {
         try {
             const pool = await connectDB();
 
-            if (req.user.rol !== 'admin' && req.user.rol !== 'gerente') {
-                return res.status(403).json({ error: 'Acceso denegado. Requiere rol gerencial.' });
-            }
+            // El chequeo de permisos (RBAC dinámico) se maneja en el middleware de bi.routes.js
 
             // Consultar métricas de alta rotación (Movimientos Salida vs Stock Actual)
             const result = await pool.request()

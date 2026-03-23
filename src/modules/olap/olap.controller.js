@@ -1,10 +1,18 @@
 const { connectDB, sql } = require('../../config/db');
+const { z } = require('zod');
+
+const olapQuerySchema = z.object({
+    anio: z.string().regex(/^\d{4}$/, 'Formato de año inválido').optional(),
+    mes: z.string().regex(/^(1[0-2]|[1-9])$/, 'Formato de mes inválido (1-12)').optional(),
+    moneda: z.string().min(1).max(10).optional()
+}).strict();
 
 class OLAPController {
 
     // Helper: Registrar la consulta en la tabla de auditoría OLAPLog
     async logOLAPQuery(pool, usuario_id, queryText, executionTime) {
         await pool.request()
+            // ... (keep the same below in the file)
             .input('usuario_id', sql.Int, usuario_id)
             .input('consulta', sql.NVarChar(sql.MAX), queryText)
             .input('tiempo', sql.Int, executionTime)
@@ -17,6 +25,9 @@ class OLAPController {
     // 1. Cubo de Ventas (Querying the Pre-calculated Materialized View)
     async getSalesCube(req, res, next) {
         try {
+            // Validate GET queries synchronously before db bind
+            const q = olapQuerySchema.parse(req.query);
+
             const startMark = performance.now();
             const pool = await connectDB();
 
