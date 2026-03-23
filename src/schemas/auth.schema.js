@@ -17,11 +17,33 @@ const createUserSchema = z.object({
     nombre: z.string({ required_error: 'El nombre es obligatorio' }).min(2, 'Mínimo 2 caracteres'),
     email: z.string({ required_error: 'El email es obligatorio' }).email('Email inválido'),
     password: z.string({ required_error: 'La contraseña es obligatoria' }).min(6, 'Mínimo 6 caracteres'),
-    rol: z.enum(['admin', 'vendedor'], { invalid_type_error: 'Rol inválido' })
+    rol: z.string({ required_error: 'El rol es obligatorio' }).min(2, 'Mínimo 2 caracteres para el rol') // Decoupled from ENUM to support dynamic roles
+}).strict();
+
+const forgotPasswordSchema = z.object({
+    email: z.string({ required_error: 'El email es obligatorio' }).email('Email inválido')
+}).strict();
+
+const resetPasswordSchema = z.object({
+    token: z.string({ required_error: 'El token es obligatorio' }),
+    nuevaPassword: z.string({ required_error: 'La contraseña es obligatoria' }).min(8, 'Mínimo 8 caracteres para la contraseña segura')
+}).strict();
+
+const updateRoleSchema = z.object({
+    rol: z.string({ required_error: 'El código de rol es obligatorio' }).min(2, 'Rol inválido')
+}).strict();
+
+const selectEmpresaSchema = z.object({
+    usuario_id: z.number({ required_error: 'El ID de usuario es obligatorio' }).int().positive(),
+    empresa_id: z.number({ required_error: 'El ID de empresa es obligatorio' }).int().positive()
 }).strict();
 
 module.exports = {
     loginSchema,
     registerSchema,
-    createUserSchema
+    createUserSchema,
+    forgotPasswordSchema,
+    resetPasswordSchema,
+    updateRoleSchema,
+    selectEmpresaSchema
 };

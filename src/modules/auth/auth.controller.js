@@ -1,4 +1,5 @@
 // src/modules/auth/auth.controller.js
+const { z } = require('zod');
 const express = require('express');
 const router = express.Router();
 const authService = require('./auth.service');
@@ -9,13 +10,21 @@ const rateLimit = require('express-rate-limit');
 const logger = require('../../utils/logger');
 const audit = require('../../middlewares/audit');
 const { validateBody } = require('../../middlewares/validateRequest');
-const { loginSchema, registerSchema, createUserSchema } = require('../../schemas/auth.schema');
+const { 
+    loginSchema, 
+    registerSchema, 
+    createUserSchema, 
+    forgotPasswordSchema, 
+    resetPasswordSchema, 
+    updateRoleSchema, 
+    selectEmpresaSchema 
+} = require('../../schemas/auth.schema');
 
 // Rate limiter anti brute-force (Desactivado para Debug)
 const loginLimiter = (req, res, next) => next();
 
 // ── POST /auth/forgot-password ────────────────────────────────────────────────
-router.post('/forgot-password', async (req, res) => {
+router.post('/forgot-password', validateBody(forgotPasswordSchema), async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'El email es requerido.' });
   try {
@@ -27,11 +36,8 @@ router.post('/forgot-password', async (req, res) => {
 });
 
 // ── POST /auth/reset-password ─────────────────────────────────────────────────
-router.post('/reset-password', async (req, res) => {
+router.post('/reset-password', validateBody(resetPasswordSchema), async (req, res) => {
   const { token, nuevaPassword } = req.body;
-  if (!token || !nuevaPassword) {
-    return res.status(400).json({ error: 'Token y nueva contraseña son requeridos.' });
-  }
   try {
     await authService.resetPassword(token, nuevaPassword);
     res.json({ message: 'Contraseña actualizada correctamente.' });
@@ -54,11 +60,8 @@ router.post('/login', loginLimiter, validateBody(loginSchema), async (req, res) 
 
 // ── POST /auth/select-empresa ─────────────────────────────────────────────────
 // Para usuarios con múltiples empresas — selecciona contexto y genera token
-router.post('/select-empresa', async (req, res) => {
+router.post('/select-empresa', validateBody(selectEmpresaSchema), async (req, res) => {
   const { usuario_id, empresa_id } = req.body;
-  if (!usuario_id || !empresa_id) {
-    return res.status(400).json({ error: 'usuario_id y empresa_id son requeridos.' });
-  }
   try {
     const result = await authService.seleccionarEmpresa(Number(usuario_id), Number(empresa_id));
     res.json(result);
@@ -141,7 +144,7 @@ router.post('/users', authenticate, checkPermiso('usuarios', 'crear'), validateB
 });
 
 // ── PUT /auth/:id/rol — cambiar rol en mi empresa (Admin via RBAC) — BEFORE /:id wildcard
-router.put('/:id/rol', authenticate, checkPermiso('usuarios', 'actualizar'), audit('modificar_rol', 'Usuario'), async (req, res) => {
+router.put('/:id/rol', authenticate, checkPermiso('usuarios', 'actualizar'), validateBody(updateRoleSchema), audit('modificar_rol', 'Usuario'), async (req, res) => {
   try {
     const result = await authService.actualizarRolUsuario(
       Number(req.params.id),
@@ -155,11 +158,8 @@ router.put('/:id/rol', authenticate, checkPermiso('usuarios', 'actualizar'), aud
 });
 
 // ── POST /auth/:id/reset-password — resetear contraseña (Admin via RBAC) — BEFORE /:id wildcard
-router.post('/:id/reset-password', authenticate, checkPermiso('usuarios', 'actualizar'), audit('reset_password', 'Usuario'), async (req, res) => {
+router.post('/:id/reset-password', authenticate, checkPermiso('usuarios', 'actualizar'), validateBody(z.object({ nuevaPassword: z.string().min(8, 'Mínimo 8 caracteres') }).strict()), audit('reset_password', 'Usuario'), async (req, res) => {
   const { nuevaPassword } = req.body;
-  if (!nuevaPassword || nuevaPassword.length < 8) {
-    return res.status(400).json({ error: 'La nueva contraseña debe tener al menos 8 caracteres.' });
-  }
   try {
     await authService.resetearPassword(Number(req.params.id), req.user.empresa_id, nuevaPassword);
     res.json({ message: 'Contraseña actualizada correctamente' });
@@ -169,8 +169,8 @@ router.post('/:id/reset-password', authenticate, checkPermiso('usuarios', 'actua
 });
 
 // ── POST /auth/:id/empresas — dar acceso a otro usuario en mi empresa (Admin via RBAC) ─
-router.post('/:id/empresas', authenticate, checkPermiso('usuarios', 'actualizar'), audit('asignar_empresa', 'Usuario'), async (req, res) => {
-  const { rol = 'vendedor', empresa_id } = req.body;
+router.post('/:id/empresas', authenticate, checkPermiso('usuarios', 'actualizar'), validateBody(z.object({ rol: z.string().default('vendedor'), empresa_id: z.number().int().positive().optional() }).strict()), audit('asignar_empresa', 'Usuario'), async (req, res) => {
+  const { rol, empresa_id } = req.body;
   // Solo puede dar acceso a su propia empresa (o a otra si es un super-admin)
   const target_empresa = empresa_id || req.user.empresa_id;
   try {
