@@ -82,7 +82,7 @@ router.post('/crear', checkPermiso('productos', 'crear'), upload.single('imagen'
   const image_url = req.file ? '/uploads/productos/' + req.file.filename : req.body.image_url;
   
   try {
-    const producto = await productosService.agregarProducto(nombre, descripcion, precio, stock, categoria, req.tenant_id, sku, moneda_id, custom_fields, image_url, nro_lote, fecha_vto);
+    const producto = await productosService.agregarProducto(nombre, descripcion, precio, stock, categoria, req.tenant_id, req.user.id, sku, moneda_id, custom_fields, image_url, nro_lote, fecha_vto);
     res.locals.insertedId = producto.id;
     res.status(201).json(producto);
   } catch (err) {
@@ -97,7 +97,7 @@ router.put('/editar/:id', checkPermiso('productos', 'actualizar'), upload.single
   const image_url = req.file ? '/uploads/productos/' + req.file.filename : req.body.image_url;
 
   try {
-    const producto = await productosService.editarProducto(parseInt(id), nombre, descripcion, precio, stock, categoria, req.tenant_id, sku, moneda_id, custom_fields, image_url);
+    const producto = await productosService.editarProducto(parseInt(id), nombre, descripcion, precio, stock, categoria, req.tenant_id, req.user.id, sku, moneda_id, custom_fields, image_url);
     res.json(producto);
   } catch (err) {
     next(err);
