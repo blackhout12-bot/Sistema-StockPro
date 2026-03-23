@@ -11,14 +11,16 @@ import RubroShowcaseCard from '../components/RubroShowcaseCard';
 
 // ─── Componentes Auxiliares ────────────────────────────────────────
 const MiniKpi = ({ icon: Icon, label, value, sub, colorClass, iconColor }) => (
-    <div className="flex items-center gap-4 bg-white/60 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/50 shadow-sm ml-4">
-        <div className={`p-3.5 rounded-2xl ${colorClass} bg-opacity-15`}>
-            <Icon size={26} className={iconColor} strokeWidth={2.5} />
+    <div className="flex-shrink-0 flex items-center gap-4 bg-white border border-slate-100 px-5 py-3.5 rounded-2xl shadow-[0_2px_10px_-3px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_20px_-6px_rgba(0,0,0,0.1)] transition-all duration-300">
+        <div className={`p-3 rounded-xl ${colorClass} bg-opacity-10 ring-1 ring-inset ${colorClass.replace('bg-', 'ring-').replace('500', '500/20')}`}>
+            <Icon size={22} className={iconColor} strokeWidth={2.5} />
         </div>
-        <div>
-            <p className="text-[10.5px] font-black text-slate-400 uppercase tracking-[0.15em]">{label}</p>
-            <p className="text-[22px] font-black text-slate-800 tracking-tight leading-none mt-1">{value}</p>
-            {sub && <p className="text-[10px] font-bold text-slate-400 mt-1">{sub}</p>}
+        <div className="flex flex-col justify-center">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">{label}</p>
+            <div className="flex items-baseline gap-1.5">
+                <p className="text-[20px] font-black text-slate-800 tracking-tight leading-none">{value}</p>
+                {sub && <p className="text-[10px] font-bold text-slate-500 uppercase">{sub}</p>}
+            </div>
         </div>
     </div>
 );
@@ -129,24 +131,25 @@ const Dashboard = () => {
             <div className="fixed bottom-0 left-0 md:left-56 right-0 bg-white/90 backdrop-blur-2xl border-t border-slate-200 z-40 pb-0 overflow-hidden shadow-[0_-15px_60px_-15px_rgba(0,0,0,0.1)]">
                 
                 {/* Nivel 1: KPIs Section + MiniProfile */}
-                <div className="flex items-center justify-between px-8 py-5 relative z-20">
+                <div className="flex items-center gap-8 px-8 py-5 relative z-20">
                     
                     {/* User Mini Profile */}
-                    <div className="hidden lg:flex items-center gap-4 bg-slate-50 px-6 py-3.5 rounded-2xl border border-slate-200 shadow-sm">
-                        <span className="w-10 h-10 bg-gradient-to-tr from-brand-600 to-indigo-600 rounded-full text-white flex items-center justify-center text-xs font-black shadow-inner">
+                    <div className="hidden lg:flex flex-shrink-0 items-center gap-3 bg-white px-5 py-3.5 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                        <div className="absolute top-0 left-0 w-1 h-full bg-brand-500 rounded-l-2xl"></div>
+                        <span className="w-10 h-10 bg-brand-50 text-brand-700 rounded-full flex items-center justify-center text-xs font-black ring-2 ring-white">
                             {config?.nombre?.[0] || 'A'}
                         </span>
                         <div>
-                            <p className="text-sm font-black text-slate-800 uppercase tracking-widest">{config?.nombre || 'Administración'}</p>
-                            <p className="text-[11px] font-bold text-slate-400 flex items-center gap-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                            <p className="text-[13px] font-black text-slate-800 tracking-wide">{config?.nombre || 'Administración'}</p>
+                            <p className="text-[10px] font-bold text-brand-600 flex items-center gap-1.5 uppercase tracking-widest mt-0.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
                                 Sesión Activa
                             </p>
                         </div>
                     </div>
 
                     {/* Docked KPIs Reactivos */}
-                    <div className="flex-1 flex items-center xl:justify-end overflow-x-auto custom-scrollbar pr-4">
+                    <div className="flex-1 flex gap-4 items-center overflow-x-auto custom-scrollbar pb-2 pt-1 -mb-2">
                         {(() => {
                             const kpiMap = {
                                 total_productos: <MiniKpi key="1" icon={Package} label="Inventario" value={`${totalProducts}`} sub="Unidades" colorClass="bg-emerald-500" iconColor="text-emerald-600" />,
