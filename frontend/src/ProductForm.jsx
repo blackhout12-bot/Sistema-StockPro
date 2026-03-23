@@ -101,10 +101,15 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
       setStep(2);
   };
 
-  const handleSubmit = (e) => {
+    const handleSubmit = (e) => {
     e.preventDefault();
     if (!precio) {
         toast.error('El precio unitario es obligatorio');
+        return;
+    }
+
+    if (!initialData && lote.trim() && (!stock || parseInt(stock) <= 0)) {
+        toast.error('Atención: Si ingresas un Lote Inicial, el Stock Inicial en unidades debe ser mayor a 0');
         return;
     }
 

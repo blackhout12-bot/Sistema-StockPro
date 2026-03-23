@@ -142,8 +142,8 @@ class ProductoRepository {
 
         let newProductId;
         if (hasSkuColumn && hasStockMinColumn) {
-            let queryStr = `INSERT INTO Productos (sku, nombre, descripcion, precio, stock, stock_min, stock_max, empresa_id`;
-            let valStr = `VALUES (@sku, @nombre, @descripcion, @precio, @stock, @stock_min, @stock_max, @empresa_id`;
+            let queryStr = `INSERT INTO Productos (sku, nombre, descripcion, precio, stock, stock_min, stock_max, categoria, empresa_id`;
+            let valStr = `VALUES (@sku, @nombre, @descripcion, @precio, @stock, @stock_min, @stock_max, @categoria, @empresa_id`;
 
             if (hasCustomFieldsColumn) { queryStr += `, custom_fields`; valStr += `, @custom_fields`; }
             if (hasImageUrlColumn) { queryStr += `, image_url`; valStr += `, @image_url`; }
@@ -159,6 +159,7 @@ class ProductoRepository {
                 .input('stock', sql.Int, stock || 0)
                 .input('stock_min', sql.Int, stock_min)
                 .input('stock_max', sql.Int, stock_max || null)
+                .input('categoria', sql.NVarChar, data.categoria || null)
                 .input('empresa_id', sql.Int, empresa_id);
 
             if (hasCustomFieldsColumn) request.input('custom_fields', sql.NVarChar(sql.MAX), cFieldsStr);
@@ -168,8 +169,8 @@ class ProductoRepository {
             const result = await request.query(queryStr);
             newProductId = result.recordset[0].id;
         } else {
-            let queryStr = `INSERT INTO Productos (nombre, descripcion, precio, stock, empresa_id`;
-            let valStr = `VALUES (@nombre, @descripcion, @precio, @stock, @empresa_id`;
+            let queryStr = `INSERT INTO Productos (nombre, descripcion, precio, stock, categoria, empresa_id`;
+            let valStr = `VALUES (@nombre, @descripcion, @precio, @stock, @categoria, @empresa_id`;
 
             if (hasSkuColumn) { queryStr += `, sku`; valStr += `, @sku`; }
             if (hasCustomFieldsColumn) { queryStr += `, custom_fields`; valStr += `, @custom_fields`; }
@@ -182,6 +183,7 @@ class ProductoRepository {
                 .input('descripcion', sql.NVarChar, descripcion)
                 .input('precio', sql.Decimal(12, 2), precio)
                 .input('stock', sql.Int, stock || 0)
+                .input('categoria', sql.NVarChar, data.categoria || null)
                 .input('empresa_id', sql.Int, empresa_id);
 
             if (hasSkuColumn) request.input('sku', sql.NVarChar, sku || null);
