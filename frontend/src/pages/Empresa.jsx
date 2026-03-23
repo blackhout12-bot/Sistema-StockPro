@@ -19,9 +19,7 @@ const TABS = [
     { id: 'estadisticas', label: 'Estadísticas', icon: BarChart3 },
     { id: 'configuracion', label: 'Configuración', icon: Settings },
     { id: 'modulos', label: 'Módulos Extra', icon: Package },
-    { id: 'depositos', label: 'Depósitos', icon: MapPin },
     { id: 'roles', label: 'Roles', icon: Shield, adminOnly: true },
-    { id: 'auditoria', label: 'Auditoría', icon: Eye, adminOnly: true },
 ];
 
 const MONEDAS = [
@@ -178,9 +176,7 @@ const Empresa = () => {
         activo: true
     });
 
-    const [depositos, setDepositos] = useState([]);
-    const [showDepModal, setShowDepModal] = useState(false);
-    const [depEdit, setDepEdit] = useState(null);
+    const [comprobantes, setComprobantes] = useState([]);
 
     const KPI_OPTIONS = [
         { id: 'total_productos', label: 'Total Productos', desc: 'Conteo total del catálogo' },
@@ -311,15 +307,6 @@ const Empresa = () => {
         }
     }, []);
 
-    const fetchDepositos = useCallback(async () => {
-        try {
-            const res = await api.get('/empresa/configuracion/depositos');
-            setDepositos(res.data || []);
-        } catch (err) {
-            console.error('Error cargando depositos', err);
-        }
-    }, []);
-
     const fetchStats = useCallback(async () => {
         setStatsLoading(true);
         try {
@@ -335,8 +322,7 @@ const Empresa = () => {
     useEffect(() => { fetchEmpresa(); }, [fetchEmpresa]);
     useEffect(() => {
         if (tab === 'estadisticas' && !stats) fetchStats();
-        if (tab === 'depositos' && depositos.length === 0) fetchDepositos();
-    }, [tab, stats, depositos.length, fetchStats, fetchDepositos]);
+    }, [tab, stats, fetchStats]);
 
     // ── Handlers de guardado ────────────────────────────────────
     const savePerfil = async (e) => {
@@ -547,8 +533,8 @@ const Empresa = () => {
                         {TABS.map(t => {
                             const Icon = t.icon;
                             const active = tab === t.id;
-                            // Ocultar config/estadísticas/depósitos/roles/auditoría a no-admin
-                            if (!isAdmin && (t.id === 'configuracion' || t.id === 'estadisticas' || t.id === 'depositos' || t.adminOnly)) return null;
+                            // Ocultar config/estadísticas/roles a no-admin
+                            if (!isAdmin && (t.id === 'configuracion' || t.id === 'estadisticas' || t.adminOnly)) return null;
                             return (
                                 <button
                                     key={t.id}
@@ -785,68 +771,7 @@ const Empresa = () => {
                         </form>
                     )}
 
-                    {/* ══ TAB: DEPÓSITOS ══════════════════════════════════════ */}
-                    {tab === 'depositos' && (
-                        <div className="space-y-6">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <h2 className="text-base font-semibold text-gray-900">Gestión de Depósitos y Sucursales</h2>
-                                    <p className="text-sm text-gray-500 mt-0.5">Controla las ubicaciones físicas donde se almacena tu stock.</p>
-                                </div>
-                                <button
-                                    onClick={() => { setDepEdit({ nombre: '', direccion: '', es_principal: false, activo: true }); setShowDepModal(true); }}
-                                    className="px-4 py-2 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 transition"
-                                >
-                                    + Nuevo Depósito
-                                </button>
-                            </div>
 
-                            <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200 border border-gray-100 rounded-xl">
-                                    <thead className="bg-gray-50 font-bold">
-                                        <tr>
-                                            <th className="px-4 py-3 text-left text-xs text-gray-500 uppercase tracking-wider">Nombre</th>
-                                            <th className="px-4 py-3 text-left text-xs text-gray-500 uppercase tracking-wider">Dirección</th>
-                                            <th className="px-4 py-3 text-center text-xs text-gray-500 uppercase tracking-wider">Tipo</th>
-                                            <th className="px-4 py-3 text-right text-xs text-gray-500 uppercase tracking-wider">Stock Units</th>
-                                            <th className="px-4 py-3 text-center text-xs text-gray-500 uppercase tracking-wider">Estado</th>
-                                            <th className="px-4 py-3 text-right text-xs text-gray-500 uppercase tracking-wider">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="bg-white divide-y divide-gray-100">
-                                        {depositos.map((d) => (
-                                            <tr key={d.id}>
-                                                <td className="px-4 py-3 text-sm font-bold text-gray-900">{d.nombre}</td>
-                                                <td className="px-4 py-3 text-sm text-gray-600">{d.direccion || '-'}</td>
-                                                <td className="px-4 py-3 text-center">
-                                                    {d.es_principal ? (
-                                                        <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-[10px] font-bold">PRINCIPAL</span>
-                                                    ) : (
-                                                        <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-[10px] font-bold">SECUNDARIO</span>
-                                                    )}
-                                                </td>
-                                                <td className="px-4 py-3 text-right text-sm font-medium">{d.stock_total_unidades}</td>
-                                                <td className="px-4 py-3 text-center">
-                                                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${d.activo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                                        {d.activo ? 'ACTIVO' : 'INACTIVO'}
-                                                    </span>
-                                                </td>
-                                                <td className="px-4 py-3 text-right space-x-3">
-                                                    <button onClick={() => { setDepEdit(d); setShowDepModal(true); }} className="text-indigo-600 hover:text-indigo-900 font-bold text-xs">Editar</button>
-                                                    {!d.es_principal && (
-                                                        <button onClick={() => handleDeleteDeposito(d.id)} className="text-red-600 hover:text-red-900 font-bold text-xs">Desactivar</button>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                        {depositos.length === 0 && (
-                                            <tr><td colSpan={6} className="text-center py-6 text-gray-400">Cargando depósitos...</td></tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    )}
 
                     {/* ══ TAB: ESTADÍSTICAS ════════════════════════════════ */}
                     {tab === 'estadisticas' && (
@@ -1432,116 +1357,7 @@ const Empresa = () => {
                     {/* ══ TAB: ROLES ══════════════════════════════════════ */}
                     {tab === 'roles' && <TabRoles />}
 
-                    {/* ══ TAB: AUDITORÍA ════════════════════════════════════ */}
-                    {tab === 'auditoria' && (() => {
-                        const [auditLogs, setAuditLogs] = React.useState([]);
-                        const [auditLoading, setAuditLoading] = React.useState(false);
-                        const [auditFilter, setAuditFilter] = React.useState('');
-                        const [auditPage, setAuditPage] = React.useState(1);
-                        const PER_PAGE = 15;
 
-                        React.useEffect(() => {
-                            setAuditLoading(true);
-                            api.get('/reportes/auditoria?limit=200')
-                                .then(r => setAuditLogs(r.data || []))
-                                .catch(() => toast.error('Error cargando auditoría'))
-                                .finally(() => setAuditLoading(false));
-                        }, []);
-
-                        const filtered = auditLogs.filter(log =>
-                            !auditFilter ||
-                            log.accion?.toLowerCase().includes(auditFilter.toLowerCase()) ||
-                            log.entidad?.toLowerCase().includes(auditFilter.toLowerCase()) ||
-                            log.usuario_nombre?.toLowerCase().includes(auditFilter.toLowerCase())
-                        );
-
-                        const paginated = filtered.slice((auditPage - 1) * PER_PAGE, auditPage * PER_PAGE);
-                        const totalPages = Math.ceil(filtered.length / PER_PAGE);
-
-                        const colorByAction = {
-                            crear: 'bg-emerald-100 text-emerald-700',
-                            eliminar: 'bg-rose-100 text-rose-700',
-                            actualizar: 'bg-amber-100 text-amber-700',
-                            login: 'bg-indigo-100 text-indigo-700'
-                        };
-
-                        return (
-                            <div className="space-y-5">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
-                                            <Eye size={18} className="text-indigo-500" /> Registro de Auditoría
-                                        </h2>
-                                        <p className="text-sm text-gray-500 mt-0.5">Trazabilidad completa por usuario, entidad y acción.</p>
-                                    </div>
-                                    <input
-                                        type="text"
-                                        placeholder="Filtrar por acción, entidad o usuario…"
-                                        value={auditFilter}
-                                        onChange={e => { setAuditFilter(e.target.value); setAuditPage(1); }}
-                                        className={`${inputCls} max-w-[260px] text-xs`}
-                                    />
-                                </div>
-
-                                {auditLoading ? (
-                                    <div className="flex justify-center py-12">
-                                        <div className="animate-spin rounded-full h-7 w-7 border-2 border-indigo-600 border-t-transparent" />
-                                    </div>
-                                ) : (
-                                    <div className="overflow-x-auto rounded-xl border border-slate-100">
-                                        <table className="w-full text-xs">
-                                            <thead className="bg-slate-50 border-b border-slate-100">
-                                                <tr>
-                                                    {['Fecha', 'Usuario', 'Acción', 'Entidad', 'ID', 'IP'].map(h => (
-                                                        <th key={h} className="px-4 py-3 text-left font-black text-slate-400 uppercase tracking-widest text-[9px]">{h}</th>
-                                                    ))}
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-slate-50">
-                                                {paginated.length === 0 ? (
-                                                    <tr>
-                                                        <td colSpan={6} className="px-4 py-10 text-center text-slate-400 font-medium text-xs">
-                                                            No se encontraron registros
-                                                        </td>
-                                                    </tr>
-                                                ) : paginated.map((log, i) => (
-                                                    <tr key={i} className="hover:bg-slate-50/60 transition-colors">
-                                                        <td className="px-4 py-2.5 text-slate-500 whitespace-nowrap font-mono text-[10px]">
-                                                            {new Date(log.fecha_hora || log.created_at).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' })}
-                                                        </td>
-                                                        <td className="px-4 py-2.5 font-semibold text-slate-800">{log.usuario_nombre || `#${log.usuario_id}`}</td>
-                                                        <td className="px-4 py-2.5">
-                                                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${colorByAction[log.accion?.toLowerCase()] || 'bg-slate-100 text-slate-600'}`}>
-                                                                {log.accion}
-                                                            </span>
-                                                        </td>
-                                                        <td className="px-4 py-2.5 font-semibold text-slate-700">{log.entidad}</td>
-                                                        <td className="px-4 py-2.5 font-mono text-slate-400">{log.entidad_id || '—'}</td>
-                                                        <td className="px-4 py-2.5 font-mono text-slate-400 text-[10px]">{log.ip || '—'}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                )}
-
-                                {totalPages > 1 && (
-                                    <div className="flex items-center justify-between pt-2">
-                                        <p className="text-xs text-slate-400">{filtered.length} registros</p>
-                                        <div className="flex gap-1">
-                                            {Array.from({ length: Math.min(totalPages, 8) }, (_, i) => i + 1).map(p => (
-                                                <button key={p} onClick={() => setAuditPage(p)}
-                                                    className={`w-7 h-7 rounded-lg text-xs font-bold transition-all ${auditPage === p ? 'bg-indigo-600 text-white' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
-                                                >
-                                                    {p}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })()}
 
                 </div>
             </div>
