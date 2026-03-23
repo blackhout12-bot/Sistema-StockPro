@@ -266,11 +266,18 @@ class EmpresaModel {
         const r = await pool.request()
             .input('empresa_id', sql.Int, empresa_id)
             .query(`
+                WITH ProdStock AS (
+                    SELECT p.id, p.precio, ISNULL(SUM(pd.cantidad), 0) AS total_stock
+                    FROM Productos p
+                    LEFT JOIN ProductoDepositos pd ON pd.producto_id = p.id
+                    WHERE p.empresa_id = @empresa_id
+                    GROUP BY p.id, p.precio
+                )
                 SELECT
-                    (SELECT COUNT(*) FROM Productos WHERE empresa_id = @empresa_id) AS total_productos,
-                    (SELECT COUNT(*) FROM Productos WHERE empresa_id = @empresa_id AND stock = 0) AS productos_sin_stock,
-                    (SELECT COUNT(*) FROM Productos WHERE empresa_id = @empresa_id AND stock <= 5 AND stock > 0) AS productos_stock_bajo,
-                    (SELECT ISNULL(SUM(CAST(stock AS BIGINT) * CAST(precio AS BIGINT) * 1), 0) FROM Productos WHERE empresa_id = @empresa_id) AS valor_inventario, -- Nota: Simplificado hasta tener API de cotización real
+                    (SELECT COUNT(*) FROM ProdStock) AS total_productos,
+                    (SELECT COUNT(*) FROM ProdStock WHERE total_stock = 0) AS productos_sin_stock,
+                    (SELECT COUNT(*) FROM ProdStock WHERE total_stock <= 5 AND total_stock > 0) AS productos_stock_bajo,
+                    (SELECT ISNULL(SUM(CAST(total_stock AS BIGINT) * CAST(precio AS BIGINT)), 0) FROM ProdStock) AS valor_inventario,
                     (SELECT COUNT(*) FROM Usuarios WHERE empresa_id = @empresa_id) AS total_usuarios,
                     (SELECT COUNT(*) FROM Clientes WHERE empresa_id = @empresa_id) AS total_clientes,
                     (SELECT COUNT(*) FROM Facturas WHERE empresa_id = @empresa_id) AS total_facturas,
