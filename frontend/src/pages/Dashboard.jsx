@@ -79,9 +79,7 @@ const Dashboard = () => {
     const totalProducts = stats?.total_productos ?? products.length;
     const lowStockItems = products.filter(p => p.stock <= 5 && p.stock >= 0);
     const totalValue = stats?.valor_inventario ?? products.reduce((s, p) => s + (p.precio || 0) * (p.stock || 0), 0);
-    const totalFacturasSales = dashData?.recentFacturas ? dashData.recentFacturas.reduce((s, f) => s + Number(f.total || 0), 0) : 0;
-    const totalPagosSales = stats?.monto_pagos ?? 0;
-    const totalSales = totalFacturasSales + totalPagosSales;
+    const totalSales = stats?.ventas_totales ?? 0;
     const totalClientes = stats?.total_clientes ?? 0;
 
     const formatMoney = (val) => `${config?.simbolo_moneda || '$'}${Number(val || 0).toLocaleString('es-AR', { minimumFractionDigits: 0 })}`;
@@ -160,8 +158,10 @@ const Dashboard = () => {
                             let visibleKpis = ['total_ventas', 'total_productos', 'total_clientes'];
                             if (config && config.dash_kpis_visibles) {
                                 try {
-                                    const parsed = JSON.parse(config.dash_kpis_visibles);
-                                    if (Array.isArray(parsed)) {
+                                    // Limpiar sintaxis estricta si la DB grabó con comillas simples por error manual de update
+                                    const cleanStr = config.dash_kpis_visibles.replace(/'/g, '"');
+                                    const parsed = JSON.parse(cleanStr);
+                                    if (Array.isArray(parsed) && parsed.length > 0) {
                                         visibleKpis = parsed;
                                     }
                                 } catch (e) {

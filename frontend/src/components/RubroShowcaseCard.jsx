@@ -34,9 +34,18 @@ const RubroShowcaseCard = ({ producto, rubro }) => {
         }
     }
 
+    // Normalized backslashes (Windows FS) to forward slashes (Web)
+    if (typeof finalImageStr === 'string') {
+        finalImageStr = finalImageStr.replace(/\\/g, '/');
+    }
+
     const isAbsolute = typeof finalImageStr === 'string' && finalImageStr.startsWith('http');
+    
+    // Obtener la url raíz del backend removiendo explícitamente el segmento /api/v...
+    const backendRoot = (import.meta.env.VITE_API_URL || '').replace(/\/api\/v\d+\/?$/, '');
+    
     const imageUrl = finalImageStr
-        ? (isAbsolute ? finalImageStr : `${import.meta.env.VITE_API_URL}${finalImageStr.startsWith('/') ? '' : '/'}${finalImageStr}`)
+        ? (isAbsolute ? finalImageStr : `${backendRoot}${finalImageStr.startsWith('/') ? '' : '/'}${finalImageStr}`)
         : (fallbacks[rubro?.toLowerCase()] || fallbacks.general);
 
     return (
