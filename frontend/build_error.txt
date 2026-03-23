@@ -1,0 +1,40 @@
+
+> frontend@1.0.0 build
+> vite build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32mÔ£ô[39m 98 modules transformed.
+Ô£ù Build failed in 1.52s
+error during build:
+[vite:esbuild] Transform failed with 2 errors:
+C:/Users/egar0/stock-system/frontend/src/pages/Empresa.jsx:206:11: ERROR: The symbol "comprobantes" has already been declared
+C:/Users/egar0/stock-system/frontend/src/pages/Empresa.jsx:206:25: ERROR: The symbol "setComprobantes" has already been declared
+file: C:/Users/egar0/stock-system/frontend/src/pages/Empresa.jsx:206:11
+
+The symbol "comprobantes" has already been declared
+204 |      };
+205 |  
+206 |      const [comprobantes, setComprobantes] = useState([]);
+    |             ^
+207 |  
+208 |      // ÔöÇÔöÇ Carga de datos ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+The symbol "setComprobantes" has already been declared
+204 |      };
+205 |  
+206 |      const [comprobantes, setComprobantes] = useState([]);
+    |                           ^
+207 |  
+208 |      // ÔöÇÔöÇ Carga de datos ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    at failureErrorWithLog (C:\Users\egar0\stock-system\frontend\node_modules\esbuild\lib\main.js:1467:15)
+    at C:\Users\egar0\stock-system\frontend\node_modules\esbuild\lib\main.js:736:50
+    at responseCallbacks.<computed> (C:\Users\egar0\stock-system\frontend\node_modules\esbuild\lib\main.js:603:9)
+    at handleIncomingPacket (C:\Users\egar0\stock-system\frontend\node_modules\esbuild\lib\main.js:658:12)
+    at Socket.readFromStdout (C:\Users\egar0\stock-system\frontend\node_modules\esbuild\lib\main.js:581:7)
+    at Socket.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)

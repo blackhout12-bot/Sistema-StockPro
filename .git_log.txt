@@ -1,0 +1,20 @@
+* e6b9b67 (HEAD -> develop, tag: v1.2.6, origin/develop) fix(ux): revertir validacion bloqueante de stock para evitar confusion de usuario
+* fe9fe5b fix(productos): inyectar categoria en queries create/update y añadir validador frontend pre-submit para lotes iniciales sin cantidad
+* 216f33f fix(critical): restaurados estados perdidos deposito Empresa, fix envio multipart imgs productos, fix renderizado subqueries lote
+* dabb859 (tag: v1.2.5) fix(fatal): error 500 en endpoint resumen solucionado alterando query por CTE hacia ProductoDepositos
+* 98abe7b (tag: v1.2.4) fix(critical): corregir error 500 en productos - reutilizacion de request mssql en Promise.all, servicio de imagenes y queries SQL simplificadas
+* 3e81b65 (tag: v1.2.3) fix(UI): resolver fallas del dashboard y restaurar modulo empresa; visualizacion de lotes, SKU y categorias dinamicas en Detalles de Producto
+* 1121701 (tag: v1.2.2) fix(productos): Validar tipeo de image_url previo a parseo y forzar strings vacias en DTOs para evitar render crashes
+* b92e898 (tag: v1.2.1) fix(backend): Restaurar inicializacion del servidor resolviendo SyntaxError critico en pdfGenerator ocasionado por literales mal escapados. Resuelve Error 500 en Frontend
+* 9f21b8b (tag: v1.2.0-beta, tag: v1.2.0) refactor(config): Separación de dominios Empresa/Sucursales y purga visual de auditoría
+* 0a9b6cf (tag: v1.1.25) feat(facturacion): Soportar Consumidor Final nativo nulo y desglose de IVA corporativo en PDF y POS
+* 27f9a17 (tag: v1.1.24) fix(ui-productos): rediseñar modal con SKU visible, tipificar categoría predictiva al Rol y sanear rutas de URL
+* 337f645 (tag: v1.1.23) fix(inventario): acoplar modificadores de producto al pipeline de movimientos para imponer trazabilidad inmutable
+* a5d33dc (tag: v1.1.22) fix(dashboard): corregir parseo de kpis estadisticos y renderizado path absoluto para imagenes en entorno windows
+* 6d1b7c2 (tag: v1.1.21) fix(devsecops): resolver sintaxis depreciada de secrets en pipeline cd y asegurar la recoleccion de mensajes unacked en RabbitMQ via graceful hooks
+* b1043cc (tag: v1.1.20) fix(configuracion): blindar logica EAV de rubros instalando validacion Zod para repeler JSON pollution injections
+* e9e5823 (tag: v1.1.19) fix(analytics): acoplar BI y OLAP al sistema RBAC integral para validar custom roles y parsear cubo via zod mitigando crashes de casting 500
+* b54e8fe (tag: v1.1.18) fix(auth): flexibilizar createUserSchema para permitir roles dinamicos y parsear passwords con zod interceptor
+* 08fc24e (tag: v1.1.17) fix(roles): anadir zod schemas para mitigar json pollution e inyecciones; incluir specs de rbac dinámico
+* 03d9be7 (tag: v1.1.16) fix(ventas): anadir zod schema a POS, arreglar destructuring de sucursal_id y reescribir e2e tests resguardando seguridad
+* 57ee41d (tag: v1.1.15) fix(inventario): aplicar WITH(UPDLOCK, ROWLOCK) al leer stock en transacciones para evitar lost updates y agregar tests e2e

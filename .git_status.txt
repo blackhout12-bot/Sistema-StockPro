@@ -1,0 +1,118 @@
+On branch develop
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   cols.json
+	modified:   error.log
+	deleted:    frontend/dist/assets/AlertsPanel-CPAQKAIK.js
+	deleted:    frontend/dist/assets/AuditLogs-DXRutLpX.js
+	deleted:    frontend/dist/assets/CartesianChart-bWQGNZ_s.js
+	deleted:    frontend/dist/assets/Clientes-D3N44VM4.js
+	deleted:    frontend/dist/assets/Compras-B8Dqq4l5.js
+	deleted:    frontend/dist/assets/CuentasCobrar-CP6u-K1S.js
+	deleted:    frontend/dist/assets/CuentasPagar-D5QsLtR6.js
+	deleted:    frontend/dist/assets/Dashboard-DGt2dw0J.js
+	deleted:    frontend/dist/assets/Empresa-DHu0Ngc9.js
+	deleted:    frontend/dist/assets/Facturacion-B8Ty0FfY.js
+	deleted:    frontend/dist/assets/Kardex-DNvlVFRN.js
+	deleted:    frontend/dist/assets/Marketplace-Co3s6F5r.js
+	deleted:    frontend/dist/assets/Movements-BmW2Nr11.js
+	deleted:    frontend/dist/assets/PaymentsDashboard-VdEPq1Af.js
+	deleted:    frontend/dist/assets/Products-CifwBSE0.js
+	deleted:    frontend/dist/assets/Proveedores-DJ9YEezA.js
+	deleted:    frontend/dist/assets/Reports-BzKPqy4L.js
+	deleted:    frontend/dist/assets/Sucursales-D0Ntnu89.js
+	deleted:    frontend/dist/assets/Users-D4lsXkin.js
+	deleted:    frontend/dist/assets/arrow-up-right-CPIgSDqv.js
+	deleted:    frontend/dist/assets/calendar-CZBz0c8Q.js
+	deleted:    frontend/dist/assets/circle-alert-Cx_fiO1i.js
+	deleted:    frontend/dist/assets/circle-check-KxYHv5kQ.js
+	deleted:    frontend/dist/assets/cloud-upload-LMijrpZj.js
+	deleted:    frontend/dist/assets/credit-card-BE9Vm0HZ.js
+	deleted:    frontend/dist/assets/dollar-sign-qm5JlSQi.js
+	deleted:    frontend/dist/assets/download-CnxKKG7R.js
+	deleted:    frontend/dist/assets/eye-BVBfDOzl.js
+	deleted:    frontend/dist/assets/funnel-DbZWAlrA.js
+	deleted:    frontend/dist/assets/globe-DClfv4B9.js
+	deleted:    frontend/dist/assets/index-Bn_hPUOY.js
+	deleted:    frontend/dist/assets/index-CcF8Rr4Q.css
+	deleted:    frontend/dist/assets/info-CQqVLXvU.js
+	deleted:    frontend/dist/assets/pen-D35f4Rxi.js
+	deleted:    frontend/dist/assets/phone-CZ1tAR85.js
+	deleted:    frontend/dist/assets/plus-BJnM_gBM.js
+	deleted:    frontend/dist/assets/refresh-cw--pzSnFxe.js
+	deleted:    frontend/dist/assets/rubroSchemas-BfypcI0e.js
+	deleted:    frontend/dist/assets/search-CPsZQZKA.js
+	deleted:    frontend/dist/assets/square-pen-DKf2o6rv.js
+	deleted:    frontend/dist/assets/trash-2-BVzf0Dbt.js
+	deleted:    frontend/dist/assets/trending-up-DUfxlioy.js
+	deleted:    frontend/dist/assets/triangle-alert-DK9U4pHD.js
+	deleted:    frontend/dist/assets/truck-DVhEVPLG.js
+	modified:   frontend/dist/index.html
+	modified:   src/modules/mercadolibre/mercadolibre.routes.js
+	modified:   src/modules/sucursales/sucursales.controller.js
+	modified:   test_db.js
+	modified:   test_output.txt
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.git_status.txt
+	500_ERROR_TRACE.txt
+	cols_empresa.json
+	cols_productos.txt
+	crash-log.txt
+	error3.log
+	error4.log
+	frontend/build_error.txt
+	frontend/dist/assets/AlertsPanel-DOTyZDvQ.js
+	frontend/dist/assets/AuditLogs-BLe9P0yB.js
+	frontend/dist/assets/CartesianChart-B8q4ivGt.js
+	frontend/dist/assets/Clientes-BIua1U7T.js
+	frontend/dist/assets/Compras-Cs7E9I9d.js
+	frontend/dist/assets/CuentasCobrar-CN7KNg2K.js
+	frontend/dist/assets/CuentasPagar-D8uuGSRE.js
+	frontend/dist/assets/Dashboard-Eyw21Y1J.js
+	frontend/dist/assets/Empresa-CuGmL_rH.js
+	frontend/dist/assets/Facturacion-CXVYax63.js
+	frontend/dist/assets/Kardex-Dg49JKYy.js
+	frontend/dist/assets/Marketplace-BSiTTyiP.js
+	frontend/dist/assets/Movements-X2Que4xr.js
+	frontend/dist/assets/PaymentsDashboard-DcQrGWNv.js
+	frontend/dist/assets/Products-C-87CgYE.js
+	frontend/dist/assets/Proveedores-Cf3JWScE.js
+	frontend/dist/assets/Reports-DpH6ZZb8.js
+	frontend/dist/assets/Sucursales-CygjrBgg.js
+	frontend/dist/assets/Users-C7dKLIlN.js
+	frontend/dist/assets/arrow-up-right-BD509iyg.js
+	frontend/dist/assets/calendar-COVT6UJ_.js
+	frontend/dist/assets/circle-alert-yJQkSQ8R.js
+	frontend/dist/assets/circle-check-TRJCHm5R.js
+	frontend/dist/assets/cloud-upload-DmKRjyor.js
+	frontend/dist/assets/credit-card-9ASzgRp0.js
+	frontend/dist/assets/dollar-sign-BFF4z7r9.js
+	frontend/dist/assets/download-DzvBlwhB.js
+	frontend/dist/assets/eye-DDOMmT6f.js
+	frontend/dist/assets/funnel-BhIow9ma.js
+	frontend/dist/assets/globe-sqiWG3Wq.js
+	frontend/dist/assets/index-84t9Nyii.css
+	frontend/dist/assets/index-SzJGufjd.js
+	frontend/dist/assets/info-BxQ1UqXl.js
+	frontend/dist/assets/pen-wwlypoWc.js
+	frontend/dist/assets/phone-DFONhzyx.js
+	frontend/dist/assets/plus-CqF8VQyX.js
+	frontend/dist/assets/refresh-cw-Cc6O2lES.js
+	frontend/dist/assets/rubroSchemas-DnN0K94x.js
+	frontend/dist/assets/search-BQkcD-0C.js
+	frontend/dist/assets/square-pen-DCbtdXA9.js
+	frontend/dist/assets/trash-2-CUkPWhy9.js
+	frontend/dist/assets/trending-up-Dn6JJoPp.js
+	frontend/dist/assets/triangle-alert-B4HE7J7b.js
+	frontend/dist/assets/truck-CELVEry5.js
+	public/
+	startup-log.txt
+	startup-test.txt
+	test-col.js
+	test-crash.js
+	test-update.js
+
+no changes added to commit (use "git add" and/or "git commit -a")

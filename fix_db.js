@@ -1,33 +1,15 @@
-const { connectDB, sql } = require('./src/config/db');
+require('dotenv').config();
+const { connectDB } = require('./src/config/db');
 
-async function fix() {
+async function run() {
     try {
         const pool = await connectDB();
-        console.log('--- APLICANDO COLUMNAS FALTANTES A MOVIMIENTOS ---');
-
-        try {
-            await pool.request().query("ALTER TABLE dbo.Movimientos ADD nro_lote NVARCHAR(100) NULL");
-            console.log('Columna nro_lote añadida.');
-        } catch (e) {
-            console.log('Columna nro_lote ya existe o error:', e.message);
-        }
-
-        try {
-            await pool.request().query("ALTER TABLE dbo.Movimientos ADD fecha_vto DATE NULL");
-            console.log('Columna fecha_vto añadida.');
-        } catch (e) {
-            console.log('Columna fecha_vto ya existe o error:', e.message);
-        }
-
-        console.log('--- VERIFICANDO NUEVAMENTE ---');
-        const movColumns = await pool.request().query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Movimientos'");
-        console.log('Columnas finales:', movColumns.recordset.map(c => c.COLUMN_NAME).join(', '));
-
+        await pool.request().query("UPDATE productos SET image_url = null WHERE image_url = 'http://img.com'");
+        console.log('Fixed dummy img.com URLs to null');
         process.exit(0);
-    } catch (err) {
-        console.error('ERROR EN REPARACIÓN:', err);
+    } catch (e) {
+        console.error(e);
         process.exit(1);
     }
 }
-
-fix();
+run();

@@ -1,24 +1,232 @@
-Lanzando navegador...
-Navegando a localhost:5173...
-BROWSER ERROR: Failed to load resource: the server responded with a status of 404 (Not Found)
-HTML Body Length: 90025
-Tiene Formulario: true
-Tiene div#root: true
-TEXTO EN PANTALLA: Stock Pro
-
-Sistema de Gestión de Inventario
-
-SP
-Iniciar Sesión
-
-Accede a tu panel de control empresarial
-
-Correo Electrónico
-Contraseña
-¿Olvidaste tu contraseña?
-Continuar
-O CONTINUAR CON
-Google
-Microsoft 365
-¿Primera vez?
-Crea una nueva cuenta de empresa
+[dotenv@17.3.1] injecting env (16) from .env -- tip: ­ƒñû agentic secret storage: https://dotenvx.com/as2
+[01:25:52] [32mINFO[39m: [36mConectado a SQL Server (Escritura)[39m
+DB DATA: [
+  {
+    id: 1,
+    dash_kpis_visibles: '["ventas_hoy","total_productos","valor_inventario","clientes_nuevos","stock_bajo","movimientos","ventas_mes","pagos_externos"]'
+  },
+  {
+    id: 2,
+    dash_kpis_visibles: '["total_productos", "stock_bajo", "valor_inventario", "ventas_mes"]'
+  },
+  {
+    id: 3,
+    dash_kpis_visibles: '["total_productos", "stock_bajo", "valor_inventario", "ventas_mes"]'
+  },
+  {
+    id: 4,
+    dash_kpis_visibles: '["total_productos", "stock_bajo", "valor_inventario", "ventas_mes"]'
+  },
+  {
+    id: 5,
+    dash_kpis_visibles: '["total_productos", "stock_bajo", "valor_inventario", "ventas_mes"]'
+  },
+  {
+    id: 6,
+    dash_kpis_visibles: '["total_productos", "stock_bajo", "valor_inventario", "ventas_mes"]'
+  },
+  {
+    id: 7,
+    dash_kpis_visibles: '["total_productos", "stock_bajo", "valor_inventario", "ventas_mes"]'
+  },
+  {
+    id: 8,
+    dash_kpis_visibles: '["total_productos", "stock_bajo", "valor_inventario", "ventas_mes"]'
+  },
+  {
+    id: 9,
+    dash_kpis_visibles: '["total_productos", "stock_bajo", "valor_inventario", "ventas_mes"]'
+  },
+  {
+    id: 10,
+    dash_kpis_visibles: '["total_productos", "stock_bajo", "valor_inventario", "ventas_mes"]'
+  },
+  {
+    id: 11,
+    dash_kpis_visibles: '["total_productos", "stock_bajo", "valor_inventario", "ventas_mes"]'
+  },
+  {
+    id: 12,
+    dash_kpis_visibles: '["total_productos", "stock_bajo", "valor_inventario", "ventas_mes"]'
+  },
+  {
+    id: 13,
+    dash_kpis_visibles: '["total_productos", "stock_bajo", "valor_inventario", "ventas_mes"]'
+  },
+  {
+    id: 14,
+    dash_kpis_visibles: '["total_productos", "stock_bajo", "valor_inventario", "ventas_mes"]'
+  },
+  {
+    id: 15,
+    dash_kpis_visibles: '["total_productos", "stock_bajo", "valor_inventario", "ventas_mes"]'
+  },
+  {
+    id: 16,
+    dash_kpis_visibles: '["total_productos", "stock_bajo", "valor_inventario", "ventas_mes"]'
+  },
+  {
+    id: 17,
+    dash_kpis_visibles: '["total_productos", "stock_bajo", "valor_inventario", "ventas_mes"]'
+  },
+  {
+    id: 18,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 19,
+    dash_kpis_visibles: '["ventas_hoy","stock_bajo","clientes_nuevos","total_productos","valor_inventario","ventas_mes","movimientos"]'
+  },
+  {
+    id: 20,
+    dash_kpis_visibles: '["ventas_hoy","stock_bajo","clientes_nuevos","total_productos","ventas_mes","valor_inventario","movimientos"]'
+  },
+  {
+    id: 21,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 22,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 23,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 25,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 26,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 27,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 28,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 29,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 30,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 31,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 32,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 33,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 34,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 35,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 36,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 37,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 38,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 39,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 40,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 41,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 42,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 43,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 44,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 45,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 46,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 47,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 48,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 49,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 50,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 51,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 52,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 53,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 54,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 55,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 56,
+    dash_kpis_visibles: '["ventas_hoy","stock_bajo","clientes_nuevos","total_productos","ventas_mes","pagos_externos","movimientos","valor_inventario"]'
+  },
+  {
+    id: 57,
+    dash_kpis_visibles: '["ventas_hoy", "stock_bajo", "clientes_nuevos"]'
+  },
+  {
+    id: 58,
+    dash_kpis_visibles: '["ventas_hoy","stock_bajo","clientes_nuevos","ventas_mes","pagos_externos","movimientos","total_productos"]'
+  }
+]

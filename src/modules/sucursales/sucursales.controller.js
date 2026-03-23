@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sucursalesModel = require('./sucursales.model');
-const { checkPermiso } = require('../../middlewares/auth');
+const checkPermiso = require('../../middlewares/rbac');
 
 router.get('/', async (req, res) => {
     try {

@@ -34,8 +34,7 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
           const parsed = initialData.image_url.startsWith('[') ? JSON.parse(initialData.image_url)[0] : initialData.image_url;
           if (typeof parsed !== 'string') return null;
           const normalized = parsed.replace(/\\/g, '/');
-          const backendRoot = (import.meta.env.VITE_API_URL || '').replace(/\/api\/v\d+\/?$/, '');
-          return normalized.startsWith('http') ? normalized : `${backendRoot}${normalized.startsWith('/') ? '' : '/'}${normalized}`;
+          return normalized.startsWith('http') ? normalized : `${normalized.startsWith('/') ? '' : '/'}${normalized}?v=3`;
       } catch (e) { return null; }
   };
   const [imagePreview, setImagePreview] = useState(getInitialImagePreview());

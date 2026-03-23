@@ -1,58 +1,8 @@
-
-> stock-system@1.0.0 dev
-> concurrently --names "BACKEND,FRONTEND" --prefix-colors "cyan,magenta" "npm run dev:backend" "npm run dev:frontend"
-
-[BACKEND] 
-[BACKEND] > stock-system@1.0.0 dev:backend
-[BACKEND] > nodemon src/server.js
-[BACKEND] 
-[FRONTEND] 
-[FRONTEND] > stock-system@1.0.0 dev:frontend
-[FRONTEND] > cd frontend && npm start
-[FRONTEND] 
-[BACKEND] [33m[nodemon] 3.1.14[39m
-[BACKEND] [33m[nodemon] to restart at any time, enter `rs`[39m
-[BACKEND] [33m[nodemon] watching path(s): *.*[39m
-[BACKEND] [33m[nodemon] watching extensions: js,mjs,cjs,json[39m
-[BACKEND] [32m[nodemon] starting `node src/server.js`[39m
-[FRONTEND] 
-[FRONTEND] > frontend@1.0.0 start
-[FRONTEND] > vite
-[FRONTEND] 
-[BACKEND] [dotenv@17.3.1] injecting env (16) from .env -- tip: ­ƒøá´©Å  run anywhere with `dotenvx run -- yourcommand`
-[FRONTEND] Port 5173 is in use, trying another one...
-[FRONTEND] Port 5174 is in use, trying another one...
-[FRONTEND] Port 5175 is in use, trying another one...
-[FRONTEND] 
-[FRONTEND]   [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m345[22m[2m[0m ms[22m
-[FRONTEND] 
-[FRONTEND]   [32mÔ×£[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5176[22m/[39m
-[FRONTEND] [2m  [32mÔ×£[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
-[BACKEND] [dotenv@17.3.1] injecting env (0) from .env -- tip: ÔÜÖ´©Å  write to custom object with { processEnv: myObject }
-[BACKEND] (node:14764) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
-[BACKEND] (Use `node --trace-deprecation ...` to show where the warning was created)
-[BACKEND] (node:14764) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
-[BACKEND] [22:15:32] [32mINFO[39m: [36m­ƒÜÇ Iniciando infraestructura de BullMQ (Graceful Degradation Mode)...[39m
-[BACKEND] [22:15:32] [32mINFO[39m: [36malertWorker (Legacy) importado. Las tareas ahora son administradas por BullMQ cronQueue.[39m
-[BACKEND] [22:15:32] [32mINFO[39m: [36m­ƒÜÇ Socket.io inicializado con soporte multi-tenant[39m
-[BACKEND] node:events:486
-[BACKEND]       throw er; // Unhandled 'error' event
-[BACKEND]       ^
-[BACKEND] 
-[BACKEND] Error: listen EADDRINUSE: address already in use 0.0.0.0:5000
-[BACKEND]     at Server.setupListenHandle [as _listen2] (node:net:1940:16)
-[BACKEND]     at listenInCluster (node:net:1997:12)
-[BACKEND]     at node:net:2206:7
-[BACKEND]     at process.processTicksAndRejections (node:internal/process/task_queues:89:21)
-[BACKEND] Emitted 'error' event on Server instance at:
-[BACKEND]     at emitErrorNT (node:net:1976:8)
-[BACKEND]     at process.processTicksAndRejections (node:internal/process/task_queues:89:21) {
-[BACKEND]   code: 'EADDRINUSE',
-[BACKEND]   errno: -4091,
-[BACKEND]   syscall: 'listen',
-[BACKEND]   address: '0.0.0.0',
-[BACKEND]   port: 5000
-[BACKEND] }
-[BACKEND] 
-[BACKEND] Node.js v24.13.1
-[BACKEND] [31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[dotenv@17.3.1] injecting env (16) from .env -- tip: ­ƒñû agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ­ƒöÉ prevent building .env in docker: https://dotenvx.com/prebuild
+(node:39300) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[00:33:33] [31mERROR[39m: [36mFATAL UNCAUGHT EXCEPTION CATCHED - Preveniendo ca├¡da del servidor[39m
+    [35mstack[39m: "TypeError: checkPermiso is not a function\n    at Object.<anonymous> (C:\Users\egar0\stock-system\src\modules\mercadolibre\mercadolibre.routes.js:7:21)\n    at Module._compile (node:internal/modules/cjs/loader:1804:14)\n    at Object..js (node:internal/modules/cjs/loader:1936:10)\n    at Module.load (node:internal/modules/cjs/loader:1525:32)\n    at Module._load (node:internal/modules/cjs/loader:1327:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)\n    at Module.require (node:internal/modules/cjs/loader:1548:12)\n    at require (node:internal/modules/helpers:152:16)\n    at Object.<anonymous> (C:\Users\egar0\stock-system\src\routes\v1.routes.js:68:58)\n    at Module._compile (node:internal/modules/cjs/loader:1804:14)\n    at Object..js (node:internal/modules/cjs/loader:1936:10)\n    at Module.load (node:internal/modules/cjs/loader:1525:32)\n    at Module._load (node:internal/modules/cjs/loader:1327:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)"
+    error: "checkPermiso is not a function"
+[00:33:33] [32mINFO[39m: [36mConectado a Redis Exitosamente[39m

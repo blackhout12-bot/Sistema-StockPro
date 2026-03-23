@@ -53,8 +53,8 @@ const ProductList = ({ products, onEdit, onDelete, onViewLots, onAddStock, userR
                               } catch(e) {}
                           }
                           const backendRoot = (import.meta.env.VITE_API_URL || '').replace(/\/api\/v\d+\/?$/, '');
-                          const cacheBuster = "?v=2";
-                          const imageUrl = finalImageStr ? (finalImageStr.startsWith('http') ? finalImageStr : `${backendRoot}${finalImageStr.startsWith('/') ? '' : '/'}${finalImageStr}${cacheBuster}`) : null;
+                          const cacheBuster = "?v=3";
+                          const imageUrl = finalImageStr ? (finalImageStr.startsWith('http') ? finalImageStr : `${finalImageStr.startsWith('/') ? '' : '/'}${finalImageStr}${cacheBuster}`) : null;
                           
                           return imageUrl ? (
                               <img 

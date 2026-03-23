@@ -1,13 +1,1 @@
-{
-  "suc": [],
-  "dep": [
-    "id",
-    "empresa_id",
-    "nombre",
-    "direccion",
-    "es_principal",
-    "activo",
-    "creado_en",
-    "actualizado_en"
-  ]
-}
+["id","nombre","descripcion","precio","stock_actual","creado_en","stock","categoria","empresa_id","sku","stock_min","stock_max","moneda_id","meli_item_id","custom_fields","image_url"]
