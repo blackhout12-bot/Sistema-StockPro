@@ -59,6 +59,7 @@ app.use(pinoHttp({ logger, autoLogging: { ignore: (req) => req.url === '/health'
 // ─── Security Headers (OWASP) ───────────────────────────────────
 app.use(helmet({
     contentSecurityPolicy: false, // Leave CSP loosely coupled for React dev servers
+    noSniff: false, // Allow browsers to mime-sniff webp images with .png extensions
     hsts: {
         maxAge: 31536000,
         includeSubDomains: true,
