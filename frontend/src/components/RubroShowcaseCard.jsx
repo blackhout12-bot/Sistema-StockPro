@@ -41,11 +41,9 @@ const RubroShowcaseCard = ({ producto, rubro }) => {
 
     const isAbsolute = typeof finalImageStr === 'string' && finalImageStr.startsWith('http');
     
-    // Obtener la url raíz del backend removiendo explícitamente el segmento /api/v...
-    const backendRoot = (import.meta.env.VITE_API_URL || '').replace(/\/api\/v\d+\/?$/, '');
-    
+    // Usar rutas relativas directamente para aprovechar el proxy de Dev o el mismo origin en Prod
     const imageUrl = finalImageStr
-        ? (isAbsolute ? finalImageStr : `${backendRoot}${finalImageStr.startsWith('/') ? '' : '/'}${finalImageStr}`)
+        ? (isAbsolute ? finalImageStr : `${finalImageStr.startsWith('/') ? '' : '/'}${finalImageStr}?v=4`)
         : (fallbacks[rubro?.toLowerCase()] || fallbacks.general);
 
     return (
