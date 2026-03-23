@@ -55,7 +55,7 @@ class MovimientoRepository {
             const prodResult = await transaction.request()
                 .input('productoId', sql.Int, productoId)
                 .input('empresa_id', sql.Int, empresa_id)
-                .query('SELECT stock FROM Productos WHERE id = @productoId AND empresa_id = @empresa_id');
+                .query('SELECT stock FROM Productos WITH (UPDLOCK, ROWLOCK) WHERE id = @productoId AND empresa_id = @empresa_id');
 
             if (prodResult.recordset.length === 0) {
                 throw new Error('Producto no encontrado');
@@ -67,7 +67,7 @@ class MovimientoRepository {
             const pdResult = await transaction.request()
                 .input('pid', sql.Int, productoId)
                 .input('did', sql.Int, actualDepositoId)
-                .query('SELECT cantidad FROM ProductoDepositos WHERE producto_id = @pid AND deposito_id = @did');
+                .query('SELECT cantidad FROM ProductoDepositos WITH (UPDLOCK, ROWLOCK) WHERE producto_id = @pid AND deposito_id = @did');
             
             let stockEnDeposito = pdResult.recordset.length > 0 ? pdResult.recordset[0].cantidad : 0;
             let nuevoStockDeposito = stockEnDeposito;
