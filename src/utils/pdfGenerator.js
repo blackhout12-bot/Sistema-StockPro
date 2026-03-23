@@ -241,14 +241,14 @@ async function generateInvoicePDF(factura, config = {}) {
                 <div class="header-brand">
                     <h1>${factura.empresa_nombre_snapshot || 'Sistema ERP'}</h1>
                     <p>
-                        ${factura.empresa_direccion_snapshot ? \`\${factura.empresa_direccion_snapshot}<br>\` : ''}
-                        ${factura.empresa_nit_snapshot ? \`<strong>CUIT/NIF:</strong> \${factura.empresa_nit_snapshot}<br>\` : ''}
-                        <strong>Fecha Emisión:</strong> \${new Date(factura.fecha_emision || Date.now()).toLocaleDateString('es-AR')}
+                        ${factura.empresa_direccion_snapshot ? `${factura.empresa_direccion_snapshot}<br>` : ''}
+                        ${factura.empresa_nit_snapshot ? `<strong>CUIT/NIF:</strong> ${factura.empresa_nit_snapshot}<br>` : ''}
+                        <strong>Fecha Emisión:</strong> ${new Date(factura.fecha_emision || Date.now()).toLocaleDateString('es-AR')}
                     </p>
                 </div>
                 <div class="invoice-title-block">
-                    <h2>\${factura.tipo_comprobante || 'Factura'}</h2>
-                    <p>Nº \${factura.nro_factura || 'N/A'}</p>
+                    <h2>${factura.tipo_comprobante || 'Factura'}</h2>
+                    <p>Nº ${factura.nro_factura || 'N/A'}</p>
                 </div>
             </div>
 
@@ -301,15 +301,15 @@ async function generateInvoicePDF(factura, config = {}) {
                     
                     <div class="summary-total">
                         <span>Total Importe</span>
-                        <div class="amount">$\${Number(totalStr).toLocaleString('es-AR', {minimumFractionDigits: 2})}</div>
+                        <div class="amount">$${Number(totalStr).toLocaleString('es-AR', {minimumFractionDigits: 2})}</div>
                     </div>
                 </div>
             </div>
             
             <div class="footer">
                 <div class="footer-info">
-                    <p><strong>Método de Pago:</strong> \${factura.metodo_pago || 'No especificado'}</p>
-                    <p>\${config.pie_comprobante || 'Documento generado automáticamente. Gracias por su confianza.'}</p>
+                    <p><strong>Método de Pago:</strong> ${factura.metodo_pago || 'No especificado'}</p>
+                    <p>${config.pie_comprobante || 'Documento generado automáticamente. Gracias por su confianza.'}</p>
                 </div>
                 <div class="qr-placeholder">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -321,7 +321,7 @@ async function generateInvoicePDF(factura, config = {}) {
         </div>
     </body>
     </html>
-    \`;
+    `;
 
     const browser = await puppeteer.launch({
         headless: 'new',
