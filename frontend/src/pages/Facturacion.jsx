@@ -480,7 +480,7 @@ const Facturacion = () => {
     const renderInvoiceSummary = () => {
         if (!facturaAnterior) return null;
         return (
-            <div className="fixed inset-0 z-[100] flex items-start justify-center bg-slate-900/60 backdrop-blur-sm overflow-y-auto py-12 px-4 animate-in fade-in duration-300">
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-md overflow-y-auto py-12 px-4 animate-in fade-in duration-300">
                 <style dangerouslySetInnerHTML={{
                     __html: `
                     @media print {
@@ -489,93 +489,117 @@ const Facturacion = () => {
                             position: fixed; inset: 0;
                             width: 100%; 
                             background: white;
-                            padding: 20px;
+                            padding: 0;
+                            margin: 0;
                             z-index: 9999;
+                            border-radius: 0 !important;
+                            box-shadow: none !important;
                         }
                         .no-print { display: none !important; }
                     }
                 `}} />
-                <div className="invoice-print-root bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-500">
-                    <div className="no-print flex justify-between items-center px-10 py-6 bg-surface-50 border-b border-slate-100">
-                        <div className="flex items-center gap-3 text-emerald-600">
-                            <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center border border-emerald-100">
-                                <CheckCircle size={20} />
+                
+                {/* 💳 Premium Receipt Card */}
+                <div className="invoice-print-root bg-white rounded-[2rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2)] w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom-8 duration-500 relative border border-slate-100/50">
+                    
+                    {/* Header Strip */}
+                    <div className="h-2 w-full bg-primary-600"></div>
+
+                    {/* Toolbar (Appears only on screen) */}
+                    <div className="no-print flex justify-between items-center px-8 py-5 bg-white border-b border-slate-50">
+                        <div className="flex items-center gap-2 text-emerald-500">
+                            <div className="bg-emerald-50 p-1.5 rounded-full ring-1 ring-emerald-100 ring-inset">
+                                <CheckCircle size={14} strokeWidth={3} />
                             </div>
-                            <span className="font-black text-sm uppercase tracking-widest">Documento Emitido con Éxito</span>
+                            <span className="font-extrabold text-[10px] uppercase tracking-[0.15em] mt-0.5">Operación Procesada</span>
                         </div>
-                        <div className="flex gap-3">
-                            <button onClick={() => descargarPDF(facturaAnterior.id, facturaAnterior.nro_factura)} className="flex items-center px-4 py-2 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-700 transition-all shadow-soft group">
-                                <FileText size={14} className="mr-2 group-hover:scale-110 transition-transform" /> Descargar
-                            </button>
-                            <button onClick={() => descargarPDF(facturaAnterior.id, facturaAnterior.nro_factura, true)} className="flex items-center px-4 py-2 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-indigo-700 transition-all shadow-soft group">
-                                <Search size={14} className="mr-2 group-hover:scale-110 transition-transform" /> Abrir
-                            </button>
-                            <button onClick={() => window.print()} className="flex items-center px-4 py-2 bg-primary-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-primary-700 transition-all shadow-soft">
-                                <FileText size={14} className="mr-2" /> Imprimir
-                            </button>
-                            <button onClick={() => setFacturaAnterior(null)} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-100 text-slate-400 rounded-xl hover:bg-rose-50 hover:text-rose-500 transition-all shadow-sm">
-                                <span className="text-[10px] font-black uppercase tracking-widest">Cerrar</span>
-                                <X size={16} />
-                            </button>
-                        </div>
+                        <button onClick={() => setFacturaAnterior(null)} className="p-2 text-slate-300 hover:text-slate-500 hover:bg-slate-50 rounded-full transition-all">
+                            <X size={18} strokeWidth={2.5} />
+                        </button>
                     </div>
-                    <div className="p-12">
-                        <div className="flex justify-between items-start pb-10 border-b border-slate-100 mb-10">
+
+                    {/* Receipt Body */}
+                    <div className="p-10">
+                        
+                        {/* Company & Folio */}
+                        <div className="flex justify-between items-start mb-10">
                             <div>
-                                <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tighter">{facturaAnterior.empresa_nombre_snapshot}</h2>
-                                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mt-2">{facturaAnterior.empresa_direccion_snapshot || 'Sede Central'}</p>
+                                <h1 className="text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-1">{facturaAnterior.empresa_nombre_snapshot}</h1>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{facturaAnterior.empresa_direccion_snapshot || 'Sede Central'}</p>
                             </div>
-                            <div className="text-right bg-primary-50 px-6 py-4 rounded-2xl border border-primary-100">
-                                <p className="text-[10px] font-black text-primary-400 uppercase tracking-widest mb-1">Folio de Venta</p>
-                                <p className="text-2xl font-mono font-black text-primary-600 tracking-tighter">#{facturaAnterior.nro_factura}</p>
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-8 mb-10 text-xs">
-                            <div className="bg-surface-50 rounded-2xl p-6 border border-slate-100">
-                                <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-3">Receptor</p>
-                                <p className="font-black text-slate-800 uppercase">{facturaAnterior.cliente_nombre}</p>
-                                <p className="text-slate-400 mt-1">DOC: {facturaAnterior.cliente_doc}</p>
-                            </div>
-                            <div className="bg-surface-50 rounded-2xl p-6 border border-slate-100 text-right">
-                                <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-3">Cajero / Responsable</p>
-                                <p className="font-black text-slate-800 uppercase">{facturaAnterior.vendedor_nombre}</p>
+                            <div className="text-right">
+                                <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-0.5">Folio</p>
+                                <p className="text-sm font-black text-slate-800 tracking-tight font-mono">#{facturaAnterior.nro_factura}</p>
                             </div>
                         </div>
-                        <table className="w-full mb-10 border-collapse">
-                            <thead>
-                                <tr className="border-b border-slate-100 bg-surface-50/50">
-                                    <th className="py-4 px-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Descripción</th>
-                                    <th className="py-4 px-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Cant.</th>
-                                    <th className="py-4 px-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Vlr. Total</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                {facturaAnterior.detalles?.map((d, idx) => (
-                                    <tr key={idx}>
-                                        <td className="py-5 px-4 text-xs font-black text-slate-800 uppercase tracking-tight">{d.producto_nombre || d.nombre}</td>
-                                        <td className="py-5 px-4 text-center text-xs font-black text-slate-400 font-mono">x{d.cantidad}</td>
-                                        <td className="py-5 px-4 text-right text-sm font-black text-slate-900 font-mono tracking-tighter">${Number(d.subtotal).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</td>
+
+                        {/* Quick Info Grid */}
+                        <div className="grid grid-cols-2 gap-4 mb-8 bg-slate-50 rounded-2xl p-5 border border-slate-100/50">
+                            <div>
+                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Cliente</p>
+                                <p className="text-[11px] font-black text-slate-700 uppercase truncate">{facturaAnterior.cliente_nombre}</p>
+                                <p className="text-[9px] font-bold text-slate-400 mt-0.5">{facturaAnterior.cliente_doc}</p>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Fecha</p>
+                                <p className="text-[11px] font-black text-slate-700 uppercase">{new Date(facturaAnterior.fecha_emision || Date.now()).toLocaleDateString('es-AR')}</p>
+                                <p className="text-[9px] font-bold text-slate-400 mt-0.5">Cajero: {facturaAnterior.vendedor_nombre}</p>
+                            </div>
+                        </div>
+
+                        {/* Items Table */}
+                        <div className="mb-8">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="border-b-2 border-slate-100">
+                                        <th className="pb-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Artículo</th>
+                                        <th className="pb-3 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Cant</th>
+                                        <th className="pb-3 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Monto</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        <div className="flex justify-end pt-6 border-t border-slate-100">
-                            <div className="w-full max-w-[280px] space-y-3">
-                                <div className="flex justify-between items-center px-1">
-                                    <span className="font-bold text-slate-500 text-xs uppercase tracking-tighter">Subtotal Neto</span>
-                                    <span className="text-sm font-black text-slate-700 font-mono tracking-tighter">${Number(facturaAnterior.subtotal || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
-                                </div>
-                                <div className="flex justify-between items-center px-1">
-                                    <span className="font-bold text-slate-500 text-xs uppercase tracking-tighter">Impuestos (IVA)</span>
-                                    <span className="text-sm font-black text-slate-700 font-mono tracking-tighter">${Number(facturaAnterior.impuestos || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
-                                </div>
-                                <div className="pt-3 border-t border-slate-100 flex justify-between items-center px-1">
-                                    <span className="font-black text-slate-900 text-xs uppercase tracking-tighter">Liquidación Total</span>
-                                    <span className="text-3xl font-black text-primary-600 font-mono tracking-tighter">${Number(facturaAnterior.total).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
-                                </div>
+                                </thead>
+                                <tbody className="divide-y divide-slate-50">
+                                    {facturaAnterior.detalles?.map((d, idx) => (
+                                        <tr key={idx} className="group">
+                                            <td className="py-3 text-[11px] font-bold text-slate-700 uppercase pr-2 group-hover:text-primary-600 transition-colors">{d.producto_nombre || d.nombre}</td>
+                                            <td className="py-3 text-[11px] font-black text-slate-400 text-center">x{d.cantidad}</td>
+                                            <td className="py-3 text-[12px] font-black text-slate-800 text-right font-mono">${Number(d.subtotal).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Totals Section */}
+                        <div className="pt-5 border-t-2 border-slate-100 space-y-2">
+                            <div className="flex justify-between items-center px-1">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Subtotal</span>
+                                <span className="text-xs font-black text-slate-500 font-mono">${Number(facturaAnterior.subtotal || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
+                            </div>
+                            <div className="flex justify-between items-center px-1">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Impuestos</span>
+                                <span className="text-xs font-black text-slate-500 font-mono">${Number(facturaAnterior.impuestos || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
+                            </div>
+                            <div className="flex justify-between items-center px-1 pt-4 mt-2 border-t border-slate-50">
+                                <span className="text-[14px] font-black text-slate-900 uppercase tracking-tight">Total Cobrado</span>
+                                <span className="text-3xl font-black text-primary-600 font-mono tracking-tighter">${Number(facturaAnterior.total).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
                             </div>
                         </div>
+
                     </div>
+
+                    {/* Action Bar */}
+                    <div className="no-print bg-slate-50 border-t border-slate-100 p-6 flex flex-col md:flex-row gap-3 justify-center">
+                        <button onClick={() => descargarPDF(facturaAnterior.id, facturaAnterior.nro_factura, true)} className="flex-1 py-3.5 bg-white border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-100 hover:border-slate-300 transition-all shadow-sm flex justify-center items-center gap-2">
+                            <Search size={14} /> Vista Previa
+                        </button>
+                        <button onClick={() => descargarPDF(facturaAnterior.id, facturaAnterior.nro_factura)} className="flex-1 py-3.5 bg-primary-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-primary-700 transition-all shadow-md shadow-primary-500/20 flex justify-center items-center gap-2">
+                            <FileText size={14} /> PDF
+                        </button>
+                        <button onClick={() => window.print()} className="flex-1 py-3.5 bg-slate-800 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-900 transition-all shadow-md flex justify-center items-center gap-2">
+                            <CheckCircle size={14} /> Térmico
+                        </button>
+                    </div>
+
                 </div>
             </div>
         );
