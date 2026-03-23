@@ -66,7 +66,7 @@ const Products = () => {
 
     // ── Mutaciones (TanStack Query) ──────────────────────────────
     const addMutation = useMutation({
-        mutationFn: (productFormData) => api.post('/productos/crear', productFormData, { headers: { 'Content-Type': 'multipart/form-data' }}),
+        mutationFn: (productFormData) => api.post('/productos/crear', productFormData),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['productos'] });
             queryClient.invalidateQueries({ queryKey: ['dashboard', 'main-stats'] });
@@ -77,7 +77,7 @@ const Products = () => {
     });
 
     const updateMutation = useMutation({
-        mutationFn: ({ id, productData }) => api.put(`/productos/editar/${id}`, productData, { headers: { 'Content-Type': 'multipart/form-data' }}),
+        mutationFn: ({ id, productData }) => api.put(`/productos/editar/${id}`, productData),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['productos'] });
             queryClient.invalidateQueries({ queryKey: ['dashboard', 'main-stats'] });

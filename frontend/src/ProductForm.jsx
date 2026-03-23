@@ -197,12 +197,9 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
                   </div>
                   <div className="col-span-1">
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Categoría</label>
-                    <select className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all appearance-none cursor-pointer" value={categoria} onChange={(e) => setCategoria(e.target.value)}>
-                        <option value="">-- Autodefinir según Rol ({empresaConfig?.rubro || 'N/A'}) --</option>
+                    <select className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all appearance-none cursor-pointer" value={categoria || empresaConfig?.rubro || 'general'} onChange={(e) => setCategoria(e.target.value)}>
+                        <option value={empresaConfig?.rubro || 'general'}>Asignación Automática ({empresaConfig?.rubro && empresaConfig.rubro !== 'general' ? empresaConfig.rubro.toUpperCase() : 'CATÁLOGO ESTÁNDAR'})</option>
                         {dynamicSchemas.map(s => <option key={s.id || s.nombre_rubro} value={s.nombre_rubro}>{s.nombre_rubro}</option>)}
-                        {!dynamicSchemas.some(s => s.nombre_rubro === empresaConfig?.rubro) && empresaConfig?.rubro && (
-                            <option value={empresaConfig.rubro}>{empresaConfig.rubro.charAt(0).toUpperCase() + empresaConfig.rubro.slice(1)} (Rubro Activo)</option>
-                        )}
                     </select>
                   </div>
                   <div className="col-span-2">

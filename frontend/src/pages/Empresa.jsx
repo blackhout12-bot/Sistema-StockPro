@@ -178,6 +178,28 @@ const Empresa = () => {
 
     const [comprobantes, setComprobantes] = useState([]);
 
+    // --- Variables de Estado Faltantes para Depósitos (Solución a ReferenceError WSOD) ---
+    const [depositos, setDepositos] = useState([]);
+    const [showDepModal, setShowDepModal] = useState(false);
+    const [depEdit, setDepEdit] = useState({ id: null, nombre: '', direccion: '', activo: true, es_principal: false });
+
+    const fetchDepositos = useCallback(async () => {
+        try {
+            const res = await api.get('/empresa/configuracion/depositos');
+            setDepositos(res.data);
+        } catch (err) {
+            console.error('Error al cargar depósitos:', err);
+        }
+    }, []);
+
+    // Efecto específico para auto-cargar depósitos
+    useEffect(() => {
+        if (tab === 'configuracion' && depositos.length === 0) {
+            fetchDepositos();
+        }
+    }, [tab, depositos.length, fetchDepositos]);
+    // -----------------------------------------------------------------------------------
+
     const KPI_OPTIONS = [
         { id: 'total_productos', label: 'Total Productos', desc: 'Conteo total del catálogo' },
         { id: 'low_stock', label: 'Stock Bajo', desc: 'Alertas de reposición crítica' },

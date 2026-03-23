@@ -20,7 +20,19 @@ class ProductoRepository {
                    INNER JOIN Depositos d ON pd.deposito_id = d.id
                    WHERE pd.producto_id = p.id AND pd.cantidad > 0
                    FOR JSON PATH
-               ) as desglose_depositos
+               ) as desglose_depositos,
+               (
+                   SELECT TOP 1 nro_lote
+                   FROM Lotes
+                   WHERE producto_id = p.id AND cantidad > 0
+                   ORDER BY fecha_vto ASC
+               ) as lote,
+               (
+                   SELECT TOP 1 fecha_vto
+                   FROM Lotes
+                   WHERE producto_id = p.id AND cantidad > 0
+                   ORDER BY fecha_vto ASC
+               ) as fecha_vencimiento
         FROM Productos p
         LEFT JOIN (
             SELECT productoId, SUM(cantidad) as num_ventas
@@ -46,7 +58,19 @@ class ProductoRepository {
                     INNER JOIN Depositos d ON pd.deposito_id = d.id
                     WHERE pd.producto_id = p.id AND pd.cantidad > 0
                     FOR JSON PATH
-                ) as desglose_depositos
+                ) as desglose_depositos,
+                (
+                    SELECT TOP 1 nro_lote
+                    FROM Lotes
+                    WHERE producto_id = p.id AND cantidad > 0
+                    ORDER BY fecha_vto ASC
+                ) as lote,
+                (
+                    SELECT TOP 1 fecha_vto
+                    FROM Lotes
+                    WHERE producto_id = p.id AND cantidad > 0
+                    ORDER BY fecha_vto ASC
+                ) as fecha_vencimiento
             FROM Productos p
             LEFT JOIN (
                 SELECT productoId, SUM(cantidad) as num_ventas
