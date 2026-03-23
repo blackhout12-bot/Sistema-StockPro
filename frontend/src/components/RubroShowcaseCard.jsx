@@ -66,14 +66,22 @@ const RubroShowcaseCard = ({ producto, rubro }) => {
 
             {/* Content Container */}
             <div className="p-5 flex flex-col flex-1">
-                {/* Header Text */}
+                {/* Header Text & Price */}
                 <div className="mb-4">
-                    <h3 className="text-sm font-black text-slate-800 leading-snug line-clamp-2 mb-1" title={producto.nombre}>
+                    <h3 className="text-[15px] font-black text-slate-800 leading-snug line-clamp-2 mb-2" title={producto.nombre}>
                         {producto.nombre}
                     </h3>
-                    <p className="text-xs font-semibold text-slate-400">
-                        SKU: <span className="text-slate-600">{producto.codigo || 'S/N'}</span>
-                    </p>
+                    <div className="flex items-center justify-between w-full">
+                        <div className="flex items-baseline gap-1 bg-emerald-50/80 px-2.5 py-1 rounded-lg border border-emerald-200/50">
+                            <span className="text-[11px] font-extrabold text-emerald-600">$</span>
+                            <span className="text-[17px] font-black text-emerald-700 tracking-tight">
+                                {new Intl.NumberFormat('es-AR', { minimumFractionDigits: 0 }).format(producto.precio || 0)}
+                            </span>
+                        </div>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
+                            SKU: <span className="text-slate-600">{producto.codigo || 'S/N'}</span>
+                        </p>
+                    </div>
                 </div>
 
                 {/* Attributes (Floating Tags) */}
