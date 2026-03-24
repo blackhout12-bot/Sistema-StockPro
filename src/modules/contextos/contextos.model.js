@@ -24,7 +24,7 @@ class ContextosModel {
                 SELECT c.id, c.nombre, c.descripcion, c.empresa_id, c.sucursal_id, s.nombre as sucursal_nombre, cu.rol_local
                 FROM Contextos c
                 JOIN Sucursales s ON c.sucursal_id = s.id
-                JOIN Contextos_Usuarios cu ON cu.sucursal_id = c.sucursal_id
+                JOIN Contextos_Usuarios cu ON cu.contexto_id = c.id
                 WHERE cu.usuario_id = @usuario_id
             `);
         return result.recordset;
@@ -39,7 +39,7 @@ class ContextosModel {
             .query(`
                 SELECT c.empresa_id, c.sucursal_id, cu.rol_local 
                 FROM Contextos c
-                JOIN Contextos_Usuarios cu ON cu.sucursal_id = c.sucursal_id
+                JOIN Contextos_Usuarios cu ON cu.contexto_id = c.id
                 WHERE c.id = @contexto_id AND cu.usuario_id = @usuario_id
             `);
 
