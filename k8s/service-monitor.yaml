@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: tb-gestion-monitor
+  namespace: tb-produccion
+  labels:
+    release: prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: tb-gestion-backend
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
+    scrapeTimeout: 10s
