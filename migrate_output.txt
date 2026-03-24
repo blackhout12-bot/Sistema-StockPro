@@ -1,6 +1,6 @@
-[dotenv@17.3.1] injecting env (16) from .env -- tip: ÔÜÖ´©Å  write to custom object with { processEnv: myObject }
+[dotenv@17.3.1] injecting env (16) from .env -- tip: ÔÜÖ´©Å  enable debug logging with { debug: true }
 Dropping old Categorias table...
-[21:14:58] [32mINFO[39m: [36mConectado a SQL Server (Escritura)[39m
+[21:14:11] [32mINFO[39m: [36mConectado a SQL Server (Escritura)[39m
 Creating new Categorias table...
 Migration failed: RequestError: Could not create constraint or index. See previous errors.
     at handleError (C:\Users\egar0\stock-system\node_modules\mssql\lib\tedious\request.js:384:15)
@@ -44,7 +44,7 @@ Migration failed: RequestError: Could not create constraint or index. See previo
   serverName: 'Ed\\SQLEXPRESS',
   procName: '',
   precedingErrors: [
-    RequestError: Foreign key 'FK_Categorias_Empresas' references invalid table 'Empresas'.
+    RequestError: Foreign key 'FK_Categorias_Empresas' references invalid table 'dbo.Empresas'.
         at handleError (C:\Users\egar0\stock-system\node_modules\mssql\lib\tedious\request.js:384:15)
         at Connection.emit (node:events:508:28)
         at Connection.emit (C:\Users\egar0\stock-system\node_modules\tedious\lib\connection.js:1013:18)

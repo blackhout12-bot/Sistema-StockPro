@@ -13,6 +13,7 @@ class ProductoRepository {
 
         const result = await reqDb.query(`
         SELECT p.*,
+                c.nombre as categoria_nombre,
                ISNULL(m.num_ventas, 0) as num_ventas ${stockSelect},
                (
                    SELECT d.nombre as deposito, pd.cantidad as stock
@@ -34,6 +35,7 @@ class ProductoRepository {
                    ORDER BY fecha_vto ASC
                ) as fecha_vencimiento
         FROM Productos p
+        LEFT JOIN Categorias c ON p.categoria_id = c.id
         LEFT JOIN (
             SELECT productoId, SUM(cantidad) as num_ventas
             FROM Movimientos
@@ -51,6 +53,7 @@ class ProductoRepository {
 
         let queryStr = `
             SELECT p.*,
+                 c.nombre as categoria_nombre,
                 ISNULL(m.num_ventas, 0) as num_ventas,
                 (
                     SELECT d.nombre as deposito, pd.cantidad as stock
@@ -72,6 +75,7 @@ class ProductoRepository {
                     ORDER BY fecha_vto ASC
                 ) as fecha_vencimiento
             FROM Productos p
+            LEFT JOIN Categorias c ON p.categoria_id = c.id
             LEFT JOIN (
                 SELECT productoId, SUM(cantidad) as num_ventas
                 FROM Movimientos
@@ -80,7 +84,7 @@ class ProductoRepository {
             ) m ON m.productoId = p.id
             WHERE p.empresa_id = @empresa_id
         `;
-        let countQueryStr = `SELECT COUNT(*) as total FROM Productos p WHERE p.empresa_id = @empresa_id`;
+        let countQueryStr = `SELECT COUNT(*) as total FROM Productos p LEFT JOIN Categorias c ON p.categoria_id = c.id WHERE p.empresa_id = @empresa_id`;
 
         // CRITICAL FIX: mssql no permite reutilizar el mismo request para dos queries paralelas.
         // Se crean dos requests independientes con los mismos parámetros.
@@ -100,10 +104,10 @@ class ProductoRepository {
         }
 
         if (categoria) {
-            queryStr += ` AND p.categoria = @categoria`;
-            countQueryStr += ` AND p.categoria = @categoria`;
-            itemsRequest.input('categoria', sql.NVarChar, categoria);
-            countRequest.input('categoria', sql.NVarChar, categoria);
+            queryStr += ` AND (c.nombre LIKE @categoria OR p.categoria LIKE @categoria)`;
+            countQueryStr += ` AND (c.nombre LIKE @categoria OR p.categoria LIKE @categoria)`;
+            itemsRequest.input('categoria', sql.NVarChar, `%${categoria}%`);
+            countRequest.input('categoria', sql.NVarChar, `%${categoria}%`);
         }
 
         queryStr += ` ORDER BY p.creado_en DESC OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY`;
@@ -142,8 +146,8 @@ class ProductoRepository {
 
         let newProductId;
         if (hasSkuColumn && hasStockMinColumn) {
-            let queryStr = `INSERT INTO Productos (sku, nombre, descripcion, precio, stock, stock_min, stock_max, categoria, empresa_id`;
-            let valStr = `VALUES (@sku, @nombre, @descripcion, @precio, @stock, @stock_min, @stock_max, @categoria, @empresa_id`;
+            let queryStr = `INSERT INTO Productos (sku, nombre, descripcion, precio, stock, stock_min, stock_max, categoria_id, empresa_id`;
+            let valStr = `VALUES (@sku, @nombre, @descripcion, @precio, @stock, @stock_min, @stock_max, @categoria_id, @empresa_id`;
 
             if (hasCustomFieldsColumn) { queryStr += `, custom_fields`; valStr += `, @custom_fields`; }
             if (hasImageUrlColumn) { queryStr += `, image_url`; valStr += `, @image_url`; }
@@ -159,7 +163,7 @@ class ProductoRepository {
                 .input('stock', sql.Int, stock || 0)
                 .input('stock_min', sql.Int, stock_min)
                 .input('stock_max', sql.Int, stock_max || null)
-                .input('categoria', sql.NVarChar, data.categoria || null)
+                .input('categoria_id', sql.Int, data.categoria_id || null)
                 .input('empresa_id', sql.Int, empresa_id);
 
             if (hasCustomFieldsColumn) request.input('custom_fields', sql.NVarChar(sql.MAX), cFieldsStr);
@@ -169,8 +173,8 @@ class ProductoRepository {
             const result = await request.query(queryStr);
             newProductId = result.recordset[0].id;
         } else {
-            let queryStr = `INSERT INTO Productos (nombre, descripcion, precio, stock, categoria, empresa_id`;
-            let valStr = `VALUES (@nombre, @descripcion, @precio, @stock, @categoria, @empresa_id`;
+            let queryStr = `INSERT INTO Productos (nombre, descripcion, precio, stock, categoria_id, empresa_id`;
+            let valStr = `VALUES (@nombre, @descripcion, @precio, @stock, @categoria_id, @empresa_id`;
 
             if (hasSkuColumn) { queryStr += `, sku`; valStr += `, @sku`; }
             if (hasCustomFieldsColumn) { queryStr += `, custom_fields`; valStr += `, @custom_fields`; }
@@ -183,7 +187,7 @@ class ProductoRepository {
                 .input('descripcion', sql.NVarChar, descripcion)
                 .input('precio', sql.Decimal(12, 2), precio)
                 .input('stock', sql.Int, stock || 0)
-                .input('categoria', sql.NVarChar, data.categoria || null)
+                .input('categoria_id', sql.Int, data.categoria_id || null)
                 .input('empresa_id', sql.Int, empresa_id);
 
             if (hasSkuColumn) request.input('sku', sql.NVarChar, sku || null);
@@ -217,7 +221,7 @@ class ProductoRepository {
     }
 
     async update(pool, id, data, empresa_id) {
-        const { nombre, descripcion, precio, stock, categoria, sku, custom_fields, image_url } = data;
+        const { nombre, descripcion, precio, stock, categoria_id, sku, custom_fields, image_url } = data;
 
         const hasSkuColumn = await pool.request().query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'sku'`).then(r => r.recordset.length > 0);
         const hasCustomFieldsColumn = await pool.request().query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Productos') AND name = 'custom_fields'`).then(r => r.recordset.length > 0);
@@ -233,7 +237,7 @@ class ProductoRepository {
           descripcion = @descripcion,
           precio = @precio,
           stock = @stock,
-          categoria = @categoria
+          categoria_id = @categoria_id
     `;
 
         if (hasMonedaIdColumn) queryStr += `, moneda_id = @moneda_id `;
@@ -251,7 +255,7 @@ class ProductoRepository {
             .input('descripcion', sql.NVarChar, descripcion)
             .input('precio', sql.Decimal(12, 2), precio)
             .input('stock', sql.Int, stock)
-            .input('categoria', sql.NVarChar, categoria || null)
+            .input('categoria_id', sql.Int, categoria_id || null)
             .input('empresa_id', sql.Int, empresa_id);
 
         if (hasMonedaIdColumn) request.input('moneda_id', sql.NVarChar(3), data.moneda_id || 'ARS');

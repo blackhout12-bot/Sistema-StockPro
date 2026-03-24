@@ -37,7 +37,7 @@ const moduleRegistry = [
     id: 'facturacion',
     label: 'Facturación / POS',
     path: '/facturacion',
-    icon: 'ShoppingCart',
+    icon: 'Receipt',
     section: 'operaciones',
     requiredToggle: null,
     requiredRoles: ['admin', 'gerente', 'cajero', 'supervisor'],
@@ -64,6 +64,16 @@ const moduleRegistry = [
     requiredToggle: null,
     lazy: () => import('../pages/Products'),
     breadcrumb: 'Catálogo de Productos'
+  },
+  {
+    id: 'categorias',
+    label: 'Categorías',
+    path: '/categorias',
+    icon: 'List', // List component from lucide
+    section: 'operaciones',
+    requiredToggle: null,
+    lazy: () => import('../pages/Categorias'),
+    breadcrumb: 'Categorías de Productos'
   },
   {
     id: 'compras',

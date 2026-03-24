@@ -19,10 +19,10 @@ async function listarProductosPaginados({ empresa_id, page, limit, search, categ
   return paginated;
 }
 
-async function agregarProducto(nombre, descripcion, precio, stock, categoria, empresa_id, usuario_id, sku, moneda_id, custom_fields, image_url, nro_lote, fecha_vto) {
+async function agregarProducto(nombre, descripcion, precio, stock, categoria_id, empresa_id, usuario_id, sku, moneda_id, custom_fields, image_url, nro_lote, fecha_vto) {
   const pool = await connectDB();
   // Forzamos "stock: 0" inicial para evitar doble contabilización en DB. El Movimiento hará el ingreso real sumando el stock automáticamente.
-  const insertId = await productoRepository.create(pool, { nombre, descripcion, precio, stock: 0, categoria, sku, moneda_id, custom_fields, image_url }, empresa_id);
+  const insertId = await productoRepository.create(pool, { nombre, descripcion, precio, stock: 0, categoria_id, sku, moneda_id, custom_fields, image_url }, empresa_id);
   
   if (stock > 0) {
       const movimientosService = require('../movimientos/movimientos.service');
@@ -45,15 +45,15 @@ async function agregarProducto(nombre, descripcion, precio, stock, categoria, em
     });
   }
   
-  return { id: insertId, nombre, descripcion, precio, stock, categoria, sku, moneda_id, custom_fields, image_url: image_url || "" };
+  return { id: insertId, nombre, descripcion, precio, stock, categoria_id, sku, moneda_id, custom_fields, image_url: image_url || "" };
 }
 
-async function editarProducto(id, nombre, descripcion, precio, stockNuevo, categoria, empresa_id, usuario_id, sku, moneda_id, custom_fields, image_url) {
+async function editarProducto(id, nombre, descripcion, precio, stockNuevo, categoria_id, empresa_id, usuario_id, sku, moneda_id, custom_fields, image_url) {
   const pool = await connectDB();
   const existing = await productoRepository.getById(pool, id, empresa_id);
   
   // Reinyectamos el stock antiguo para que el update de producto no lo sobrescriba de forma cruda.
-  await productoRepository.update(pool, id, { nombre, descripcion, precio, stock: existing.stock, categoria, sku, moneda_id, custom_fields, image_url }, empresa_id);
+  await productoRepository.update(pool, id, { nombre, descripcion, precio, stock: existing.stock, categoria_id, sku, moneda_id, custom_fields, image_url }, empresa_id);
   
   const diff = stockNuevo - existing.stock;
   if (diff !== 0) {
@@ -66,7 +66,7 @@ async function editarProducto(id, nombre, descripcion, precio, stockNuevo, categ
       }, usuario_id, empresa_id);
   }
 
-  return { id, nombre, descripcion, precio, stock: stockNuevo, categoria, sku, moneda_id, custom_fields, image_url: image_url || "" };
+  return { id, nombre, descripcion, precio, stock: stockNuevo, categoria_id, sku, moneda_id, custom_fields, image_url: image_url || "" };
 }
 
 async function borrarProducto(id, empresa_id) {

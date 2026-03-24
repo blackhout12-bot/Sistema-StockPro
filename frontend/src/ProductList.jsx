@@ -94,12 +94,17 @@ const ProductList = ({ products, onEdit, onDelete, onViewLots, onAddStock, userR
               </td>
               {/* Categoría */}
               <td className="px-6 py-5">
-                {p.categoria ? (
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[9px] font-black bg-primary-50 text-primary-600 border border-primary-100/50 uppercase tracking-wider">
-                    {p.categoria}
+                {p.categoria_nombre ? (
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[9px] font-black bg-indigo-50 text-indigo-600 border border-indigo-100/50 uppercase tracking-wider shadow-sm">
+                    {p.categoria_nombre}
+                  </span>
+                ) : p.categoria ? (
+                  <span title="Categoría Automática (Legacy)" className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-bold bg-surface-50 text-slate-500 border border-slate-200 tracking-wider capitalize">
+                    <Box size={10} className="text-slate-400" />
+                    {p.categoria.toLowerCase()}
                   </span>
                 ) : (
-                  <span className="text-slate-300 italic text-[10px] font-bold">Principal</span>
+                  <span className="text-slate-300 italic text-[10px] font-bold">No Asignada</span>
                 )}
               </td>
               {/* Descripción */}

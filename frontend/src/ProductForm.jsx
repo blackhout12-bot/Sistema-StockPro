@@ -18,6 +18,15 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
   });
   const dynamicSchemas = schemasData || [];
 
+  const { data: categoriasBD } = useQuery({
+    queryKey: ['categorias-activas'],
+    queryFn: async () => {
+      const res = await api.get('/categorias?activo=true');
+      return res.data;
+    }
+  });
+  const systemCategories = categoriasBD || [];
+
   const [step, setStep] = useState(1);
   const [nombre, setNombre] = useState(initialData?.nombre || '');
   const [sku, setSku] = useState(initialData?.sku || '');
@@ -26,7 +35,7 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
   const [stock, setStock] = useState(initialData?.stock || '');
   const [lote, setLote] = useState('');
   const [fechaVto, setFechaVto] = useState('');
-  const [categoria, setCategoria] = useState(initialData?.categoria || '');
+  const [categoria_id, setCategoriaId] = useState(initialData?.categoria_id || '');
   const [imageFile, setImageFile] = useState(null);
   const getInitialImagePreview = () => {
       if (!initialData?.image_url || typeof initialData.image_url !== 'string') return null;
@@ -136,7 +145,7 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
     formData.append('stock', parseInt(stock) || 0);
     if (!initialData && lote.trim()) formData.append('nro_lote', lote.trim());
     if (!initialData && fechaVto) formData.append('fecha_vto', fechaVto);
-    if (categoria) formData.append('categoria', categoria);
+    if (categoria_id) formData.append('categoria_id', categoria_id);
     formData.append('custom_fields', JSON.stringify(custom_fields));
     
     if (imageFile) {
@@ -159,7 +168,7 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
       setStock('');
       setLote('');
       setFechaVto('');
-      setCategoria('');
+      setCategoriaId('');
       setCustomFieldsList([]);
       setEsMateriaPrima(false);
       setPublicarEcommerce(false);
@@ -205,9 +214,9 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
                   </div>
                   <div className="col-span-1">
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Categoría</label>
-                    <select className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all appearance-none cursor-pointer" value={categoria || empresaConfig?.rubro || 'general'} onChange={(e) => setCategoria(e.target.value)}>
-                        <option value={empresaConfig?.rubro || 'general'}>Asignación Automática ({empresaConfig?.rubro && empresaConfig.rubro !== 'general' ? empresaConfig.rubro.toUpperCase() : 'CATÁLOGO ESTÁNDAR'})</option>
-                        {dynamicSchemas.map(s => <option key={s.id || s.nombre_rubro} value={s.nombre_rubro}>{s.nombre_rubro}</option>)}
+                    <select className="w-full bg-surface-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:ring-4 focus:ring-primary-500/5 focus:border-primary-500 outline-none transition-all appearance-none cursor-pointer" value={categoria_id} onChange={(e) => setCategoriaId(e.target.value)}>
+                        <option value="">-- Sin Categoría --</option>
+                        {systemCategories.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
                     </select>
                   </div>
                   <div className="col-span-2">

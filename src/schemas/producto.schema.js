@@ -10,7 +10,7 @@ const productoSchema = z.object({
     stock: z.coerce.number({ invalid_type_error: 'El stock debe ser un número' }).int('El stock debe ser un entero').min(0, 'El stock no puede ser negativo').nullable().optional().default(0),
     stock_min: z.coerce.number().int().min(0).nullable().optional().default(0),
     stock_max: z.coerce.number().int().min(0).nullable().optional(),
-    categoria: z.string().max(100).nullable().optional(),
+    categoria_id: z.union([z.string(), z.number()]).nullable().optional(),
     nro_lote: z.string().nullable().optional(),
     fecha_vto: z.string().nullable().optional(),
     moneda_id: z.string().max(3).nullable().optional().default('ARS'),

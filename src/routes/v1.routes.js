@@ -62,6 +62,7 @@ router.use('/auth/sso', authLimiter, require('../modules/auth/auth_sso.controlle
 router.use('/notificaciones', authenticate, tenantContext, require('../modules/notificaciones/notificaciones.controller'));
 router.use('/reportes', authenticate, tenantContext, require('../modules/reportes/reportes.controller'));
 router.use('/productos', authenticate, tenantContext, require('../modules/productos/productos.controller'));
+router.use('/categorias', authenticate, tenantContext, require('../modules/categorias/categorias.controller'));
 router.use('/movimientos', authenticate, tenantContext, require('../modules/movimientos/movimientos.controller'));
 // Marketplace V1 / Ecosistema
 router.use('/marketplace', authenticate, tenantContext, require('../modules/marketplace/marketplace.routes.v1'));
