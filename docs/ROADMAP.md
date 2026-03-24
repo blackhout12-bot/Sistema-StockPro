@@ -7,7 +7,7 @@ Tras auditar intensivamente el código fuente y el historial de commits/tags sub
 | :--- | :---: | :--- |
 | **Omni-Search global** en Dashboard | 🟢 **RESUELTO** | Componente unificado e incorporado en header (`MainLayout.jsx`) con endpoint backend `api/search`. |
 | **Notificaciones Push** vía WebSockets | 🔴 **FALTANTE** | El server emite (`socket.io`), pero el frontend no inyectará la UI toast en cascada desde `NotificationsDropdown`. |
-| **Enlace contable** (Facturas -> Cuentas Cobrar/Pagar) | 🔴 **FALTANTE** | Las transacciones del `facturacion.service.js` descartan stock, pero no insertan saldos en el sub-ledger de cobranzas. |
+| **Enlace contable** (Facturas -> Cuentas Cobrar/Pagar) | 🟢 **RESUELTO** | Las transacciones inyectan atómicamente en el sub-ledger. Dashboard Financiero y UI de Facturas activos leyendo saldos en vivo. |
 | **MFA/TOTP** en perfil de usuario | 🔴 **FALTANTE** | Falta la UI de código QR en Perfil de Usuario y validación interceptada por JWT en Node. |
 | **Precios dinámicos** por `sucursal_id` | 🔴 **FALTANTE** | Los productos usan la columna fija `precio_venta`, sin cruce asíncrono con `PreciosSucursal`. |
 | **Onboarding Joyride** (Tenants nuevos) | 🔴 **FALTANTE** | No importado el paquete `react-joyride` en el ciclo principal. |
@@ -48,8 +48,8 @@ gantt
     Feedback UX                            :f4, after f3, 4d
     
     section Fase 3: Preparación para Producción
-    Enlace Contable                        :f3, after f2, 6d
-    Exportación Info (CI/CD, Telemetry)    :f4, after f3, 5d
+    Enlace Contable                        :done, f30, 2026-03-24, 2026-03-24
+    Exportación Info (CI/CD, Telemetry)    :f4, after f30, 5d
     
     section Fase 4: Innovación & Features
     MFA, WebSockets Push y Onboarding      :f5, after f4, 6d

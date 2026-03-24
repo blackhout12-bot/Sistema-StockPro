@@ -995,6 +995,7 @@ const Facturacion = () => {
                                 <th className="px-10 py-6">Fecha</th>
                                 <th className="px-10 py-6">Cliente</th>
                                 <th className="px-10 py-6 text-right">Monto Total</th>
+                                <th className="px-10 py-6 text-center">Estado Contable</th>
                                 <th className="px-10 py-6 text-center">Estado Fiscal</th>
                                 <th className="px-10 py-6 text-center">Acciones</th>
                             </tr>
@@ -1014,6 +1015,19 @@ const Facturacion = () => {
                                         <td className="px-10 py-6 font-black text-slate-700 uppercase">{factura.cliente_nombre}</td>
                                         <td className="px-10 py-6 text-right font-black text-slate-900 font-mono">
                                             {factura.moneda_id === 'USD' ? 'U$D' : '$'}{Number(factura.total).toLocaleString()}
+                                        </td>
+                                        <td className="px-10 py-6 text-center">
+                                            {factura.cuenta_estado === 'PENDIENTE' || factura.cuenta_estado === 'PARCIAL' ? (
+                                                 <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-50 text-rose-600 rounded-lg border border-rose-100">
+                                                    <AlertTriangle size={10} />
+                                                    <span className="text-[9px] font-black uppercase tracking-widest">Pendiente de Cobro</span>
+                                                </div>
+                                            ) : (
+                                                 <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg border border-emerald-100">
+                                                    <CheckCircle size={10} />
+                                                    <span className="text-[9px] font-black uppercase tracking-widest">{factura.cuenta_estado || 'COBRADA'}</span>
+                                                </div>
+                                            )}
                                         </td>
                                         <td className="px-10 py-6 text-center">
                                             {factura.afip_cae ? (

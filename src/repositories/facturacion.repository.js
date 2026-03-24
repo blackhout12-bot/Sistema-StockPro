@@ -25,19 +25,23 @@ class FacturacionModel {
                    ${hasOrigen ? 'f.origen_venta,' : "'' as origen_venta,"}
                    f.moneda, f.tasa_cambio,
                    ISNULL(f.cliente_nombre_snapshot, c.nombre) as cliente_nombre, 
-                   ISNULL(f.vendedor_nombre_snapshot, u.nombre) as vendedor_nombre
+                   ISNULL(f.vendedor_nombre_snapshot, u.nombre) as vendedor_nombre,
+                   cc.estado as cuenta_estado
                FROM Facturas f
                LEFT JOIN Clientes c ON f.cliente_id = c.id
                LEFT JOIN Usuarios u ON f.usuario_id = u.id
+               LEFT JOIN Cuentas_Cobrar cc ON f.id = cc.factura_id
                WHERE ${whereClause} ORDER BY f.fecha_emision DESC`
             : `SELECT f.id, f.nro_factura, f.fecha_emision, f.total, f.estado,
                    ${hasTipo ? 'f.tipo_comprobante,' : "'' as tipo_comprobante,"}
                    ${hasOrigen ? 'f.origen_venta,' : "'' as origen_venta,"}
                    f.moneda, f.tasa_cambio,
-                   c.nombre as cliente_nombre, u.nombre as vendedor_nombre
+                   c.nombre as cliente_nombre, u.nombre as vendedor_nombre,
+                   cc.estado as cuenta_estado
                FROM Facturas f
                LEFT JOIN Clientes c ON f.cliente_id = c.id
                LEFT JOIN Usuarios u ON f.usuario_id = u.id
+               LEFT JOIN Cuentas_Cobrar cc ON f.id = cc.factura_id
                WHERE ${whereClause} ORDER BY f.fecha_emision DESC`;
 
         const req = pool.request().input('empresa_id', sql.Int, empresa_id);

@@ -286,7 +286,9 @@ class EmpresaModel {
                     (SELECT ISNULL(SUM(monto), 0) FROM Pagos WHERE empresa_id = @empresa_id AND estado = 'approved') AS monto_pagos,
                     (SELECT COUNT(*) FROM Movimientos WHERE empresa_id = @empresa_id) AS total_movimientos,
                     (SELECT COUNT(*) FROM Movimientos WHERE empresa_id = @empresa_id AND tipo = 'entrada') AS total_entradas,
-                    (SELECT COUNT(*) FROM Movimientos WHERE empresa_id = @empresa_id AND tipo = 'salida') AS total_salidas
+                    (SELECT COUNT(*) FROM Movimientos WHERE empresa_id = @empresa_id AND tipo = 'salida') AS total_salidas,
+                    (SELECT ISNULL(SUM(monto_adeudado - monto_cobrado), 0) FROM Cuentas_Cobrar WHERE empresa_id = @empresa_id AND estado != 'COBRADA') AS total_por_cobrar,
+                    (SELECT ISNULL(SUM(monto_adeudado - CAST(ISNULL(monto_pagado, 0) AS DECIMAL(18,2))), 0) FROM Cuentas_Pagar WHERE empresa_id = @empresa_id AND estado != 'PAGADA') AS total_por_pagar
             `);
 
         const stats = r.recordset[0] || {};

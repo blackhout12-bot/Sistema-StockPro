@@ -156,9 +156,11 @@ const Dashboard = () => {
                                 low_stock: <MiniKpi key="2" icon={AlertTriangle} label="Stock Crítico" value={`${lowStockItems.length}`} colorClass="bg-rose-500" iconColor="text-rose-600" />,
                                 valor_inventario: <MiniKpi key="3" icon={DollarSign} label="Valorizado" value={formatMoney(totalValue)} colorClass="bg-brand-500" iconColor="text-brand-600" />,
                                 total_ventas: <MiniKpi key="4" icon={ShoppingCart} label="Ventas Hoy" value={formatMoney(totalSales)} colorClass="bg-indigo-500" iconColor="text-indigo-600" />,
-                                total_clientes: <MiniKpi key="5" icon={Users} label="Clientes" value={`${totalClientes}`} colorClass="bg-violet-500" iconColor="text-violet-600" />
+                                total_clientes: <MiniKpi key="5" icon={Users} label="Clientes" value={`${totalClientes}`} colorClass="bg-violet-500" iconColor="text-violet-600" />,
+                                total_por_cobrar: <MiniKpi key="6" icon={DollarSign} label="Por Cobrar" value={formatMoney(stats?.total_por_cobrar || 0)} colorClass="bg-amber-500" iconColor="text-amber-600" />,
+                                total_por_pagar: <MiniKpi key="7" icon={AlertTriangle} label="Por Pagar" value={formatMoney(stats?.total_por_pagar || 0)} colorClass="bg-red-500" iconColor="text-red-600" />
                             };
-                            let visibleKpis = ['total_ventas', 'total_productos', 'total_clientes'];
+                            let visibleKpis = ['total_ventas', 'total_por_cobrar', 'total_por_pagar', 'total_productos'];
                             if (config && config.dash_kpis_visibles) {
                                 try {
                                     // Limpiar sintaxis estricta si la DB grabó con comillas simples por error manual de update
