@@ -5,7 +5,7 @@ Tras auditar intensivamente el código fuente y el historial de commits/tags sub
 
 | Mejora Técnica | Estado Actual | Evidencia / Observación |
 | :--- | :---: | :--- |
-| **Omni-Search global** en Dashboard | 🔴 **FALTANTE** | No existe componente omnibox en `MainLayout.jsx` suscrito a un índice. |
+| **Omni-Search global** en Dashboard | 🟢 **RESUELTO** | Componente unificado e incorporado en header (`MainLayout.jsx`) con endpoint backend `api/search`. |
 | **Notificaciones Push** vía WebSockets | 🔴 **FALTANTE** | El server emite (`socket.io`), pero el frontend no inyectará la UI toast en cascada desde `NotificationsDropdown`. |
 | **Enlace contable** (Facturas -> Cuentas Cobrar/Pagar) | 🔴 **FALTANTE** | Las transacciones del `facturacion.service.js` descartan stock, pero no insertan saldos en el sub-ledger de cobranzas. |
 | **MFA/TOTP** en perfil de usuario | 🔴 **FALTANTE** | Falta la UI de código QR en Perfil de Usuario y validación interceptada por JWT en Node. |
@@ -19,7 +19,7 @@ Tras auditar intensivamente el código fuente y el historial de commits/tags sub
 
 ## 2. Recomendaciones Técnicas Concretas (Para Mejoras Faltantes)
 1. **Omni-Search Global**:
-   - *Técnica*: Crear un componente React con evento de escucha `Ctrl+K`. Usar una ruta unificada `/api/search?q=` que haga consultas Full-Text Search de SQL Server o cache Redis, devolviendo DTOs universales `{ tipo, url, titulo }`.
+   - *Implementado*: Componente React con shortcut de teclado `Ctrl+K`. Emplea un debouncer nativo de hooks y llama a `/search` con aislamiento de resultados por rol.
 2. **Notificaciones Push Reales**:
    - *Técnica*: Integrar en `AppRoutes` el hook `useSocket`, mapear el evento `ws:alert` y cruzar en React-Hot-Toast.
 3. **Enlace Facturación -> Cuentas a Cobrar**:
@@ -39,13 +39,16 @@ gantt
     dateFormat  YYYY-MM-DD
     
     section Fase 1: Corrección de fallos críticos
-    Subsanar WSOD, Error 500 y Rebranding   :done, f1, 2026-03-20, 2026-03-24
+    Subsanar WSOD, 500 POS, Imágenes       :done, f1, 2026-03-20, 2026-03-24
+    Homologación de Commits y Tags main    :done, f2, 2026-03-23, 2026-03-24
+    Omni-Search Global Incorporado         :done, f25, 2026-03-24, 2026-03-24
     
     section Fase 2: Validación con datos reales
-    Despliegue Demo & Presentación C-Level :active, f2, 2026-03-24, 4d
+    Despliegue de Quick Wins para Demo     :active, f3, 2026-03-24, 3d
+    Feedback UX                            :f4, after f3, 4d
     
     section Fase 3: Preparación para Producción
-    Omni-Search & Enlace Contable          :f3, after f2, 6d
+    Enlace Contable                        :f3, after f2, 6d
     Exportación Info (CI/CD, Telemetry)    :f4, after f3, 5d
     
     section Fase 4: Innovación & Features

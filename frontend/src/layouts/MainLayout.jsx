@@ -9,6 +9,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useBranch } from '../context/BranchContext';
 import NotificationsDropdown from '../components/NotificationsDropdown';
+import OmniSearch from '../components/OmniSearch';
 import moduleRegistry, { getAccessibleModules, groupBySection, sectionMeta } from '../config/moduleRegistry';
 
 // ── Mapa de íconos Lucide ──────────────────────────────────────
@@ -277,6 +278,8 @@ const MainLayout = () => {
               </div>
             )}
           </div>
+
+          <OmniSearch />
 
           {/* Right side */}
           <div className="ml-auto flex items-center gap-4">
