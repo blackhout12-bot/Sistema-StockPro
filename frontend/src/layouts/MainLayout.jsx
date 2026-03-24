@@ -173,7 +173,7 @@ const MainLayout = () => {
             sectionKey={sectionKey}
             mods={mods}
             currentPath={location.pathname}
-            defaultOpen={sectionKey !== 'administracion' && sectionKey !== 'extras'}
+            defaultOpen={!user?.onboarding_completed || (sectionKey !== 'administracion' && sectionKey !== 'extras')}
           />
         ))}
       </nav>

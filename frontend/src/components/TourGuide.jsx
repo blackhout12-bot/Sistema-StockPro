@@ -29,9 +29,14 @@ const TourGuide = () => {
           title: 'Sistema ERP'
         },
         {
-          target: '#tour-usuarios',
-          content: 'Desde aquí gobernarás los Perfiles, Accesos y la habilitación de Doble Factor de Seguridad.',
-          title: 'Gestor de Permisos'
+          target: '#tour-facturacion',
+          content: 'Bases de la Operativa Comercial. Factura y procesa tickets interactuando con el inventario real.',
+          title: 'Facturación / POS'
+        },
+        {
+          target: '#tour-sucursales',
+          content: 'Maneja el Multi-Contexto. Con un clic podrás saltar orgánicamente de franquicia base de datos.',
+          title: 'Múltiples Sucursales'
         },
         {
           target: '#tour-delegaciones',
@@ -39,9 +44,14 @@ const TourGuide = () => {
           title: 'Delegación Organizacional'
         },
         {
-          target: '#tour-sucursales',
-          content: 'Maneja el Multi-Contexto. Con un clic en la barra superior o aquí podrás saltar orgánicamente de franquicia.',
-          title: 'Matriz Multi-Tenant'
+          target: '#tour-auditoria',
+          content: 'Trazabilidad estricta. Entérate de quién ingresó, quién erró la clave, y quién alteró roles.',
+          title: 'Caja Negra (Auditoría)'
+        },
+        {
+          target: '#tour-usuarios',
+          content: 'Desde aquí gobernarás los Perfiles, Accesos y la habilitación de Doble Factor de Seguridad (MFA).',
+          title: 'Seguridad y Permisos'
         }
       ];
     } else {
@@ -100,6 +110,7 @@ const TourGuide = () => {
       scrollToFirstStep
       showProgress
       showSkipButton
+      skipMissingSteps={true}
       steps={steps}
       styles={{
         options: {
