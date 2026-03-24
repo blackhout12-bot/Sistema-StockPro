@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import Joyride, { STATUS } from 'react-joyride';
+import * as ReactJoyride from 'react-joyride';
+const Joyride = ReactJoyride.default || ReactJoyride;
+const STATUS = ReactJoyride.STATUS;
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/axiosConfig';
 
