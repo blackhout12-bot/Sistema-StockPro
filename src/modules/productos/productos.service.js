@@ -4,15 +4,15 @@ const productoRepository = require('../../repositories/producto.repository');
 const loteRepository = require('../../repositories/lote.repository');
 const eventBus = require('../../events/eventBus');
 
-async function listarProductos(empresa_id, deposito_id) {
+async function listarProductos(empresa_id, deposito_id, sucursal_id) {
   const pool = await connectDB();
-  const productos = await productoRepository.getAll(pool, empresa_id, deposito_id);
+  const productos = await productoRepository.getAll(pool, empresa_id, deposito_id, sucursal_id);
   return productos.map(p => ({ ...p, image_url: p.image_url || "" }));
 }
 
-async function listarProductosPaginados({ empresa_id, page, limit, search, categoria }) {
+async function listarProductosPaginados({ empresa_id, page, limit, search, categoria, sucursal_id }) {
   const pool = await connectDB();
-  const paginated = await productoRepository.getPaginated(pool, { empresa_id, page, limit, search, categoria });
+  const paginated = await productoRepository.getPaginated(pool, { empresa_id, page, limit, search, categoria, sucursal_id });
   if (paginated.data) {
       paginated.data = paginated.data.map(p => ({ ...p, image_url: p.image_url || "" }));
   }
@@ -116,6 +116,17 @@ async function crearCategoriaEsquema(empresa_id, nombre_rubro, icon, esquema_jso
   return { id: result.recordset[0].id, empresa_id, nombre_rubro, icon, esquema_json: jsonStr };
 }
 
+async function getPreciosSucursal(producto_id) {
+  const pool = await connectDB();
+  return await productoRepository.getPreciosSucursales(pool, producto_id);
+}
+
+async function setPrecioSucursal(producto_id, sucursal_id, precio, usuario_id) {
+  if (precio < 0) throw new Error("El precio no puede ser negativo");
+  const pool = await connectDB();
+  return await productoRepository.setPrecioSucursal(pool, producto_id, sucursal_id, precio, usuario_id);
+}
+
 module.exports = {
   listarProductos,
   listarProductosPaginados,
@@ -125,5 +136,7 @@ module.exports = {
   agregarLote,
   getLotesByProducto,
   getCategoriasEsquemas,
-  crearCategoriaEsquema
+  crearCategoriaEsquema,
+  getPreciosSucursal,
+  setPrecioSucursal
 };

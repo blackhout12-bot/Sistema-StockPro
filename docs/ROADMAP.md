@@ -9,7 +9,7 @@ Tras auditar intensivamente el código fuente y el historial de commits/tags sub
 | **Notificaciones Push** vía WebSockets | 🟢 **RESUELTO** | Socket.io activo con seguridad JWT integrando Toasts y Top-bar para todo el branch de alertas. |
 | **Enlace contable** (Facturas -> Cuentas Cobrar/Pagar) | 🟢 **RESUELTO** | Las transacciones inyectan atómicamente en el sub-ledger. Dashboard Financiero y UI de Facturas activos leyendo saldos en vivo. |
 | **MFA/TOTP** en perfil de usuario | 🟢 **RESUELTO** | Componentes de validación OTP y Auth de 2 pasos insertados exitosamente en Auth Context. |
-| **Precios dinámicos** por `sucursal_id` | 🔴 **FALTANTE** | Los productos usan la columna fija `precio_venta`, sin cruce asíncrono con `PreciosSucursal`. |
+| **Precios dinámicos** por `sucursal_id` | 🟢 **RESUELTO** | Tabla `PreciosSucursal` migrada. Componente de UI instalado en modal de editar producto y cruce de variables en el controlador de POS (`v1.15.0`). |
 | **Onboarding Joyride** (Tenants nuevos) | 🟢 **RESUELTO** | Integración del tour de frontend guardando estado local en backend DB (`v1.12.0`). |
 | **Exportación de métricas** (OpenTelemetry) | 🟢 **RESUELTO** | Panel KPI en Dashboard y exportación por scrapeo para Prometheus en Backend `/metrics` (`v1.14.0`). |
 

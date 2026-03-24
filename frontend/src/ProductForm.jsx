@@ -5,6 +5,7 @@ import { useAuth } from './context/AuthContext';
 import { getRubroSchema } from './config/rubroSchemas';
 import { useQuery } from '@tanstack/react-query';
 import api from './utils/axiosConfig';
+import PreciosSucursalWidget from './components/PreciosSucursalWidget';
 
 const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
   const { featureToggles, empresaConfig } = useAuth();
@@ -358,6 +359,13 @@ const ProductForm = ({ onAdd, onUpdate, isModal, closeModal, initialData }) => {
                    </div>
                 </div>
               )}
+
+              {initialData && initialData.id && (
+                <div className="pt-4 border-t border-slate-100">
+                   <PreciosSucursalWidget producto_id={initialData.id} precioBase={precio} />
+                </div>
+              )}
+
               <div className="pt-4 border-t border-slate-100">
                 <div className="flex items-center justify-between mb-4">
                   <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Campos Personalizados (Metadata)</label>

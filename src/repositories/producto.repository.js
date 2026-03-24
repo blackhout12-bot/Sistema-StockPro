@@ -2,7 +2,7 @@
 const { sql } = require('../config/db');
 
 class ProductoRepository {
-    async getAll(pool, empresa_id, deposito_id) {
+    async getAll(pool, empresa_id, deposito_id, sucursal_id) {
         const reqDb = pool.request().input('empresa_id', sql.Int, empresa_id);
         
         let stockSelect = '';
@@ -11,10 +11,18 @@ class ProductoRepository {
             stockSelect = ', ISNULL((SELECT SUM(cantidad) FROM ProductoDepositos pd WHERE pd.producto_id = p.id AND pd.deposito_id = @deposito_id), 0) as stock_deposito';
         }
 
+        let precioJoin = '';
+        let precioSelect = '';
+        if (sucursal_id) {
+            reqDb.input('sucursal_id', sql.Int, sucursal_id);
+            precioJoin = 'LEFT JOIN PreciosSucursal ps ON ps.producto_id = p.id AND ps.sucursal_id = @sucursal_id';
+            precioSelect = ', ps.precio as precio_sucursal';
+        }
+
         const result = await reqDb.query(`
         SELECT p.*,
                 c.nombre as categoria_nombre,
-               ISNULL(m.num_ventas, 0) as num_ventas ${stockSelect},
+               ISNULL(m.num_ventas, 0) as num_ventas ${stockSelect} ${precioSelect},
                (
                    SELECT d.nombre as deposito, pd.cantidad as stock
                    FROM ProductoDepositos pd
@@ -36,6 +44,7 @@ class ProductoRepository {
                ) as fecha_vencimiento
         FROM Productos p
         LEFT JOIN Categorias c ON p.categoria_id = c.id
+        ${precioJoin}
         LEFT JOIN (
             SELECT productoId, SUM(cantidad) as num_ventas
             FROM Movimientos
@@ -45,16 +54,30 @@ class ProductoRepository {
         WHERE p.empresa_id = @empresa_id
         ORDER BY p.creado_en DESC
       `);
-        return result.recordset;
+      
+        return result.recordset.map(row => {
+            if (row.precio_sucursal !== undefined && row.precio_sucursal !== null) {
+                row.precio_base = row.precio;
+                row.precio = row.precio_sucursal;
+            }
+            return row;
+        });
     }
 
-    async getPaginated(pool, { empresa_id, page, limit, search, categoria }) {
+    async getPaginated(pool, { empresa_id, page, limit, search, categoria, sucursal_id }) {
         const offset = (page - 1) * limit;
+
+        let precioJoin = '';
+        let precioSelect = '';
+        if (sucursal_id) {
+            precioJoin = 'LEFT JOIN PreciosSucursal ps ON ps.producto_id = p.id AND ps.sucursal_id = @sucursal_id';
+            precioSelect = ', ps.precio as precio_sucursal';
+        }
 
         let queryStr = `
             SELECT p.*,
                  c.nombre as categoria_nombre,
-                ISNULL(m.num_ventas, 0) as num_ventas,
+                ISNULL(m.num_ventas, 0) as num_ventas ${precioSelect},
                 (
                     SELECT d.nombre as deposito, pd.cantidad as stock
                     FROM ProductoDepositos pd
@@ -76,6 +99,7 @@ class ProductoRepository {
                 ) as fecha_vencimiento
             FROM Productos p
             LEFT JOIN Categorias c ON p.categoria_id = c.id
+            ${precioJoin}
             LEFT JOIN (
                 SELECT productoId, SUM(cantidad) as num_ventas
                 FROM Movimientos
@@ -95,6 +119,10 @@ class ProductoRepository {
 
         const countRequest = pool.request();
         countRequest.input('empresa_id', sql.Int, empresa_id);
+        
+        if (sucursal_id) {
+            itemsRequest.input('sucursal_id', sql.Int, sucursal_id);
+        }
 
         if (search) {
             queryStr += ` AND (p.nombre LIKE @search OR p.sku LIKE @search OR p.descripcion LIKE @search)`;
@@ -116,9 +144,17 @@ class ProductoRepository {
             itemsRequest.query(queryStr),
             countRequest.query(countQueryStr)
         ]);
+        
+        const dataMapped = itemsResult.recordset.map(row => {
+            if (row.precio_sucursal !== undefined && row.precio_sucursal !== null) {
+                row.precio_base = row.precio;
+                row.precio = row.precio_sucursal;
+            }
+            return row;
+        });
 
         return {
-            data: itemsResult.recordset,
+            data: dataMapped,
             total: countResult.recordset[0].total,
             page,
             totalPages: Math.ceil(countResult.recordset[0].total / limit)

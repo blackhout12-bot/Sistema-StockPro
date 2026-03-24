@@ -48,10 +48,11 @@ const Facturacion = () => {
     });
 
     const { data: productosBrutos = [], isLoading: loadingProductos } = useQuery({
-        queryKey: ['productos', depositoActivo?.id],
+        queryKey: ['productos', depositoActivo?.id, sucursalActiva?.id],
         queryFn: async () => { 
             const params = {};
             if (depositoActivo?.id) params.deposito_id = depositoActivo.id;
+            if (sucursalActiva?.id) params.sucursal_id = sucursalActiva.id;
             const res = await api.get('/productos', { params }); 
             return res.data; 
         },

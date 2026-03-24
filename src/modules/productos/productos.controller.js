@@ -56,7 +56,7 @@ router.post('/categorias/esquemas', checkPermiso('productos', 'crear'), validate
 // Listar productos con paginación server-side
 router.get('/', checkPermiso('productos', 'leer'), async (req, res, next) => {
   try {
-    const { page, limit, search, categoria } = req.query;
+    const { page, limit, search, categoria, sucursal_id } = req.query;
 
     if (page !== undefined) {
       const resultado = await productosService.listarProductosPaginados({
@@ -65,11 +65,12 @@ router.get('/', checkPermiso('productos', 'leer'), async (req, res, next) => {
         limit: Math.min(parseInt(limit) || 20, 100),
         search: search || '',
         categoria: categoria || '',
+        sucursal_id: sucursal_id || null,
       });
       return res.json(resultado);
     }
 
-    const productos = await productosService.listarProductos(req.tenant_id, req.query.deposito_id);
+    const productos = await productosService.listarProductos(req.tenant_id, req.query.deposito_id, sucursal_id || null);
     res.json(productos);
   } catch (err) {
     next(err);
@@ -129,6 +130,22 @@ router.post('/:id/lotes', checkPermiso('productos', 'actualizar'), requireFeatur
     const lote = await productosService.agregarLote(parseInt(req.params.id), nro_lote, cantidad, fecha_vto, req.tenant_id);
     res.locals.insertedId = lote.id;
     res.status(201).json(lote);
+  } catch (err) { next(err); }
+});
+
+// Precios por Sucursal
+router.get('/:id/precios-sucursal', checkPermiso('productos', 'leer'), async (req, res, next) => {
+  try {
+    const precios = await productosService.getPreciosSucursal(parseInt(req.params.id));
+    res.json(precios);
+  } catch (err) { next(err); }
+});
+
+router.post('/:id/precios-sucursal', checkPermiso('productos', 'actualizar'), audit('actualizar', 'PrecioSucursal'), async (req, res, next) => {
+  try {
+    const { sucursal_id, precio } = req.body;
+    await productosService.setPrecioSucursal(parseInt(req.params.id), parseInt(sucursal_id), parseFloat(precio), req.user.id);
+    res.json({ success: true, message: 'Precio de sucursal actualizado' });
   } catch (err) { next(err); }
 });
 
