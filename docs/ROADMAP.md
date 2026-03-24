@@ -40,6 +40,17 @@ gantt
 - [x] Rutas Flexibles que no colapsen los test automatizados: `PUT/POST /revocar/:id`, omitiendo ID para testbeds.
 - [x] Tolerancia a infinitud temporal (`fecha_fin NULL`).
 
----
+### [✔️] v1.24.1 - Cimientos DevOps y Documentación
+- [x] Establecimiento SRE de un Single Source of Truth (`/docs`).
+- [x] Arquitectura de Manifiestos para Auto-Rollback K8S y Monitoreo Activo (ServiceMonitor).
 
-*Nota: La versión v1.24.X comprende este mismo ciclo orgánico de Documentación Markdown y Arquitectura.*
+### [✔️] v1.25.0 - Factor Doble de Autenticación (MFA/TOTP)
+- [x] Reversión de Mocks pasivos e Inyección Criptográfica `otplib`.
+- [x] Cimientos transaccionales en Base de Datos MSSQL (`totp_secret`).
+- [x] Flujo Frontend Operativo: Identificación de Check y Modal Interactivo para Pines Dinámicos.
+
+### [✔️] v1.26.2 - Estabilidad Global y Onboarding SRE
+- [x] **RESUELTO**: `react-joyride` desplegado. Tour del ERP Segmentado Jerárquicamente (Directivos vs Operadores).
+- [x] **RESUELTO**: Trazabilidad Extrema Inmutable (`AuditRepository`) amarrando eventos de MFA y UX (`reiniciar_onboarding`).
+- [x] **RESUELTO**: Erradicación del White Screen of Death (WSOD) causado por importación ESM/CommonJS en el compilador.
+- [x] **RESUELTO**: Transpilador Vite Operativo en Limpio (Exit Code 0). Rendimiento inmaculado y Navegación Reactiva.
