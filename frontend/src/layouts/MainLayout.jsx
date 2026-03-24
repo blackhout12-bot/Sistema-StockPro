@@ -124,7 +124,7 @@ const MainLayout = () => {
     return (
       <div className="flex items-center gap-2 text-sm">
         <Link to="/" className="text-slate-400 font-bold hover:text-primary-600 transition-colors text-xs">
-          StockPro
+          TB Gestión – Sistema ERP
         </Link>
         {pathnames.length > 0 && (
           <>
@@ -144,10 +144,10 @@ const MainLayout = () => {
       <div className="h-16 flex items-center px-5 border-b border-white/10 flex-shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center shadow-sm">
-            <span className="text-white text-[10px] font-black">GM</span>
+            <span className="text-white text-[10px] font-black">TB</span>
           </div>
           <div>
-            <h1 className="text-[14px] font-black text-white tracking-tighter leading-none">GestiónMax</h1>
+            <h1 className="text-[14px] font-black text-white tracking-tighter leading-none">TB Gestión</h1>
             {empresaConfig?.rubro && empresaConfig.rubro !== 'general' && (
               <p className="text-[9px] font-bold text-white/70 uppercase tracking-wider capitalize">
                 {empresaConfig.rubro}

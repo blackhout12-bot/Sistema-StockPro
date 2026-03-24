@@ -94,9 +94,9 @@ const Dashboard = () => {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     <div>
-                        <h1 className="text-4xl font-black text-brand-dark tracking-tighter drop-shadow-sm">Panel de Control</h1>
+                        <h1 className="text-4xl font-black text-brand-dark tracking-tighter drop-shadow-sm">TB Gestión – Sistema ERP</h1>
                         <p className="text-[13px] text-slate-500 mt-1 font-bold tracking-wide">
-                            {lastUpdated ? `Última sincronización: ${lastUpdated}` : 'Consultando inventarios...'}
+                            ERP escalable con auditoría completa
                         </p>
                     </div>
                     <button
