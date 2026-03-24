@@ -43,11 +43,17 @@ class DelegacionesModel {
             throw new Error('Un operador no puede delegarse permisos a sí mismo.');
         }
 
+        let fechaFinParsing = null;
+        if (fecha_fin) {
+            const dt = new Date(fecha_fin);
+            if (!isNaN(dt.getTime())) fechaFinParsing = dt;
+        }
+
         const res = await pool.request()
             .input('delegante', sql.Int, delegante_id)
             .input('delegado', sql.Int, delegado_id)
             .input('rol', sql.VarChar, rol_asignado)
-            .input('fin', sql.DateTime, new Date(fecha_fin))
+            .input('fin', sql.DateTime, fechaFinParsing)
             .query(`
                 INSERT INTO Delegaciones (delegante_id, delegado_id, rol_asignado, fecha_inicio, fecha_fin, estado)
                 OUTPUT INSERTED.*

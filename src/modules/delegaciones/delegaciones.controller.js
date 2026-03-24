@@ -25,7 +25,7 @@ router.get('/mis-delegaciones', async (req, res) => {
 });
 
 // Asignar Rol Temporal
-router.post('/', audit('crear_delegacion', 'Delegaciones'), async (req, res) => {
+router.post('/asignar', audit('crear_delegacion', 'Delegaciones'), async (req, res) => {
     try {
         // Validación de Poderes: Un gerente no puede delegar el rol de "admin".
         const validRoles = ['encargado', 'vendedor', 'operador'];
@@ -41,7 +41,7 @@ router.post('/', audit('crear_delegacion', 'Delegaciones'), async (req, res) => 
 });
 
 // Revocar Asignación
-router.put('/:id/revocar', audit('revocar_delegacion', 'Delegaciones'), async (req, res) => {
+router.put('/revocar/:id', audit('revocar_delegacion', 'Delegaciones'), async (req, res) => {
     try {
         const revocada = await delegacionesModel.revoke(req.params.id, req.user.id);
         res.json({ message: 'Delegación revocada permanentemente', data: revocada });

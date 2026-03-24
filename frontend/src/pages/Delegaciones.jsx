@@ -16,7 +16,7 @@ const Delegaciones = () => {
     const { data: delegaciones, isLoading } = useQuery({ queryKey: ['delegaciones'], queryFn: async () => (await api.get('/delegaciones')).data });
 
     const mutacionCrear = useMutation({
-        mutationFn: async (payload) => api.post('/delegaciones', payload),
+        mutationFn: async (payload) => api.post('/delegaciones/asignar', payload),
         onSuccess: () => {
             toast.success('Poderes Delegados exitosamente.');
             queryClient.invalidateQueries(['delegaciones']);
@@ -28,7 +28,7 @@ const Delegaciones = () => {
     });
 
     const mutacionRevocar = useMutation({
-        mutationFn: async (id) => api.put(`/delegaciones/${id}/revocar`),
+        mutationFn: async (id) => api.put(`/delegaciones/revocar/${id}`),
         onSuccess: () => {
             toast.success('Delegación Revocada y Terminada.');
             queryClient.invalidateQueries(['delegaciones']);
