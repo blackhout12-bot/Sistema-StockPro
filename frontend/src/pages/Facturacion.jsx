@@ -480,26 +480,40 @@ const Facturacion = () => {
     const renderInvoiceSummary = () => {
         if (!facturaAnterior) return null;
         return (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-md overflow-y-auto py-12 px-4 animate-in fade-in duration-300">
+            <div className="factura-modal-container fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-md overflow-y-auto py-12 px-4 animate-in fade-in duration-300">
                 <style dangerouslySetInnerHTML={{
                     __html: `
                     @media print {
-                        body * { visibility: hidden; }
-                        .invoice-print-root, .invoice-print-root * { visibility: visible; }
+                        body * { visibility: hidden !important; }
+                        .factura-modal-container, .factura-modal-container * {
+                            visibility: visible !important;
+                        }
+                        .factura-modal-container {
+                            position: absolute !important;
+                            left: 0 !important;
+                            top: 0 !important;
+                            width: 100% !important;
+                            height: auto !important;
+                            background: none !important;
+                            overflow: visible !important;
+                            padding: 0 !important;
+                        }
+                        .invoice-print-root, .invoice-print-root * { visibility: visible !important; }
                         .invoice-print-root { 
-                            position: absolute; 
-                            left: 0; 
-                            top: 0;
-                            width: 100%; 
-                            background: white;
-                            padding: 0;
-                            margin: 0;
+                            position: relative !important;
+                            width: 100% !important; 
+                            max-width: 100% !important;
+                            background: white !important;
+                            padding: 0 !important;
+                            margin: 0 !important;
+                            border: none !important;
                             border-radius: 0 !important;
                             box-shadow: none !important;
                         }
-                        .no-print { display: none !important; }
+                        .no-print, .no-print * { display: none !important; }
                     }
-                `}} />
+                    `
+                }} />
                 
                 {/* 💳 Premium Receipt Card */}
                 <div className="invoice-print-root bg-white rounded-[2rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2)] w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom-8 duration-500 relative border border-slate-100/50">
