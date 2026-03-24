@@ -55,8 +55,8 @@ class SucursalesModel {
                 .input('nombre', sql.VarChar(100), 'Caja ' + data.nombre);
                 
             await reqCaja.query(`
-                INSERT INTO POS_Cajas (empresa_id, nombre, estado, sucursal_id)
-                VALUES (@empresa_id, @nombre, 'CERRADA', @sucursal_id);
+                INSERT INTO POS_Cajas (empresa_id, nombre, activa, sucursal_id)
+                VALUES (@empresa_id, @nombre, 1, @sucursal_id);
             `);
 
             await transaction.commit();
