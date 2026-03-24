@@ -3,7 +3,7 @@ import api from '../utils/axiosConfig';
 import { useAuth } from '../context/AuthContext';
 import { useBranch } from '../context/BranchContext';
 import {
-    Package, AlertTriangle, DollarSign, ShoppingCart, Users, RefreshCw
+    Package, AlertTriangle, DollarSign, ShoppingCart, Users, RefreshCw, Zap
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
@@ -38,6 +38,7 @@ const Dashboard = () => {
             const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
             const today = now.toISOString().slice(0, 10);
 
+            const startTimer = performance.now();
             const [prodRes, factRes, topRes, confRes, statsRes] = await Promise.allSettled([
                 api.get('/productos'),
                 api.get('/facturacion'),
@@ -45,6 +46,8 @@ const Dashboard = () => {
                 api.get('/empresa/configuracion/completa'),
                 api.get('/empresa/resumen')
             ]);
+            const endTimer = performance.now();
+            const netLatency = Math.round(endTimer - startTimer);
 
             const configPayload = confRes.status === 'fulfilled' ? confRes.value.data : null;
 
@@ -71,12 +74,13 @@ const Dashboard = () => {
                 trendData: topRes.status === 'fulfilled' ? topRes.value.data : [],
                 config: configPayload,
                 stats: statsRes.status === 'fulfilled' ? statsRes.value.data : null,
+                latency: netLatency,
                 lastUpdated: new Date().toLocaleTimeString()
             };
         }
     });
 
-    const { products = [], gridDisplay = [], trendData = [], config = null, stats = null, lastUpdated = null } = dashData || {};
+    const { products = [], gridDisplay = [], trendData = [], config = null, stats = null, latency = 0, lastUpdated = null } = dashData || {};
 
     const totalProducts = stats?.total_productos ?? products.length;
     const lowStockItems = products.filter(p => p.stock <= 5 && p.stock >= 0);
@@ -158,9 +162,10 @@ const Dashboard = () => {
                                 total_ventas: <MiniKpi key="4" icon={ShoppingCart} label="Ventas Hoy" value={formatMoney(totalSales)} colorClass="bg-indigo-500" iconColor="text-indigo-600" />,
                                 total_clientes: <MiniKpi key="5" icon={Users} label="Clientes" value={`${totalClientes}`} colorClass="bg-violet-500" iconColor="text-violet-600" />,
                                 total_por_cobrar: <MiniKpi key="6" icon={DollarSign} label="Por Cobrar" value={formatMoney(stats?.total_por_cobrar || 0)} colorClass="bg-amber-500" iconColor="text-amber-600" />,
-                                total_por_pagar: <MiniKpi key="7" icon={AlertTriangle} label="Por Pagar" value={formatMoney(stats?.total_por_pagar || 0)} colorClass="bg-red-500" iconColor="text-red-600" />
+                                total_por_pagar: <MiniKpi key="7" icon={AlertTriangle} label="Por Pagar" value={formatMoney(stats?.total_por_pagar || 0)} colorClass="bg-red-500" iconColor="text-red-600" />,
+                                latencia_backend: <MiniKpi key="8" icon={Zap} label="Latencia API" value={`${latency}ms`} colorClass="bg-cyan-500" iconColor="text-cyan-600" />
                             };
-                            let visibleKpis = ['total_ventas', 'total_por_cobrar', 'total_por_pagar', 'total_productos'];
+                            let visibleKpis = ['total_ventas', 'total_por_cobrar', 'latencia_backend', 'total_productos'];
                             if (config && config.dash_kpis_visibles) {
                                 try {
                                     // Limpiar sintaxis estricta si la DB grabó con comillas simples por error manual de update

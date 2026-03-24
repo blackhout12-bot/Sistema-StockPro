@@ -12,6 +12,7 @@ const rateLimit = require('express-rate-limit');
 const pinoHttp = require('pino-http');
 const logger = require('./utils/logger');
 const authenticate = require('./middlewares/auth');
+const { metricsMiddleware } = require('./middlewares/metrics');
 const http = require('http');
 const { initSocket } = require('./config/socket');
 
@@ -137,6 +138,10 @@ const v1Router = require('./routes/v1.routes');
 const v2Router = require('./routes/v2.routes');
 const publicRouter = require('./routes/public.routes');
 const aiRouter = require('./routes/ai.routes');
+
+// Aplicar el middleware de métricas solo para las rutas API
+app.use('/api', metricsMiddleware);
+
 app.use('/api/v1', v1Router);
 app.use('/api/v2', v2Router);
 app.use('/api/public', publicRouter);

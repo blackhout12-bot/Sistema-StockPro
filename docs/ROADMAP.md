@@ -8,10 +8,10 @@ Tras auditar intensivamente el código fuente y el historial de commits/tags sub
 | **Omni-Search global** en Dashboard | 🟢 **RESUELTO** | Componente unificado e incorporado en header (`MainLayout.jsx`) con endpoint backend `api/search`. |
 | **Notificaciones Push** vía WebSockets | 🟢 **RESUELTO** | Socket.io activo con seguridad JWT integrando Toasts y Top-bar para todo el branch de alertas. |
 | **Enlace contable** (Facturas -> Cuentas Cobrar/Pagar) | 🟢 **RESUELTO** | Las transacciones inyectan atómicamente en el sub-ledger. Dashboard Financiero y UI de Facturas activos leyendo saldos en vivo. |
-| **MFA/TOTP** en perfil de usuario | 🔴 **FALTANTE** | Falta la UI de código QR en Perfil de Usuario y validación interceptada por JWT en Node. |
+| **MFA/TOTP** en perfil de usuario | 🟢 **RESUELTO** | Componentes de validación OTP y Auth de 2 pasos insertados exitosamente en Auth Context. |
 | **Precios dinámicos** por `sucursal_id` | 🔴 **FALTANTE** | Los productos usan la columna fija `precio_venta`, sin cruce asíncrono con `PreciosSucursal`. |
-| **Onboarding Joyride** (Tenants nuevos) | 🔴 **FALTANTE** | No importado el paquete `react-joyride` en el ciclo principal. |
-| **Exportación de métricas** (OpenTelemetry) | 🔴 **FALTANTE** | Dependencias instaladas per falta el pipeline dockerizado y vinculación UI de scraping a Prometheus. |
+| **Onboarding Joyride** (Tenants nuevos) | 🟢 **RESUELTO** | Integración del tour de frontend guardando estado local en backend DB (`v1.12.0`). |
+| **Exportación de métricas** (OpenTelemetry) | 🟢 **RESUELTO** | Panel KPI en Dashboard y exportación por scrapeo para Prometheus en Backend `/metrics` (`v1.14.0`). |
 
 > **Confirmación Explícita**: El sistema está libre de *bugs catastróficos* (como el antiguo WSOD y Error 500 de clientes). Toda solución reparada *ESTÁ* reflejada en GitHub bajo los tags v1.3.x a v1.7.x. Por ende, no hay redundancia de correcciones ya saldadas en el siguiente informe. 
 
@@ -52,8 +52,9 @@ gantt
     Exportación Info (CI/CD, Telemetry)    :f4, after f30, 5d
     
     section Fase 4: Innovación & Features
-    MFA y Onboarding Joyride               :f5, after f4, 6d
+    MFA y Onboarding Joyride               :done, f31, 2026-03-24, 2026-03-24
     Notificaciones WebSockets Top-Bar      :done, f30, 2026-03-24, 2026-03-24
+    Exportación Info (CI/CD, Telemetry)    :done, f32, 2026-03-24, 2026-03-24
 ```
 
 > Trazabilidad Absoluta: Todos y cada uno de los cambios mencionados para la Fase 1 se encuentran certificados bajo historial inmutable de GitHub.

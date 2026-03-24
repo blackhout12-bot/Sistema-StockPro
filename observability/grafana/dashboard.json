@@ -1,0 +1,26 @@
+{
+  "title": "StockPro ERP Observability",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "API Request Latency",
+      "targets": [
+        {
+          "expr": "rate(stock_system_http_request_duration_ms_sum[5m]) / rate(stock_system_http_request_duration_ms_count[5m])",
+          "legendFormat": "{{route}}"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Total de Facturas",
+      "targets": [
+        {
+          "expr": "sum(stock_system_business_facturas_total)"
+        }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39
+}

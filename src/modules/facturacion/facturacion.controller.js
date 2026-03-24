@@ -8,6 +8,7 @@ const checkPermiso = require('../../middlewares/rbac');
 const audit = require('../../middlewares/audit');
 const { validateBody } = require('../../middlewares/validateRequest');
 const { facturacionSchema } = require('../../schemas/facturacion.schema');
+const { businessFacturasTotal, businessPosSalesTotal } = require('../../middlewares/metrics');
 
 // Get all facturas
 router.get('/', checkPermiso('facturacion', 'leer'), async (req, res, next) => {
@@ -96,6 +97,13 @@ router.post('/', checkPermiso('facturacion', 'crear'), validateBody(facturacionS
 
         const newFactura = await facturacionService.createFactura(cleanBody, req.user.id, req.tenant_id);
         res.locals.insertedId = newFactura.id;
+        
+        // ─── Telemetría de Negocio ───
+        businessFacturasTotal.inc({ empresa_id: req.tenant_id });
+        if (caja_id) {
+            businessPosSalesTotal.inc({ empresa_id: req.tenant_id, sucursal_id: sucursal_id || 'DEFAULT' });
+        }
+        
         res.status(201).json(newFactura);
     } catch (error) {
         logger.error({ 

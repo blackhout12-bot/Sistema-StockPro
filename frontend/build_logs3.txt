@@ -1,0 +1,28 @@
+
+> frontend@1.0.0 build
+> vite build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32mÔ£ô[39m 2940 modules transformed.
+Ô£ù Build failed in 4.50s
+error during build:
+src/tracing.js (9:9): "Resource" is not exported by "node_modules/@opentelemetry/resources/build/esm/index.js", imported by "src/tracing.js".
+file: C:/Users/egar0/stock-system/frontend/src/tracing.js:9:9
+
+ 7: import { FetchInstrumentation } from '@opentelemetry/instrumentation-fetch';
+ 8: import { ZoneContextManager } from '@opentelemetry/context-zone';
+ 9: import { Resource } from '@opentelemetry/resources';
+             ^
+10: import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+
+    at getRollupError (file:///C:/Users/egar0/stock-system/frontend/node_modules/vite/node_modules/rollup/dist/es/shared/parseAst.js:402:41)
+    at error (file:///C:/Users/egar0/stock-system/frontend/node_modules/vite/node_modules/rollup/dist/es/shared/parseAst.js:398:42)
+    at Module.error (file:///C:/Users/egar0/stock-system/frontend/node_modules/vite/node_modules/rollup/dist/es/shared/node-entry.js:17040:16)
+    at Module.traceVariable (file:///C:/Users/egar0/stock-system/frontend/node_modules/vite/node_modules/rollup/dist/es/shared/node-entry.js:17452:29)
+    at ModuleScope.findVariable (file:///C:/Users/egar0/stock-system/frontend/node_modules/vite/node_modules/rollup/dist/es/shared/node-entry.js:15070:39)
+    at Identifier.bind (file:///C:/Users/egar0/stock-system/frontend/node_modules/vite/node_modules/rollup/dist/es/shared/node-entry.js:5447:40)
+    at NewExpression.bind (file:///C:/Users/egar0/stock-system/frontend/node_modules/vite/node_modules/rollup/dist/es/shared/node-entry.js:2829:23)
+    at Property.bind (file:///C:/Users/egar0/stock-system/frontend/node_modules/vite/node_modules/rollup/dist/es/shared/node-entry.js:2829:23)
+    at ObjectExpression.bind (file:///C:/Users/egar0/stock-system/frontend/node_modules/vite/node_modules/rollup/dist/es/shared/node-entry.js:2825:28)
+    at NewExpression.bind (file:///C:/Users/egar0/stock-system/frontend/node_modules/vite/node_modules/rollup/dist/es/shared/node-entry.js:2825:28)
