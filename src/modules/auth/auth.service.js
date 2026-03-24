@@ -21,6 +21,7 @@ function buildTokenPayload(usuario, empresa_id, rol) {
     email: usuario.email,
     empresa_id,
     rol,
+    onboarding_completed: !!usuario.onboarding_completed
   };
 }
 
@@ -77,7 +78,7 @@ async function login(email, password) {
     logger.info({ userId: usuario.id, empresa_id, rol }, 'Login exitoso (empresa única)');
     return {
       token,
-      user: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, empresa_id, rol },
+      user: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, empresa_id, rol, onboarding_completed: !!usuario.onboarding_completed },
     };
   }
 
@@ -431,6 +432,14 @@ async function refreshToken(userPayload) {
   };
 }
 
+async function completarOnboarding(usuario_id) {
+  const pool = await connectDB();
+  await pool.request()
+    .input('uid', sql.Int, usuario_id)
+    .query('UPDATE Usuarios SET onboarding_completed = 1 WHERE id = @uid');
+  return { message: 'Onboarding completado exitosamente.' };
+}
+
 module.exports = {
   login,
   seleccionarEmpresa,
@@ -449,4 +458,5 @@ module.exports = {
   forgotPassword,
   resetPassword,
   refreshToken,
+  completarOnboarding,
 };

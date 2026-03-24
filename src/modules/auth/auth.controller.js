@@ -210,4 +210,12 @@ router.delete('/:id', authenticate, checkPermiso('usuarios', 'eliminar'), audit(
   } catch (err) { next(err); }
 });
 
+// ── PATCH /auth/me/onboarding — marcar onboarding como completado ────────────
+router.patch('/me/onboarding', authenticate, async (req, res, next) => {
+  try {
+    const result = await authService.completarOnboarding(req.user.id);
+    res.json(result);
+  } catch (err) { next(err); }
+});
+
 module.exports = router;

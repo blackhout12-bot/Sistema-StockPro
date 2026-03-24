@@ -11,6 +11,7 @@ import { useBranch } from '../context/BranchContext';
 import TopBarNotifications from '../components/TopBarNotifications';
 import OmniSearch from '../components/OmniSearch';
 import moduleRegistry, { getAccessibleModules, groupBySection, sectionMeta } from '../config/moduleRegistry';
+import OnboardingTour from '../components/OnboardingTour';
 
 // ── Mapa de íconos Lucide ──────────────────────────────────────
 const ICON_MAP = {
@@ -40,9 +41,10 @@ function NavItem({ mod, isActive }) {
   return (
     <Link
       to={mod.path}
+      id={`nav-${mod.id}`}
       className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[12px] font-semibold transition-all duration-200 group ${
         isActive
-          ? 'bg-brand-base text-white shadow-sm border border-white/10'
+          ? 'bg-品牌-500 text-white shadow-sm border border-white/10 bg-brand-base'
           : 'text-white/60 hover:bg-white/5 hover:text-white'
       }`}
     >
@@ -300,6 +302,8 @@ const MainLayout = () => {
         <div className="flex-1 overflow-y-auto p-6 lg:p-8">
           <Outlet />
         </div>
+
+        <OnboardingTour />
       </main>
     </div>
   );
