@@ -35,12 +35,30 @@ const OnboardingTour = () => {
         {
             target: '#nav-productos',
             content: '📦 Gestiona todo tu inventario en esta sección. Soporta múltiples sucursales, precios dinámicos y lotes de vencimiento.',
-        },
-        {
-            target: '.ml-auto.flex.items-center.gap-1',
-            content: '🔔 Finalmente, aquí arriba tienes tu buscador omnicanal y las notificaciones push por quiebre de stock.',
         }
     ];
+
+    if (user && (user.rol === 'admin' || user.rol === 'gerente')) {
+        steps.push(
+            {
+                target: '#nav-compras',
+                content: '🛒 Módulo de Compras: Registra facturas de proveedores y abastece el inventario automáticamente.'
+            },
+            {
+                target: '#nav-movimientos',
+                content: '🔄 Inventario: Controla ingresos, egresos y traslados multi-depósito detallados.'
+            },
+            {
+                target: '#nav-cuentas-cobrar',
+                content: '💼 Contabilidad: Lleva el control de cuentas por cobrar y cobros unificados.'
+            }
+        );
+    }
+
+    steps.push({
+        target: '.ml-auto.flex.items-center.gap-1',
+        content: '🔔 Finalmente, aquí arriba tienes tu buscador omnicanal y las notificaciones push por reglas de negocio.',
+    });
 
     const handleJoyrideCallback = async (data) => {
         const { status } = data;

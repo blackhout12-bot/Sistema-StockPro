@@ -18,7 +18,6 @@
  */
 
 const moduleRegistry = [
-  // ── CORE — siempre disponible ─────────────────────────────────
   {
     id: 'dashboard',
     label: 'Dashboard',
@@ -30,6 +29,17 @@ const moduleRegistry = [
     lazy: () => import('../pages/Dashboard'),
     breadcrumb: 'Dashboard',
     index: true
+  },
+  {
+    id: 'notificaciones-panel',
+    label: 'Notificaciones',
+    path: '/notificaciones',
+    icon: 'Bell',
+    section: 'core',
+    requiredToggle: null,
+    requiredRoles: ['*'],
+    lazy: () => import('../pages/NotificationsPanel'),
+    breadcrumb: 'Bandeja de Notificaciones'
   },
 
   // ── OPERACIONES ────────────────────────────────────────────────

@@ -35,7 +35,7 @@ router.get('/', async (req, res, next) => {
 });
 
 // Marcar una como leída
-router.put('/:id/read', async (req, res, next) => {
+router.put('/leer/:id', async (req, res, next) => {
     try {
         const pool = await connectDB();
         await notificacionRepository.markAsRead(pool, req.params.id, req.user.id, req.tenant_id);
@@ -46,7 +46,7 @@ router.put('/:id/read', async (req, res, next) => {
 });
 
 // Marcar todas como leídas
-router.put('/read-all', async (req, res, next) => {
+router.put('/leer-todas', async (req, res, next) => {
     try {
         const pool = await connectDB();
         await notificacionRepository.markAllAsRead(pool, req.user.id, req.tenant_id);

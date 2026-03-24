@@ -3,12 +3,14 @@ import { Bell, Check } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { io } from 'socket.io-client';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/axiosConfig';
 
 const TopBarNotifications = () => {
     const [isOpen, setIsOpen] = useState(false);
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
     const { token, user, empresaConfig } = useAuth();
     
     // El tenant activo viene del token decodificado internamente en el context, 
@@ -159,6 +161,14 @@ const TopBarNotifications = () => {
                                     </div>
                                 ))
                             )}
+                        </div>
+                        <div className="border-t border-slate-50 bg-slate-50 p-2 text-center">
+                            <button
+                                onClick={() => { setIsOpen(false); navigate('/notificaciones'); }}
+                                className="text-[11px] font-black uppercase tracking-widest text-primary-600 hover:text-primary-800 transition-colors w-full py-2"
+                            >
+                                Ver Todas las Notificaciones →
+                            </button>
                         </div>
                     </div>
                 </>
