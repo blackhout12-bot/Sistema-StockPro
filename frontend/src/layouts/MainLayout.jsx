@@ -12,6 +12,7 @@ import TopBarNotifications from '../components/TopBarNotifications';
 import OmniSearch from '../components/OmniSearch';
 import moduleRegistry, { getAccessibleModules, groupBySection, sectionMeta } from '../config/moduleRegistry';
 import OnboardingTour from '../components/OnboardingTour';
+import MfaSetupModal from '../components/MfaSetupModal';
 
 // ── Mapa de íconos Lucide ──────────────────────────────────────
 const ICON_MAP = {
@@ -99,6 +100,7 @@ const MainLayout = () => {
   const { user, logout, misEmpresas, switchEmpresa, featureToggles, empresaConfig } = useAuth();
   const { sucursalActiva, sucursales, selectSucursal } = useBranch();
   const [isMobileOpen, setMobileOpen] = useState(false);
+  const [isMfaModalOpen, setIsMfaModalOpen] = useState(false);
   const location = useLocation();
 
   const currentEmpresaId = user?.empresa_id;
@@ -286,15 +288,15 @@ const MainLayout = () => {
             <OmniSearch />
             <TopBarNotifications />
             <div className="h-6 w-px bg-white/10 mx-2 hidden sm:block"></div>
-            <div className="flex items-center gap-2">
+            <button title="Configurar 2FA (MFA)" onClick={() => setIsMfaModalOpen(true)} className="flex items-center gap-2 hover:bg-slate-50 p-1.5 rounded-lg transition-colors cursor-pointer text-left">
               <div className="text-right hidden sm:block">
                 <p className="text-[11px] font-bold text-slate-800 leading-none">{user?.nombre || user?.email}</p>
                 <p className="text-[9px] font-black uppercase tracking-widest text-primary-500 mt-0.5">{user?.rol}</p>
               </div>
-              <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-600 font-bold text-xs border border-slate-100">
+              <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-600 font-bold text-xs border border-slate-100 focus:ring-2 focus:ring-brand-base">
                 {user?.nombre?.[0]?.toUpperCase() || 'U'}
               </div>
-            </div>
+            </button>
           </div>
         </header>
 
@@ -304,6 +306,7 @@ const MainLayout = () => {
         </div>
 
         <OnboardingTour />
+        <MfaSetupModal isOpen={isMfaModalOpen} onClose={() => setIsMfaModalOpen(false)} />
       </main>
     </div>
   );

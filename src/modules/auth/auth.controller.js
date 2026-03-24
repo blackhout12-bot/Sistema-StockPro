@@ -57,6 +57,37 @@ router.post('/login', loginLimiter, validateBody(loginSchema), async (req, res) 
     res.status(err.statusCode || 401).json({ error: err.message });
   }
 });
+// ── POST /auth/login-mfa ──────────────────────────────────────────────────────
+router.post('/login-mfa', loginLimiter, async (req, res) => {
+  const { user_id, token } = req.body;
+  if (!user_id || !token) return res.status(400).json({ error: 'Faltan parámetros requeridos (user_id, token pin).' });
+  try {
+    const result = await authService.loginMfa(Number(user_id), token);
+    res.json(result);
+  } catch (err) {
+    res.status(err.statusCode || 401).json({ error: err.message });
+  }
+});
+
+// ── GET /auth/mfa/setup ───────────────────────────────────────────────────────
+router.get('/mfa/setup', authenticate, async (req, res, next) => {
+  try {
+    const result = await authService.setupMfa(req.user.id, req.user.email);
+    res.json(result);
+  } catch (err) { next(err); }
+});
+
+// ── POST /auth/mfa/verify ─────────────────────────────────────────────────────
+router.post('/mfa/verify', authenticate, async (req, res, next) => {
+  const { secret, token } = req.body;
+  if (!secret || !token) return res.status(400).json({ error: 'Faltan parámetros requeridos (secret, token pin).' });
+  try {
+    const result = await authService.verifyAndEnableMfa(req.user.id, secret, token);
+    res.json(result);
+  } catch (err) {
+    res.status(err.statusCode || 400).json({ error: err.message });
+  }
+});
 
 // ── POST /auth/select-empresa ─────────────────────────────────────────────────
 // Para usuarios con múltiples empresas — selecciona contexto y genera token

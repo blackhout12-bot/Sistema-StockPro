@@ -4,6 +4,8 @@ const bcrypt = require('bcryptjs');
 const authRepository = require('../../repositories/auth.repository');
 const { sql, connectDB } = require('../../config/db');
 const logger = require('../../utils/logger');
+const { authenticator } = require('otplib');
+const qrcode = require('qrcode');
 
 const ROLES_PERMITIDOS = ['admin', 'vendedor'];
 const JWT_EXPIRY = '8h';
@@ -69,6 +71,16 @@ async function login(email, password) {
 
   if (membresias.length === 0) {
     throw Object.assign(new Error('Este usuario no tiene acceso a ninguna empresa activa'), { statusCode: 403 });
+  }
+
+  // Si el usuario tiene MFA habilitado, interceptamos la respuesta devolviendo un payload parcial
+  if (usuario.mfa_enabled) {
+    logger.info({ userId: usuario.id }, 'Login interceptado: Requiere verificación MFA (TOTP)');
+    return {
+      requires_mfa: true,
+      user_id: usuario.id,
+      email: usuario.email
+    };
   }
 
   // Una sola empresa → token directo
@@ -440,6 +452,80 @@ async function completarOnboarding(usuario_id) {
   return { message: 'Onboarding completado exitosamente.' };
 }
 
+// ─── Control y Flujos MFA (TOTP) ──────────────────────────────────────────────
+
+async function setupMfa(usuario_id, email) {
+  const secret = authenticator.generateSecret();
+  const otpauth = authenticator.keyuri(email, 'StockPro ERP', secret);
+  const qrCodeDataUrl = await qrcode.toDataURL(otpauth);
+  return { secret, qrCodeDataUrl };
+}
+
+async function verifyAndEnableMfa(usuario_id, secret, tokenPin) {
+  const isValid = authenticator.verify({ token: tokenPin, secret: secret });
+  if (!isValid) {
+    throw Object.assign(new Error('El código PIN es incorrecto o estiró su vida útil.'), { statusCode: 400 });
+  }
+
+  const pool = await connectDB();
+  await pool.request()
+    .input('uid', sql.Int, usuario_id)
+    .input('secret', sql.NVarChar(255), secret)
+    .query('UPDATE Usuarios SET mfa_enabled = 1, totp_secret = @secret WHERE id = @uid');
+    
+  return { message: 'MFA habilitado correctamente. Su cuenta ahora es más segura.' };
+}
+
+async function loginMfa(usuario_id, tokenPin) {
+  const pool = await connectDB();
+  const uRes = await pool.request()
+    .input('uid', sql.Int, usuario_id)
+    .query('SELECT *, (SELECT COUNT(*) FROM UsuarioEmpresas ue WHERE ue.usuario_id = Usuarios.id AND ue.activo = 1) AS num_empresas FROM Usuarios WHERE id = @uid');
+  
+  const usuario = uRes.recordset[0];
+  if (!usuario || !usuario.mfa_enabled) {
+    throw Object.assign(new Error('Login inválido para flujo MFA.'), { statusCode: 400 });
+  }
+
+  const isValid = authenticator.verify({ token: tokenPin, secret: usuario.totp_secret });
+  if (!isValid) {
+    throw Object.assign(new Error('Código MFA incorrecto.'), { statusCode: 401 });
+  }
+
+  let membresias = [];
+  try {
+    membresias = await authRepository.obtenerMembresiasPorUsuario(usuario.id);
+  } catch(e) {}
+
+  if (membresias.length === 0 && usuario.empresa_id) {
+    membresias = [{ empresa_id: usuario.empresa_id, rol: usuario.rol }];
+  }
+  
+  if (membresias.length === 0) {
+    throw Object.assign(new Error('Este usuario no tiene acceso a ninguna empresa activa'), { statusCode: 403 });
+  }
+
+  if (membresias.length === 1) {
+    const { empresa_id, rol } = membresias[0];
+    const token = generarToken(buildTokenPayload(usuario, empresa_id, rol));
+    return {
+      token,
+      user: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, empresa_id, rol, onboarding_completed: !!usuario.onboarding_completed },
+    };
+  }
+
+  return {
+    requires_empresa_select: true,
+    usuario_id: usuario.id,
+    empresas: membresias.map(m => ({
+      empresa_id: m.empresa_id,
+      empresa_nombre: m.empresa_nombre,
+      rol: m.rol,
+      logo_url: m.logo_url || null,
+    })),
+  };
+}
+
 module.exports = {
   login,
   seleccionarEmpresa,
@@ -459,4 +545,7 @@ module.exports = {
   resetPassword,
   refreshToken,
   completarOnboarding,
+  setupMfa,
+  verifyAndEnableMfa,
+  loginMfa,
 };
