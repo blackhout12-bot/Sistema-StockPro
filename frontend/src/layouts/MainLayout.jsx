@@ -13,6 +13,7 @@ import OmniSearch from '../components/OmniSearch';
 import moduleRegistry, { getAccessibleModules, groupBySection, sectionMeta } from '../config/moduleRegistry';
 import OnboardingTour from '../components/OnboardingTour';
 import MfaSetupModal from '../components/MfaSetupModal';
+import ContextSelector from '../components/ContextSelector';
 
 // ── Mapa de íconos Lucide ──────────────────────────────────────
 const ICON_MAP = {
@@ -285,6 +286,8 @@ const MainLayout = () => {
 
           {/* Right side */}
           <div className="ml-auto flex items-center gap-1">
+            <ContextSelector />
+            <div className="h-6 w-px bg-slate-200 mx-2 hidden sm:block"></div>
             <OmniSearch />
             <TopBarNotifications />
             <div className="h-6 w-px bg-white/10 mx-2 hidden sm:block"></div>
