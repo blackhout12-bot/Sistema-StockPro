@@ -12,6 +12,10 @@ Tras auditar intensivamente el código fuente y el historial de commits/tags sub
 | **Precios dinámicos** por `sucursal_id` | 🟢 **RESUELTO** | Tabla `PreciosSucursal` migrada. Componente de UI instalado en modal de editar producto y cruce de variables en el controlador de POS (`v1.15.0`). |
 | **Onboarding Joyride** (Tenants nuevos) | 🟢 **RESUELTO** | Integración del tour de frontend guardando estado local en backend DB (`v1.12.0`). |
 | **Exportación de métricas** (OpenTelemetry) | 🟢 **RESUELTO** | Panel KPI en Dashboard y exportación por scrapeo para Prometheus en Backend `/metrics` (`v1.14.0`). |
+| **Notificaciones Avanzadas / Workflows** | 🟢 **RESUELTO** | Panel con filtros (tipo/estado/fecha) y WebSockets integrados con RabbitMQ Central (`v1.17.0`). |
+| **Onboarding Extendido por Rol** | 🟢 **RESUELTO** | Recorrido dinámico incorporado para Compras, Contabilidad y Movimientos segmentado por nivel de acceso (`v1.18.0`). |
+| **Seguridad RBAC Granular** | 🟢 **RESUELTO** | Permisos modulares granulares administrables e inyectados via middleware a la capa lógica (`v1.19.0`). |
+| **Rollback Automático y CI/CD** | 🟢 **RESUELTO** | Bash scripts adaptables k8s/docker, reversiones snapshot BD y YAMLs de Alertas en Prometheus inyectados (`v1.20.0`). |
 
 > **Confirmación Explícita**: El sistema está libre de *bugs catastróficos* (como el antiguo WSOD y Error 500 de clientes). Toda solución reparada *ESTÁ* reflejada en GitHub bajo los tags v1.3.x a v1.7.x. Por ende, no hay redundancia de correcciones ya saldadas en el siguiente informe. 
 
