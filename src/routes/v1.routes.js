@@ -61,6 +61,7 @@ router.use('/auth/sso', authLimiter, require('../modules/auth/auth_sso.controlle
 // Protegidas (Requieren Auth y Tenant Context)
 router.use('/notificaciones', authenticate, tenantContext, require('../modules/notificaciones/notificaciones.controller'));
 router.use('/reportes', authenticate, tenantContext, require('../modules/reportes/reportes.controller'));
+router.use('/auditoria', authenticate, tenantContext, require('../modules/auditoria/auditoria.controller'));
 router.use('/search', authenticate, tenantContext, require('../modules/search/search.controller'));
 router.use('/productos', authenticate, tenantContext, require('../modules/productos/productos.controller'));
 router.use('/categorias', authenticate, tenantContext, require('../modules/categorias/categorias.controller'));

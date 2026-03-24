@@ -17,14 +17,9 @@ async function generarReporteVentasPorProducto(fechaInicio, fechaFin, empresa_id
   return await reportesModel.obtenerVentasPorProducto(fechaInicio, fechaFin, empresa_id);
 }
 
-async function generarReporteAuditoria(empresa_id, limit = 100) {
-  return await reportesModel.obtenerLogsAuditoria(empresa_id, limit);
-}
-
 module.exports = {
   generarReporteStock,
   generarReporteMovimientos,
   generarReporteVentas,
-  generarReporteVentasPorProducto,
-  generarReporteAuditoria
+  generarReporteVentasPorProducto
 };

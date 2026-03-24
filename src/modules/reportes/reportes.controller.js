@@ -61,17 +61,6 @@ router.get('/ventas-producto', checkPermiso('reportes', 'leer'), async (req, res
   }
 });
 
-// GET /reportes/auditoria — logs de acciones críticas
-router.get('/auditoria', checkPermiso('reportes', 'leer'), async (req, res) => {
-  try {
-    const { limit } = req.query;
-    const reporte = await reportesService.generarReporteAuditoria(req.tenant_id, parseInt(limit) || 100);
-    res.json(reporte);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 // ─── NUEVOS ENDPOINTS PARA EXPORTACIONES AVANZADAS (Excel/PDF) ───
 
 // GET /reportes/ventas/excel

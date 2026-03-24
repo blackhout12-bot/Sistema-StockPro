@@ -99,34 +99,9 @@ async function obtenerVentasPorProducto(fechaInicio, fechaFin, empresa_id) {
   return result.recordset;
 }
 
-async function obtenerLogsAuditoria(empresa_id, limit = 100) {
-  const pool = await connectDB();
-  const result = await pool.request()
-    .input('empresa_id', sql.Int, empresa_id)
-    .input('limit', sql.Int, limit)
-    .query(`
-      SELECT TOP (@limit)
-        al.id,
-        al.accion,
-        al.entidad,
-        al.entidad_id,
-        al.payload,
-        al.ip,
-        al.fecha,
-        u.nombre AS usuario_nombre,
-        u.email AS usuario_email
-      FROM dbo.AuditLog al
-      LEFT JOIN Usuarios u ON al.usuario_id = u.id
-      WHERE al.empresa_id = @empresa_id
-      ORDER BY al.fecha DESC
-    `);
-  return result.recordset;
-}
-
 module.exports = {
   obtenerStockActual,
   obtenerMovimientosPorFechas,
   obtenerVentasTotales,
-  obtenerVentasPorProducto,
-  obtenerLogsAuditoria
+  obtenerVentasPorProducto
 };
