@@ -8,6 +8,7 @@ const checkPermiso = require('../../middlewares/rbac');
 const audit = require('../../middlewares/audit');
 const { validateBody } = require('../../middlewares/validateRequest');
 const { movimientoSchema } = require('../../schemas/movimiento.schema');
+const { businessInventoryMovementsTotal } = require('../../middlewares/metrics');
 
 // Listar movimientos (cualquier usuario autenticado con permiso)
 router.get('/', checkPermiso('movimientos', 'leer'), async (req, res, next) => {
@@ -34,6 +35,10 @@ router.post('/registrar', checkPermiso('movimientos', 'crear'), validateBody(mov
     const { tipo, cantidad, productoId, deposito_id, motivo, nro_comprobante, nro_lote, fecha_vto } = req.body;
     const cleanBody = { tipo, cantidad, productoId, deposito_id, motivo, nro_comprobante, nro_lote, fecha_vto };
     const movimiento = await movimientosService.agregarMovimiento(cleanBody, req.user.id, req.tenant_id);
+    
+    // Telemetría de Negocio
+    businessInventoryMovementsTotal.inc({ empresa_id: req.tenant_id, tipo: tipo || 'entrada' });
+
     res.locals.insertedId = movimiento.id;
     res.status(201).json(movimiento);
   } catch (err) {

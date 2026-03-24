@@ -7,6 +7,7 @@ const rateLimit = require('express-rate-limit');
 const { connectDB } = require('../config/db');
 const { redisClient, getRedisStatus } = require('../config/redis');
 const rabbitMQ = require('../config/rabbitmq');
+const { webVitalsSummary } = require('../middlewares/metrics');
 
 // Limiter para Auth (Desactivado para Debug)
 const authLimiter = (req, res, next) => next();
@@ -52,6 +53,19 @@ router.get('/ping', async (req, res) => {
             error: error.message
         });
     }
+});
+
+// Telemetría Frontend (Web Vitals)
+router.post('/telemetry/vitals', express.json(), (req, res) => {
+    try {
+        const metric = req.body;
+        // Parse raw text JSON if it comes from sendBeacon as text/plain
+        const parsed = typeof metric === 'string' ? JSON.parse(metric) : metric;
+        if (parsed && parsed.name && typeof parsed.value === 'number') {
+            webVitalsSummary.labels(parsed.name).observe(parsed.value);
+        }
+    } catch(e) {}
+    res.status(204).end();
 });
 
 // Públicas (Auth)

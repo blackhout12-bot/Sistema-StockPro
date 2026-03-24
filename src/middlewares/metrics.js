@@ -22,6 +22,20 @@ const businessPosSalesTotal = new promClient.Counter({
   labelNames: ['empresa_id', 'sucursal_id']
 });
 
+// Counter para operaciones de Negocio: Inventario
+const businessInventoryMovementsTotal = new promClient.Counter({
+  name: 'stock_system_business_inventory_movements',
+  help: 'Total de movimientos de stock (salidas/entradas)',
+  labelNames: ['empresa_id', 'tipo']
+});
+
+// Summary para Core Web Vitals (Frontend)
+const webVitalsSummary = new promClient.Summary({
+  name: 'stock_system_frontend_web_vitals',
+  help: 'Métricas de telemetría del Frontend (LCP, FID, CLS, FCP, TTFB)',
+  labelNames: ['metric_name']
+});
+
 // Middleware de recolección de métricas HTTP
 const metricsMiddleware = (req, res, next) => {
   const start = Date.now();
@@ -48,5 +62,7 @@ const metricsMiddleware = (req, res, next) => {
 module.exports = {
   metricsMiddleware,
   businessFacturasTotal,
-  businessPosSalesTotal
+  businessPosSalesTotal,
+  businessInventoryMovementsTotal,
+  webVitalsSummary
 };

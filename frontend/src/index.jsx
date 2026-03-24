@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './index.css';
 import App from './App';
-
+import reportWebVitals from './reportWebVitals';
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
@@ -47,3 +47,18 @@ root.render(
         </QueryClientProvider>
     </GlobalErrorBoundary>
 );
+
+// OTel / Observabilidad: Reportar métricas de Core Web Vitals al backend
+reportWebVitals((metric) => {
+    const body = JSON.stringify(metric);
+    // Cambiar por el dominio del backend real
+    const endpoint = (window.location.hostname === 'localhost') 
+        ? 'http://localhost:5000/api/v1/telemetry/vitals'
+        : '/api/v1/telemetry/vitals';
+
+    if (navigator.sendBeacon) {
+        navigator.sendBeacon(endpoint, body);
+    } else {
+        fetch(endpoint, { body, method: 'POST', keepalive: true }).catch(()=>{});
+    }
+});
