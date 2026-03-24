@@ -302,7 +302,11 @@ class FacturacionModel {
                 addFactCol('impuestos', facturaData.impuestos, sql.Decimal(18, 2));
             }
 
-            const insertFactQuery = `INSERT INTO Facturas (${factFields.join(', ')}) OUTPUT INSERTED.id VALUES (${factValues.join(', ')})`;
+            const insertFactQuery = `
+                INSERT INTO Facturas (${factFields.join(', ')})
+                VALUES (${factValues.join(', ')});
+                SELECT SCOPE_IDENTITY() AS id;
+            `;
             const resultFact = await reqFact.query(insertFactQuery);
             factura_id = resultFact.recordset[0].id;
 
@@ -525,8 +529,8 @@ class FacturacionModel {
 
             const resCxc = await reqCxc.query(`
                 INSERT INTO Cuentas_Cobrar (empresa_id, cliente_id, factura_id, monto_adeudado, monto_cobrado, estado)
-                OUTPUT INSERTED.id
-                VALUES (@empresa_id, @cliente_id, @factura_id, @monto_adeudado, @monto_cobrado, @estado)
+                VALUES (@empresa_id, @cliente_id, @factura_id, @monto_adeudado, @monto_cobrado, @estado);
+                SELECT SCOPE_IDENTITY() AS id;
             `);
             const cxc_id = resCxc.recordset[0].id;
 

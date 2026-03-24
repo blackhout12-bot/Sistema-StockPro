@@ -1,4 +1,4 @@
-RequestError: Cannot insert the value NULL into column 'cliente_id', table 'StockDB.dbo.Facturas'; column does not allow nulls. INSERT fails.\nRequestError: Cannot insert the value NULL into column 'cliente_id', table 'StockDB.dbo.Facturas'; column does not allow nulls. INSERT fails.
+RequestError: The target table 'Facturas' of the DML statement cannot have any enabled triggers if the statement contains an OUTPUT clause without INTO clause.\nRequestError: The target table 'Facturas' of the DML statement cannot have any enabled triggers if the statement contains an OUTPUT clause without INTO clause.
     at handleError (C:\Users\egar0\stock-system\node_modules\mssql\lib\tedious\request.js:384:15)
     at Connection.emit (node:events:508:28)
     at Connection.emit (C:\Users\egar0\stock-system\node_modules\tedious\lib\connection.js:1013:18)

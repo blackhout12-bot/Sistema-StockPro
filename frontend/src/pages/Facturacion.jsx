@@ -1002,7 +1002,7 @@ const Facturacion = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50 text-sm">
-                            {(historicoFacturas.filter(f => f.nro_factura?.toLowerCase().includes(auditSearch.toLowerCase()) || f.cliente_nombre?.toLowerCase().includes(auditSearch.toLowerCase()))
+                            {(historicoFacturas.filter(f => f.nro_factura?.toLowerCase()?.includes(auditSearch.toLowerCase()) || f.cliente_nombre?.toLowerCase()?.includes(auditSearch.toLowerCase()))
                                 .slice((auditPage - 1) * AUDIT_PER_PAGE, auditPage * AUDIT_PER_PAGE)).map(factura => (
                                     <tr key={factura.id} className="hover:bg-primary-50/5 transition-all">
                                         <td className="px-10 py-6">
