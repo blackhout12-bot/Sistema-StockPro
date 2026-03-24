@@ -451,7 +451,27 @@ async function completarOnboarding(usuario_id) {
   await pool.request()
     .input('uid', sql.Int, usuario_id)
     .query('UPDATE Usuarios SET onboarding_completed = 1 WHERE id = @uid');
+  
+  try {
+      const auditRepository = require('../../repositories/audit.repository');
+      await auditRepository.logAction({ usuario_id, accion: 'finalizar_onboarding', entidad: 'Usuario', ip: 'Sistema', payload: { estado: 'Completado' } });
+  } catch (err) {}
+
   return { message: 'Onboarding completado exitosamente.' };
+}
+
+async function resetearOnboarding(usuario_id) {
+  const pool = await connectDB();
+  await pool.request()
+    .input('uid', sql.Int, usuario_id)
+    .query('UPDATE Usuarios SET onboarding_completed = 0 WHERE id = @uid');
+    
+  try {
+      const auditRepository = require('../../repositories/audit.repository');
+      await auditRepository.logAction({ usuario_id, accion: 'reiniciar_onboarding', entidad: 'Usuario', ip: 'Sistema', payload: { estado: 'Reinicio Manual' } });
+  } catch (err) {}
+
+  return { message: 'Onboarding reiniciado.' };
 }
 
 // ─── Control y Flujos MFA (TOTP) ──────────────────────────────────────────────
@@ -552,6 +572,7 @@ module.exports = {
   resetPassword,
   refreshToken,
   completarOnboarding,
+  resetearOnboarding,
   setupMfa,
   verifyAndEnableMfa,
   loginMfa,

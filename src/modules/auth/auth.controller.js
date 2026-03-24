@@ -281,4 +281,12 @@ router.patch('/me/onboarding', authenticate, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ── POST /auth/me/onboarding/reset — reiniciar UX guiado ────────────
+router.post('/me/onboarding/reset', authenticate, async (req, res, next) => {
+  try {
+    const result = await authService.resetearOnboarding(req.user.id);
+    res.json(result);
+  } catch (err) { next(err); }
+});
+
 module.exports = router;

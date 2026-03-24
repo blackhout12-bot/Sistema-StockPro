@@ -11,7 +11,7 @@ import { useBranch } from '../context/BranchContext';
 import TopBarNotifications from '../components/TopBarNotifications';
 import OmniSearch from '../components/OmniSearch';
 import moduleRegistry, { getAccessibleModules, groupBySection, sectionMeta } from '../config/moduleRegistry';
-import OnboardingTour from '../components/OnboardingTour';
+import TourGuide from '../components/TourGuide';
 import MfaSetupModal from '../components/MfaSetupModal';
 import ContextSelector from '../components/ContextSelector';
 
@@ -43,7 +43,7 @@ function NavItem({ mod, isActive }) {
   return (
     <Link
       to={mod.path}
-      id={`nav-${mod.id}`}
+      id={`tour-${mod.id}`}
       className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[12px] font-semibold transition-all duration-200 group ${
         isActive
           ? 'bg-品牌-500 text-white shadow-sm border border-white/10 bg-brand-base'
@@ -291,15 +291,28 @@ const MainLayout = () => {
             <OmniSearch />
             <TopBarNotifications />
             <div className="h-6 w-px bg-white/10 mx-2 hidden sm:block"></div>
-            <button title="Configurar 2FA (MFA)" onClick={() => setIsMfaModalOpen(true)} className="flex items-center gap-2 hover:bg-slate-50 p-1.5 rounded-lg transition-colors cursor-pointer text-left">
-              <div className="text-right hidden sm:block">
-                <p className="text-[11px] font-bold text-slate-800 leading-none">{user?.nombre || user?.email}</p>
-                <p className="text-[9px] font-black uppercase tracking-widest text-primary-500 mt-0.5">{user?.rol}</p>
-              </div>
-              <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-600 font-bold text-xs border border-slate-100 focus:ring-2 focus:ring-brand-base">
-                {user?.nombre?.[0]?.toUpperCase() || 'U'}
-              </div>
-            </button>
+            <div className="flex flex-col items-end mr-4">
+              <button title="Configurar 2FA (MFA)" onClick={() => setIsMfaModalOpen(true)} className="flex items-center gap-2 hover:bg-slate-50 p-1.5 rounded-lg transition-colors cursor-pointer text-left focus:outline-none">
+                <div className="text-right hidden sm:block">
+                  <p className="text-[11px] font-bold text-slate-800 leading-none">{user?.nombre || user?.email}</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-primary-500 mt-0.5">{user?.rol}</p>
+                </div>
+                <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-600 font-bold text-xs border border-slate-100 focus:ring-2 focus:ring-brand-base">
+                  {user?.nombre?.[0]?.toUpperCase() || 'U'}
+                </div>
+              </button>
+              <button 
+                onClick={async () => {
+                  try {
+                    await import('../utils/axiosConfig').then(m => m.default.post('/auth/me/onboarding/reset'));
+                    window.location.reload();
+                  } catch(e) {}
+                }} 
+                className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-indigo-600 transition-colors"
+              >
+                Reset Tutorial UX
+              </button>
+            </div>
           </div>
         </header>
 
@@ -308,7 +321,7 @@ const MainLayout = () => {
           <Outlet />
         </div>
 
-        <OnboardingTour />
+        <TourGuide />
         <MfaSetupModal isOpen={isMfaModalOpen} onClose={() => setIsMfaModalOpen(false)} />
       </main>
     </div>
