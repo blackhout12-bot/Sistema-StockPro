@@ -22,17 +22,15 @@ export const DownloadService = {
             const userObj = JSON.parse(localStorage.getItem('user') || '{}');
             const empId = selectedEmp.id || userObj.empresa_id || '';
 
-            // 2. Determinamos la URL base dinámica
-            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            const port = isLocal ? ':5000' : '';
-            const baseUrl = `${window.location.protocol}//${window.location.hostname}${port}`;
+            // 2. Determinamos la URL. Usamos la variable de entorno o resolvemos como ruta relativa
+            // Al usar una ruta relativa, el Proxy de Vite (dev) o el Nginx (prod) absorben el ruteo sin hardcodear puertos.
+            const baseUrl = typeof process !== 'undefined' && process.env && process.env.VITE_API_URL 
+                ? process.env.VITE_API_URL 
+                : '/api/v1';
             
-            const downloadUrl = `${baseUrl}/api/v1/facturacion/${facturaId}/pdf${autoOpen ? '?inline=true' : ''}`;
+            const downloadUrl = `${baseUrl}/facturacion/${facturaId}/pdf${autoOpen ? '?inline=true' : ''}`;
 
-            // 3. ✨ MODO POST NATIVO: Integración con Descargas del Navegador
-            // Al usar un formulario oculto, el navegador maneja la respuesta HTTP.
-            // Si el backend envía "attachment", el navegador muestra su UI nativa de descargas
-            // con opciones como "Ver en carpeta" o "Abrir archivo", que es exactamente lo requerido.
+            // 3. MODO POST NATIVO: Integración con Descargas del Navegador
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = downloadUrl;

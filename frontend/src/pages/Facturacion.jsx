@@ -484,14 +484,16 @@ const Facturacion = () => {
                 <style dangerouslySetInnerHTML={{
                     __html: `
                     @media print {
-                        body > *:not(.invoice-print-root) { display: none !important; }
+                        body * { visibility: hidden; }
+                        .invoice-print-root, .invoice-print-root * { visibility: visible; }
                         .invoice-print-root { 
-                            position: fixed; inset: 0;
+                            position: absolute; 
+                            left: 0; 
+                            top: 0;
                             width: 100%; 
                             background: white;
                             padding: 0;
                             margin: 0;
-                            z-index: 9999;
                             border-radius: 0 !important;
                             box-shadow: none !important;
                         }
