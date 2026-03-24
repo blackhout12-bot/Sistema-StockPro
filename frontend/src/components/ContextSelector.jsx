@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import api from '../../utils/axiosConfig';
+import api from '../utils/axiosConfig';
 import toast from 'react-hot-toast';
 import { Network, ChevronDown, CheckCircle2 } from 'lucide-react';
 
