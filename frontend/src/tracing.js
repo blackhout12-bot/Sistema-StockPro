@@ -5,7 +5,6 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
 import { XMLHttpRequestInstrumentation } from '@opentelemetry/instrumentation-xml-http-request';
 import { FetchInstrumentation } from '@opentelemetry/instrumentation-fetch';
-import { ZoneContextManager } from '@opentelemetry/context-zone';
 
 const provider = new WebTracerProvider();
 
@@ -15,9 +14,7 @@ const exporter = new OTLPTraceExporter({
 
 provider.addSpanProcessor(new BatchSpanProcessor(exporter));
 
-provider.register({
-  contextManager: new ZoneContextManager(),
-});
+provider.register();
 
 registerInstrumentations({
   instrumentations: [
