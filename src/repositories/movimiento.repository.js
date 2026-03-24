@@ -150,14 +150,25 @@ class MovimientoRepository {
             const movResult = await movReq.query(insertQuery);
 
             // 4. Manejo de Lotes (Nuevo)
+            const loteRepo = require('./lote.repository');
             if (tipo === 'entrada' && (data.nro_lote !== undefined && data.nro_lote !== null && data.nro_lote !== '')) {
-                const loteRepo = require('./lote.repository');
                 await loteRepo.create(transaction, {
                     producto_id: productoId,
                     nro_lote: data.nro_lote,
                     cantidad: cantidad,
                     fecha_vto: data.fecha_vto
                 }, empresa_id);
+            } else if (tipo === 'salida' || tipo === 'ajuste_salida') {
+                // Consumo FEFO / FIFO automático
+                const lotesDisponibles = await loteRepo.getAvailableByProducto(transaction, productoId, empresa_id);
+                let cantidadRestante = cantidad;
+
+                for (const lote of lotesDisponibles) {
+                    if (cantidadRestante <= 0) break;
+                    const aDescontar = Math.min(lote.cantidad, cantidadRestante);
+                    await loteRepo.updateStock(transaction, lote.id, -aDescontar, empresa_id);
+                    cantidadRestante -= aDescontar;
+                }
             }
 
             // 5. Notificación si stock bajo
