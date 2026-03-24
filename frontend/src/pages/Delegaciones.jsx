@@ -102,10 +102,10 @@ const Delegaciones = () => {
                                         <td className="p-3 whitespace-nowrap"><span className="px-2 py-1 bg-indigo-50 text-indigo-700 text-[10px] font-black rounded uppercase tracking-wider">{d.rol_asignado}</span></td>
                                         <td className="p-3 whitespace-nowrap text-slate-500 text-xs">{new Date(d.fecha_fin).toLocaleString()}</td>
                                         <td className="p-3 text-center">
-                                            {d.estado === 'ACTIVO' ? <CheckCircle className="w-4 h-4 text-emerald-500 mx-auto" /> : <XCircle className="w-4 h-4 text-rose-500 mx-auto" />}
+                                            {(!d.fecha_fin || new Date(d.fecha_fin) > new Date()) ? <CheckCircle className="w-4 h-4 text-emerald-500 mx-auto" /> : <XCircle className="w-4 h-4 text-rose-500 mx-auto" />}
                                         </td>
                                         <td className="p-3 text-right">
-                                            {d.estado === 'ACTIVO' && (
+                                            {(!d.fecha_fin || new Date(d.fecha_fin) > new Date()) && (
                                                 <button onClick={() => mutacionRevocar.mutate(d.id)} className="px-3 py-1 bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold text-[11px] rounded transition-colors uppercase">
                                                     Revocar
                                                 </button>
