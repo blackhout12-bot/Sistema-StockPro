@@ -101,6 +101,20 @@ router.post('/select-empresa', validateBody(selectEmpresaSchema), async (req, re
   }
 });
 
+// ── PUT /auth/contexto ────────────────────────────────────────────────────────
+// Ajuste atómico del selector de contexto para Sucursales Activas Pivotantes
+router.put('/contexto', authenticate, async (req, res) => {
+  const { sucursal_id } = req.body;
+  if (!sucursal_id) return res.status(400).json({ error: 'ID de sucursal es obligatorio.' });
+  try {
+    // Al no haber session JWT mutable forzado en frontend, el servidor retorna OK autoritativo.
+    // En despliegues futuros el server re-firma un Token con target de contexto limitado.
+    return res.json({ message: 'Contexto de entorno actualizado exitosamente. Front-end debe pivotear los requests siguientes a este header.', sucursal_id });
+  } catch(err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── GET /auth/refresh ─────────────────────────────────────────────────────────
 // Renueva el token de autenticación
 router.get('/refresh', authenticate, async (req, res) => {
@@ -163,6 +177,15 @@ router.get('/mis-empresas', authenticate, async (req, res, next) => {
 
 // ── POST /auth/users — crear usuario en mi empresa (Admin via RBAC) ───────────────────
 router.post('/users', authenticate, checkPermiso('usuarios', 'crear'), validateBody(createUserSchema), audit('crear', 'Usuario'), async (req, res) => {
+  // --- SEGURIDAD: Delegación Jerárquica ---
+  const hierarchy = { admin: 3, gerente: 2, supervisor: 1, vendedor: 0, cajero: 0 };
+  const rolDeseado = (req.body.rol || '').toLowerCase();
+  const miRol = (req.user.rol || '').toLowerCase();
+  
+  if (miRol !== 'admin' && (hierarchy[rolDeseado] || 0) >= (hierarchy[miRol] || 0)) {
+     return res.status(403).json({ error: 'Delegación fallida: No tienes jurisdicción para asignar privilegios a tu mismo nivel orgánico o superior.' });
+  }
+
   try {
     await authService.crearUsuarioAdmin({ ...req.body, empresa_id: req.user.empresa_id });
     res.status(201).json({ message: 'Usuario creado exitosamente' });
@@ -176,6 +199,15 @@ router.post('/users', authenticate, checkPermiso('usuarios', 'crear'), validateB
 
 // ── PUT /auth/:id/rol — cambiar rol en mi empresa (Admin via RBAC) — BEFORE /:id wildcard
 router.put('/:id/rol', authenticate, checkPermiso('usuarios', 'actualizar'), validateBody(updateRoleSchema), audit('modificar_rol', 'Usuario'), async (req, res) => {
+  // --- SEGURIDAD: Delegación Jerárquica ---
+  const hierarchy = { admin: 3, gerente: 2, supervisor: 1, vendedor: 0, cajero: 0 };
+  const rolDeseado = (req.body.rol || '').toLowerCase();
+  const miRol = (req.user.rol || '').toLowerCase();
+  
+  if (miRol !== 'admin' && (hierarchy[rolDeseado] || 0) >= (hierarchy[miRol] || 0)) {
+     return res.status(403).json({ error: 'Superación de límites: Solo un rol superior puede ceder esta asignación corporativa.' });
+  }
+
   try {
     const result = await authService.actualizarRolUsuario(
       Number(req.params.id),

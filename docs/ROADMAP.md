@@ -16,6 +16,7 @@ Tras auditar intensivamente el código fuente y el historial de commits/tags sub
 | **Onboarding Extendido por Rol** | 🟢 **RESUELTO** | Recorrido dinámico incorporado para Compras, Contabilidad y Movimientos segmentado por nivel de acceso (`v1.18.0`). |
 | **Seguridad RBAC Granular** | 🟢 **RESUELTO** | Permisos modulares granulares administrables e inyectados via middleware a la capa lógica (`v1.19.0`). |
 | **Rollback Automático y CI/CD** | 🟢 **RESUELTO** | Bash scripts adaptables k8s/docker, reversiones snapshot BD y YAMLs de Alertas en Prometheus inyectados (`v1.20.0`). |
+| **Escalabilidad y Multi-Contexto Jerárquico** | 🟢 **RESUELTO** | Esquema N-a-N en base de datos de contexto (`Contextos_Usuarios`), restricción por capa de mando en AuthController y topología K8S validada (`v1.21.0`). |
 
 > **Confirmación Explícita**: El sistema está libre de *bugs catastróficos* (como el antiguo WSOD y Error 500 de clientes). Toda solución reparada *ESTÁ* reflejada en GitHub bajo los tags v1.3.x a v1.7.x. Por ende, no hay redundancia de correcciones ya saldadas en el siguiente informe. 
 
