@@ -210,6 +210,17 @@ const moduleRegistry = [
     lazy: () => import('../pages/AuditLogs'),
     breadcrumb: 'Logs de Auditoría'
   },
+  {
+    id: 'delegaciones',
+    label: 'Delegación de Poderes',
+    path: '/delegaciones',
+    icon: 'Shield',
+    section: 'administracion',
+    requiredToggle: null,
+    requiredRoles: ['admin', 'gerente'],
+    lazy: () => import('../pages/Delegaciones'),
+    breadcrumb: 'Préstamo Temprano de Roles'
+  },
 
   // ── EXTRAS (requieren feature toggles) ───────────────────────
   {

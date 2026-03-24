@@ -97,6 +97,7 @@ router.use('/payments', authenticate, require('../modules/payments/payments.cont
 router.use('/importacion', authenticate, tenantContext, require('../modules/importacion/importacion.controller'));
 router.use('/monedas', authenticate, require('../modules/configuracion/monedas.controller'));
 router.use('/contextos', authenticate, tenantContext, require('../modules/contextos/contextos.controller'));
+router.use('/delegaciones', authenticate, tenantContext, require('../modules/delegaciones/delegaciones.controller'));
 
 // Analítica y Business Intelligence (Fase 14)
 router.use('/bi', authenticate, tenantContext, require('./bi.routes'));
