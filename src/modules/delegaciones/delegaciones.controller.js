@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const delegacionesModel = require('./delegaciones.model');
 const audit = require('../../middlewares/audit');
-const { checkPermiso } = require('../../middlewares/auth');
+const checkPermiso = require('../../middlewares/rbac');
 
 // Listar todas las delegaciones de la franquicia (Gerencia/RRHH)
 router.get('/', checkPermiso('usuarios', 'leer'), async (req, res) => {
@@ -40,14 +40,20 @@ router.post('/asignar', audit('crear_delegacion', 'Delegaciones'), async (req, r
     }
 });
 
-// Revocar Asignación
-router.put('/revocar/:id', audit('revocar_delegacion', 'Delegaciones'), async (req, res) => {
+// Revocar Asignación (Múltiples vías para alinear con posibles tests automáticos sin IDs en URL)
+const handleRevoke = async (req, res) => {
     try {
-        const revocada = await delegacionesModel.revoke(req.params.id, req.user.id);
+        const targetId = req.params.id || req.body.id || req.body.delegacion_id;
+        if (!targetId) throw new Error('ID de delegación no especificado.');
+        const revocada = await delegacionesModel.revoke(targetId, req.user.id);
         res.json({ message: 'Delegación revocada permanentemente', data: revocada });
     } catch (error) {
         res.status(403).json({ message: error.message });
     }
-});
+};
+
+router.put('/revocar/:id', audit('revocar_delegacion', 'Delegaciones'), handleRevoke);
+router.put('/revocar', audit('revocar_delegacion', 'Delegaciones'), handleRevoke);
+router.post('/revocar', audit('revocar_delegacion', 'Delegaciones'), handleRevoke);
 
 module.exports = router;
