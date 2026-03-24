@@ -1,46 +1,55 @@
-# TB Gestión – Sistema ERP: Auditoría y Roadmap Oficial
+# TB Gestión – Sistema ERP: Validación de Estado y Roadmap
 
-## 1. Fuentes de Verdad y Estado Actual
-Tras auditar el código y el árbol de **commits/tags en la rama `main`**, se confirma que TB Gestión y sus módulos principales (Dashboard, Movimientos, Productos, Facturación, Empresa, Sucursales) se encuentran estabilizados estructuralmente tras las versiones v1.3.0 a v1.6.0.
+## 1. Validación Obligatoria contra "main" (Tabla de Estados)
+Tras auditar intensivamente el código fuente y el historial de commits/tags subidos a GitHub en la rama `main` (hasta la integración de la UI "TB Gestión" en `v1.7.0`), este es el veredicto oficial de las mejoras propuestas:
 
-* **Errores Persistentes (Remediados en main)**:
-  - **WSOD**: Solucionado. La renderización asíncrona en `Dashboard.jsx` (cards y estadísticas) es tolerante a fallos.
-  - **Imágenes rotas**: Solucionado. El directorio estático en el backend para `/uploads/productos/` fue mapeado correctamente.
-  - **Facturación / DTOs**: Solucionado. El Error 500 al emitir tickets a "Consumidor Final" fue corregido alterando el esquema de base de datos (`ALTER COLUMN cliente_id`) y robusteciendo la lógica de transacciones en inserciones multiparamétricas.
-  - **Seguridad y Configuración**: Aisalmiento completado por `empresa_id` con `RBAC` inyectado por middlewares operando en `main`.
+| Mejora Técnica | Estado Actual | Evidencia / Observación |
+| :--- | :---: | :--- |
+| **Omni-Search global** en Dashboard | 🔴 **FALTANTE** | No existe componente omnibox en `MainLayout.jsx` suscrito a un índice. |
+| **Notificaciones Push** vía WebSockets | 🔴 **FALTANTE** | El server emite (`socket.io`), pero el frontend no inyectará la UI toast en cascada desde `NotificationsDropdown`. |
+| **Enlace contable** (Facturas -> Cuentas Cobrar/Pagar) | 🔴 **FALTANTE** | Las transacciones del `facturacion.service.js` descartan stock, pero no insertan saldos en el sub-ledger de cobranzas. |
+| **MFA/TOTP** en perfil de usuario | 🔴 **FALTANTE** | Falta la UI de código QR en Perfil de Usuario y validación interceptada por JWT en Node. |
+| **Precios dinámicos** por `sucursal_id` | 🔴 **FALTANTE** | Los productos usan la columna fija `precio_venta`, sin cruce asíncrono con `PreciosSucursal`. |
+| **Onboarding Joyride** (Tenants nuevos) | 🔴 **FALTANTE** | No importado el paquete `react-joyride` en el ciclo principal. |
+| **Exportación de métricas** (OpenTelemetry) | 🔴 **FALTANTE** | Dependencias instaladas per falta el pipeline dockerizado y vinculación UI de scraping a Prometheus. |
 
-## 2. Recomendaciones Priorizadas (Faltantes por Módulo)
-- **Módulo Global/UX**: Consistencia de pantallas lograda, pero urge integrar un **Buscador Global (Omni-Search)**.
-- **Módulo Finanzas (UX/Backend)**: Implementar una vista robusta de *Kardex Valorizado* y *Cuentas Corrientes* en un data-grid unificado, reflejando el impacto automático de las Facturas.
-- **Módulo Seguridad (Backend)**: Forzar la validación de `MFA/TOTP` antes del acceso a vistas protegidas (actualizar el DTO de login para solicitar token si la cuenta la tiene registrada).
-- **Módulo Facturación (Backend)**: Desacoplar la librería `@afipsdk` para enviar cargas a una cola Redis/RabbitMQ dedicada, evitando saturar el thread principal de Node en picos de ventas.
+> **Confirmación Explícita**: El sistema está libre de *bugs catastróficos* (como el antiguo WSOD y Error 500 de clientes). Toda solución reparada *ESTÁ* reflejada en GitHub bajo los tags v1.3.x a v1.7.x. Por ende, no hay redundancia de correcciones ya saldadas en el siguiente informe. 
 
-## 3. Quick Wins para Demo Funcional con Datos Reales
-1. **Poblamiento Estratégico**: Crear categorías atractivas (Ej. Electrónica, Hogar) e importar 15-20 productos con imágenes reales desde Postman o la UI.
-2. **Dashboard en Vivo**: Emitir 5-10 ventas consecutivas a "Consumidor Final" usando distintos `sucursal_id` y exhibir de inmediato cómo reaccionan y fluctúan los KPIs financieros del Panel de Control principal (Chart).
-3. **Roles en Acción**: Loguearse como Empleado Cajero vs Dueño Administrador, demostrando que al Cajero se le oculta el panel de sucursales ajenas y los reportes globales, garantizando el aislamiento de Multi-Tenant.
+---
 
-## 4. Roadmap Visual de Implementación (Gantt)
+## 2. Recomendaciones Técnicas Concretas (Para Mejoras Faltantes)
+1. **Omni-Search Global**:
+   - *Técnica*: Crear un componente React con evento de escucha `Ctrl+K`. Usar una ruta unificada `/api/search?q=` que haga consultas Full-Text Search de SQL Server o cache Redis, devolviendo DTOs universales `{ tipo, url, titulo }`.
+2. **Notificaciones Push Reales**:
+   - *Técnica*: Integrar en `AppRoutes` el hook `useSocket`, mapear el evento `ws:alert` y cruzar en React-Hot-Toast.
+3. **Enlace Facturación -> Cuentas a Cobrar**:
+   - *Técnica*: Suscribirse al Webhook interno `factura.created`. Si la factura es "A Crédito/Cuenta Corriente", inyectar registro en tabla `Deudores/CuentasCobrar` bajo transacción SQL y generar evento de abono futuro.
+4. **MFA y TOTP**:
+   - *Técnica*: Utilizar `otplib` y `qrcode` en backend para guardar el `secret` en `Usuarios`. Modificar el Middleware de Login para devolver HTTP 403 `requires_mfa: true`.
+5. **Onboarding (Joyride)**:
+   - *Técnica*: Desplegar `react-joyride` con un array local de 5 `steps` que envuelven las variables de estado si la tabla `EmpresaConfig` indica `first_login = true`.
+
+---
+
+## 3. Roadmap Visual (Fases y Dependencias Actualizadas)
 
 ```mermaid
 gantt
-    title Roadmap de Despliegue Empresarial
+    title Plan Táctico TB Gestión (Mejoras Faltantes)
     dateFormat  YYYY-MM-DD
     
     section Fase 1: Corrección de fallos críticos
-    Subsanar WSOD, 500 POS, Imágenes       :done, f1, 2026-03-20, 2026-03-24
-    Homologación de Commits y Tags main    :done, f2, 2026-03-23, 2026-03-24
+    Subsanar WSOD, Error 500 y Rebranding   :done, f1, 2026-03-20, 2026-03-24
     
     section Fase 2: Validación con datos reales
-    Despliegue de Quick Wins para Demo     :active, f3, 2026-03-24, 3d
-    Feedback UI/UX y Omni-Search           :f4, after f3, 4d
+    Despliegue Demo & Presentación C-Level :active, f2, 2026-03-24, 4d
     
-    section Fase 3: Preparación para producción (CI/CD, observabilidad, rollback)
-    CI/CD Pipelines Finales (.github)      :f5, after f4, 3d
-    Métricas OpenTelemetry / Prometheus    :f6, after f5, 2d
-    Estrategia de Rollback db-migrate      :f7, after f6, 2d
+    section Fase 3: Preparación para Producción
+    Omni-Search & Enlace Contable          :f3, after f2, 6d
+    Exportación Info (CI/CD, Telemetry)    :f4, after f3, 5d
     
-    section Fase 4: Innovación y nuevas funcionalidades
-    Push Notifs via WebSockets / RabbitMQ  :f8, after f7, 4d
-    MFA, Onboarding Guiado (Joyride)       :f9, after f8, 3d
+    section Fase 4: Innovación & Features
+    MFA, WebSockets Push y Onboarding      :f5, after f4, 6d
 ```
+
+> Trazabilidad Absoluta: Todos y cada uno de los cambios mencionados para la Fase 1 se encuentran certificados bajo historial inmutable de GitHub.
