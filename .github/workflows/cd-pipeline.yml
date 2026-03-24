@@ -163,11 +163,12 @@ jobs:
 
       - name: Validate System Health (Smoke Test)
         run: |
-          echo "Simulando Test de Humo post-despliegue..."
+          echo "Ejecutando Test de Humo post-despliegue..."
           kubectl get pods -n stock-system | grep Running
           if [ $? -ne 0 ]; then
-            echo "❌ Fallo la validación: Pods no están corriendo"
-            echo "Invocando rollback automático vía helm history/rollback (Simulado)"
+            echo "❌ Fallo la validación: Pods inestables"
+            echo "Invocando rollback automático vía helm..."
+            helm rollback stock-system -n stock-system || true
             exit 1
           fi
           echo "✅ Sistema validado, corriendo exitosamente."
