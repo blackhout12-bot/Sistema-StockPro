@@ -30,11 +30,15 @@ const metricsMiddleware = (req, res, next) => {
     const duration = Date.now() - start;
     // Evitamos inundar con las rutas de salud y métricas del propio prom-client
     if (req.path !== '/metrics' && req.path !== '/health') {
-      httpRequestDurationMicroseconds.labels(
-        req.method,
-        req.route ? req.route.path : req.path,
-        res.statusCode
-      ).observe(duration);
+      try {
+        httpRequestDurationMicroseconds.labels({
+          method: req.method,
+          route: req.route ? req.route.path : req.path,
+          status_code: res.statusCode.toString()
+        }).observe(duration);
+      } catch (e) {
+        // Silently ignore tracking errors to avoid dropping connections
+      }
     }
   });
 
