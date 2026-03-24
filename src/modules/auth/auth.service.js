@@ -38,12 +38,14 @@ async function login(email, password) {
   const usuario = await authRepository.obtenerUsuarioPorEmail(email);
   if (!usuario) {
     logger.warn({ email }, 'Login fallido: usuario no encontrado');
+    try { await auditRepository.logAction({ accion: 'login_fallido', entidad: 'Usuario', ip: 'Sistema', payload: { email, razon: 'No encontrado' } }); } catch(err){}
     throw Object.assign(new Error('Credenciales inválidas'), { statusCode: 401 });
   }
 
   const valido = await bcrypt.compare(password, usuario.password_hash);
   if (!valido) {
     logger.warn({ email }, 'Login fallido: contraseña incorrecta');
+    try { await auditRepository.logAction({ usuario_id: usuario.id, accion: 'login_fallido', entidad: 'Usuario', ip: 'Sistema', payload: { razon: 'Password Invalida' } }); } catch(err){}
     throw Object.assign(new Error('Credenciales inválidas'), { statusCode: 401 });
   }
 
@@ -473,6 +475,11 @@ async function verifyAndEnableMfa(usuario_id, secret, tokenPin) {
     .input('secret', sql.NVarChar(255), secret)
     .query('UPDATE Usuarios SET mfa_enabled = 1, totp_secret = @secret WHERE id = @uid');
     
+  try {
+      const auditRepository = require('../../repositories/audit.repository');
+      await auditRepository.logAction({ usuario_id, accion: 'activar_mfa', entidad: 'Seguridad', ip: 'Sistema', payload: { estado: 'MFA_HABILITADO' } });
+  } catch (err) {}
+
   return { message: 'MFA habilitado correctamente. Su cuenta ahora es más segura.' };
 }
 
