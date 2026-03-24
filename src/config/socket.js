@@ -1,5 +1,6 @@
 // src/config/socket.js
 const { Server } = require('socket.io');
+const jwt = require('jsonwebtoken');
 const logger = require('../utils/logger');
 
 let io;
@@ -15,11 +16,37 @@ function initSocket(server) {
     // Namespace dinámico para Multi-tenancy
     const tenantNamespace = io.of(/^\/tenant-\d+$/);
 
+    // [Seguridad]: Interceptar y validar token JWT por cada handshake
+    tenantNamespace.use((socket, next) => {
+        const token = socket.handshake.auth?.token;
+        if (!token) {
+            logger.warn({ socketId: socket.id }, 'Intento de conexión a Socket.io sin token');
+            return next(new Error('Authentication error'));
+        }
+        
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+            socket.user = decoded;
+            
+            // Validar que el usuario pertenezca al tenant que quiere suscribirse
+            const requestedTenant = socket.nsp.name.split('-')[1];
+            if (String(decoded.empresa_id) !== String(requestedTenant)) {
+                logger.warn({ user: decoded.id, requestedTenant }, 'Usuario no autorizado para este tenant socket');
+                return next(new Error('Unauthorized tenant access'));
+            }
+            
+            next();
+        } catch (err) {
+            logger.error({ err: err.message }, 'Fallo de autenticación en Socket.io JWT');
+            return next(new Error('Authentication error'));
+        }
+    });
+
     tenantNamespace.on('connection', (socket) => {
         const namespace = socket.nsp.name;
         const tenantId = namespace.split('-')[1];
         
-        logger.info({ tenantId, socketId: socket.id }, 'Cliente conectado a namespace de tenant');
+        logger.info({ tenantId, userId: socket.user?.id, socketId: socket.id }, 'Cliente legítimo conectado a namespace de tenant');
 
         socket.on('join-room', (room) => {
             socket.join(room);

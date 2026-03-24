@@ -6,7 +6,7 @@ Tras auditar intensivamente el código fuente y el historial de commits/tags sub
 | Mejora Técnica | Estado Actual | Evidencia / Observación |
 | :--- | :---: | :--- |
 | **Omni-Search global** en Dashboard | 🟢 **RESUELTO** | Componente unificado e incorporado en header (`MainLayout.jsx`) con endpoint backend `api/search`. |
-| **Notificaciones Push** vía WebSockets | 🔴 **FALTANTE** | El server emite (`socket.io`), pero el frontend no inyectará la UI toast en cascada desde `NotificationsDropdown`. |
+| **Notificaciones Push** vía WebSockets | 🟢 **RESUELTO** | Socket.io activo con seguridad JWT integrando Toasts y Top-bar para todo el branch de alertas. |
 | **Enlace contable** (Facturas -> Cuentas Cobrar/Pagar) | 🟢 **RESUELTO** | Las transacciones inyectan atómicamente en el sub-ledger. Dashboard Financiero y UI de Facturas activos leyendo saldos en vivo. |
 | **MFA/TOTP** en perfil de usuario | 🔴 **FALTANTE** | Falta la UI de código QR en Perfil de Usuario y validación interceptada por JWT en Node. |
 | **Precios dinámicos** por `sucursal_id` | 🔴 **FALTANTE** | Los productos usan la columna fija `precio_venta`, sin cruce asíncrono con `PreciosSucursal`. |
@@ -52,7 +52,8 @@ gantt
     Exportación Info (CI/CD, Telemetry)    :f4, after f30, 5d
     
     section Fase 4: Innovación & Features
-    MFA, WebSockets Push y Onboarding      :f5, after f4, 6d
+    MFA y Onboarding Joyride               :f5, after f4, 6d
+    Notificaciones WebSockets Top-Bar      :done, f30, 2026-03-24, 2026-03-24
 ```
 
 > Trazabilidad Absoluta: Todos y cada uno de los cambios mencionados para la Fase 1 se encuentran certificados bajo historial inmutable de GitHub.

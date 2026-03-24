@@ -2,25 +2,28 @@ const eventBus = require('../eventBus');
 const logger = require('../../utils/logger');
 const { notifyStockChange, getIO } = require('../../config/socket');
 
+const { connectDB } = require('../../config/db');
+const notificacionRepo = require('../../repositories/notificacion.repository');
+
 const setupNotificationSubscribers = async () => {
     try {
         await eventBus.subscribe(
             'notifications.stock_bajo', // Queue Name
             'STOCK_BAJO',               // Routing Key Pattern
             async (payload) => {
-                logger.info({ payload }, '[NOTIFICATION SUBSCRIBER] Evento STOCK_BAJO recibido, emitiendo vía WebSocket');
+                logger.info({ payload }, '[NOTIFICATION SUBSCRIBER] Evento STOCK_BAJO recibido, persistiendo y emitiendo');
                 
                 try {
-                    const io = getIO();
-                    // Emitir a los clientes conectados del tenant correspondiente
-                    io.of(`/tenant-${payload.empresa_id}`).emit('notification:stock_bajo', {
-                        title: 'Stock Crítico',
-                        message: `El producto "${payload.nombre}" ha quedado con stock bajo (${payload.stock} unidades).`,
-                        producto_id: payload.producto_id,
-                        timestamp: new Date()
+                    const pool = await connectDB();
+                    // Al grabar, notificacion.repository emitirá 'NUEVA_NOTIFICACION' que el controlador interceptará para emitir vía WebSockets automáticamente.
+                    await notificacionRepo.create(pool, {
+                        empresa_id: payload.empresa_id,
+                        titulo: 'Stock Crítico en Sucursal',
+                        mensaje: `El producto "${payload.nombre}" ha superado el umbral con stock crítico de ${payload.stock} unidades.`,
+                        tipo: 'warning'
                     });
                 } catch (e) {
-                    logger.error({ err: e }, 'No se pudo emitir evento por WebSocket (posiblemente io no inicializado)');
+                    logger.error({ err: e }, 'No se pudo persistir notificación vinculada a STOCK_BAJO');
                 }
             }
         );

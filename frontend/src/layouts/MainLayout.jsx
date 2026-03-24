@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useBranch } from '../context/BranchContext';
-import NotificationsDropdown from '../components/NotificationsDropdown';
+import TopBarNotifications from '../components/TopBarNotifications';
 import OmniSearch from '../components/OmniSearch';
 import moduleRegistry, { getAccessibleModules, groupBySection, sectionMeta } from '../config/moduleRegistry';
 
@@ -279,15 +279,11 @@ const MainLayout = () => {
             )}
           </div>
 
-          <OmniSearch />
-
           {/* Right side */}
-          <div className="ml-auto flex items-center gap-4">
-
-            <NotificationsDropdown />
-
-            <div className="h-5 w-px bg-slate-100" />
-
+          <div className="ml-auto flex items-center gap-1">
+            <OmniSearch />
+            <TopBarNotifications />
+            <div className="h-6 w-px bg-white/10 mx-2 hidden sm:block"></div>
             <div className="flex items-center gap-2">
               <div className="text-right hidden sm:block">
                 <p className="text-[11px] font-bold text-slate-800 leading-none">{user?.nombre || user?.email}</p>

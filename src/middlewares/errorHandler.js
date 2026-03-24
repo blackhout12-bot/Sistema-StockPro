@@ -22,6 +22,23 @@ const errorHandler = (err, req, res, next) => {
     const statusCode = err.statusCode || 500;
     const message = statusCode === 500 ? 'Error Interno del Servidor' : (err.message || 'Error Desconocido');
 
+    // Inyección de Notificación por Error Crítico en DB (solo si viaja empresa_id)
+    if (statusCode === 500 && req.tenant_id) {
+        try {
+            const { connectDB } = require('../config/db');
+            const notificacionRepo = require('../repositories/notificacion.repository');
+            connectDB().then(pool => {
+                notificacionRepo.create(pool, {
+                    empresa_id: req.tenant_id,
+                    usuario_id: req.user ? req.user.id : null,
+                    titulo: 'Fallo Sistémico',
+                    mensaje: `Ruta: [${req.method}] ${req.originalUrl} - Msg: ${err.message}`,
+                    tipo: 'danger'
+                }).catch(e => logger.error({ err: e.message }, 'Fallo al despachar notificación de Error'));
+            }).catch(e => logger.error({ err: e.message }, 'Fallo de conexión en Error Handler'));
+        } catch (ignored) {}
+    }
+
     res.status(statusCode).json({
         error: true,
         message,
