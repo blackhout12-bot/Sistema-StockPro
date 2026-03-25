@@ -72,3 +72,9 @@ gantt
 - [x] **RESUELTO**: Autenticación de Doble Factor (MFA/TOTP) completamente testeada y parcheada a `speakeasy` debido a fallas criprográficas del transpilador con `otplib` v13.
 - [x] **RESUELTO**: Logs de Auditoría transaccional capturados satisfactoriamente en eventos de creación de rol, activación de cuentas y login MFA.
 - [x] **ESTADO**: Despliegue seguro de Fase 11 superado en el entorno `localhost:5173`. Listos para innovaciones posteriores.
+
+### [✔️] v1.27.2-validation - Onboarding Joyride Multi-Rutas y Estabilidad
+- [x] **RESUELTO**: Tour interactivo (react-joyride) paginado a través del Router (`Dashboard -> Facturación -> Sucursales -> Delegaciones`).
+- [x] **RESUELTO**: Corrección silenciosa de constraint de SQL persistiendo exitosamente eventos de UX (`finalizar_onboarding` / `reiniciar_onboarding`) en la tabla Auditoría atados al `empresa_id`.
+- [x] **RESUELTO**: Corrección Estructural del motor MSSQL inyectando la columna `onboarding_completed` evadiendo la falla encubierta HTTP 500 originaria de migraciones previas.
+- [x] **ESTADO**: El Sistema superó la validación estricta de Interfaz de Usuario bajo la Fase 12. Listos para QA y Producción.

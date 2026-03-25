@@ -276,7 +276,7 @@ router.delete('/:id', authenticate, checkPermiso('usuarios', 'eliminar'), audit(
 // ── PATCH /auth/me/onboarding — marcar onboarding como completado ────────────
 router.patch('/me/onboarding', authenticate, async (req, res, next) => {
   try {
-    const result = await authService.completarOnboarding(req.user.id);
+    const result = await authService.completarOnboarding(req.user.id, req.tenant_id || req.user.empresa_id);
     res.json(result);
   } catch (err) { next(err); }
 });
@@ -284,7 +284,7 @@ router.patch('/me/onboarding', authenticate, async (req, res, next) => {
 // ── POST /auth/me/onboarding/reset — reiniciar UX guiado ────────────
 router.post('/me/onboarding/reset', authenticate, async (req, res, next) => {
   try {
-    const result = await authService.resetearOnboarding(req.user.id);
+    const result = await authService.resetearOnboarding(req.user.id, req.tenant_id || req.user.empresa_id);
     res.json(result);
   } catch (err) { next(err); }
 });

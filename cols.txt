@@ -1,2 +1,1 @@
-[dotenv@17.3.1] injecting env (7) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
-Columnas de Empresa: id, nombre, documento_identidad, direccion, telefono, email, logo_url, sitio_web, pais, ciudad, codigo_postal, moneda, simbolo_moneda, zona_horaria, fecha_registro, activo, plan, regional_formato_fecha, regional_separador_decimal, branding_color_primario, branding_color_secundario, branding_eslogan, config_iva_defecto, config_cuit_cuil, inv_stock_critico_global, inv_permitir_negativo, int_email_host, int_email_port
+id, nombre, email, password_hash, rol, creado_en, empresa_id, activo, reset_token, reset_token_exp, sucursal_id, mfa_secret, mfa_enabled, totp_secret

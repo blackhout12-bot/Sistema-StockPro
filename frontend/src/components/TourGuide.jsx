@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Joyride, STATUS } from 'react-joyride';
+import { Joyride, STATUS, ACTIONS, EVENTS } from 'react-joyride';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/axiosConfig';
 
@@ -7,6 +8,9 @@ const TourGuide = () => {
   const { user, login } = useAuth();
   const [run, setRun] = useState(false);
   const [steps, setSteps] = useState([]);
+  const [stepIndex, setStepIndex] = useState(0);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (!user) return;
@@ -26,32 +30,38 @@ const TourGuide = () => {
           target: 'body',
           placement: 'center',
           content: 'Bienvenido al panel táctico de TB Gestión. Exploremos las entrañas operativas.',
-          title: 'Sistema ERP'
+          title: 'Sistema ERP',
+          route: '/'
         },
         {
           target: '#tour-facturacion',
           content: 'Bases de la Operativa Comercial. Factura y procesa tickets interactuando con el inventario real.',
-          title: 'Facturación / POS'
+          title: 'Facturación / POS',
+          route: '/facturacion'
         },
         {
           target: '#tour-sucursales',
           content: 'Maneja el Multi-Contexto. Con un clic podrás saltar orgánicamente de franquicia base de datos.',
-          title: 'Múltiples Sucursales'
+          title: 'Múltiples Sucursales',
+          route: '/sucursales'
         },
         {
           target: '#tour-delegaciones',
           content: '¿Viaje imprevisto? Transfiere tus atributos gerenciales (Rol Temporal) a un operario en este módulo M:N.',
-          title: 'Delegación Organizacional'
+          title: 'Delegación Organizacional',
+          route: '/delegaciones'
         },
         {
           target: '#tour-auditoria',
           content: 'Trazabilidad estricta. Entérate de quién ingresó, quién erró la clave, y quién alteró roles.',
-          title: 'Caja Negra (Auditoría)'
+          title: 'Auditoría Continua',
+          route: '/auditoria'
         },
         {
-          target: '#tour-usuarios',
-          content: 'Desde aquí gobernarás los Perfiles, Accesos y la habilitación de Doble Factor de Seguridad (MFA).',
-          title: 'Seguridad y Permisos'
+          target: '.ml-auto.flex.items-center.gap-1',
+          content: 'Desde la barra superior asegurarás la integridad de tu sesión (MFA) operando con máxima jerarquía.',
+          title: 'Seguridad Avanzada',
+          route: '/'
         }
       ];
     } else {
@@ -60,17 +70,20 @@ const TourGuide = () => {
           target: 'body',
           placement: 'center',
           content: 'Comienza tu turno en TB ERP. Te mostraremos las herramientas esenciales.',
-          title: 'Panel Operativo'
+          title: 'Panel Operativo',
+          route: '/'
         },
         {
           target: '#tour-facturacion',
           content: 'Tu caja registradora o Punto de Venta (TPV). Factura rápido manteniendo el stock pulcro.',
-          title: 'Punto de Venta'
+          title: 'Punto de Venta',
+          route: '/facturacion'
         },
         {
           target: '#tour-kardex',
           content: 'Rastrea en tiempo real el oxígeno de la tienda: Entradas y Salidas al milímetro.',
-          title: 'Trazabilidad Física'
+          title: 'Trazabilidad Física',
+          route: '/kardex'
         }
       ];
     }
@@ -83,19 +96,32 @@ const TourGuide = () => {
   }, [user]);
 
   const handleJoyrideCallback = async (data) => {
-    const { status } = data;
+    const { action, index, status, type } = data;
     const finishedStatuses = [STATUS.FINISHED, STATUS.SKIPPED];
 
     // Si el usuario termina el paseo o lo saltea, llamar a Backend
     if (finishedStatuses.includes(status)) {
       setRun(false);
+      setStepIndex(0);
       try {
         await api.patch('/auth/me/onboarding');
         // Actualizar state in situ para evitar reinicio
         login({ token: localStorage.getItem('token'), user: { ...user, onboarding_completed: true } });
+        // Retornar al dashboard para que no quede en rutas sueltas si abandonó a medias
+        navigate('/');
       } catch (err) {
         console.error('Fallo marcando UX complete', err);
       }
+    } else if (type === EVENTS.STEP_AFTER || type === EVENTS.TARGET_NOT_FOUND) {
+        // Paginación Manual + React Router
+        const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
+        if (nextStepIndex >= 0 && nextStepIndex < steps.length) {
+            setStepIndex(nextStepIndex);
+            const route = steps[nextStepIndex].route;
+            if (route && location.pathname !== route) {
+                navigate(route);
+            }
+        }
     }
   };
 
@@ -107,10 +133,11 @@ const TourGuide = () => {
       continuous
       hideCloseButton
       run={run}
+      stepIndex={stepIndex}
       scrollToFirstStep
       showProgress
       showSkipButton
-      skipMissingSteps={true}
+      skipMissingSteps={false}
       steps={steps}
       styles={{
         options: {

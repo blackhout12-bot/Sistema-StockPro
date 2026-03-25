@@ -25,6 +25,7 @@ class AuditRepository {
             // pero idealmente se registrarían en un logger como pino.
             const logger = require('../utils/logger');
             logger.error({ err, context: 'Auditoria' }, 'Fallo al registrar auditoría');
+            require('fs').writeFileSync('audit_error_repo.txt', err.message + '\\n', {flag:'a'});
         }
     }
 }

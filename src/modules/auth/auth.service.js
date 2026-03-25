@@ -445,7 +445,7 @@ async function refreshToken(userPayload) {
   };
 }
 
-async function completarOnboarding(usuario_id) {
+async function completarOnboarding(usuario_id, empresa_id) {
   const pool = await connectDB();
   await pool.request()
     .input('uid', sql.Int, usuario_id)
@@ -453,13 +453,13 @@ async function completarOnboarding(usuario_id) {
   
   try {
       const auditRepository = require('../../repositories/audit.repository');
-      await auditRepository.logAction({ usuario_id, accion: 'finalizar_onboarding', entidad: 'Usuario', ip: 'Sistema', payload: { estado: 'Completado' } });
-  } catch (err) {}
+      await auditRepository.logAction({ empresa_id, usuario_id, accion: 'finalizar_onboarding', entidad: 'Usuario', ip: 'Sistema', payload: { estado: 'Completado' } });
+  } catch (err) { require('fs').writeFileSync('audit_error.txt', Object.getOwnPropertyNames(err).map(k=>k+': '+err[k]).join('\\n'), {flag:'a'}); }
 
   return { message: 'Onboarding completado exitosamente.' };
 }
 
-async function resetearOnboarding(usuario_id) {
+async function resetearOnboarding(usuario_id, empresa_id) {
   const pool = await connectDB();
   await pool.request()
     .input('uid', sql.Int, usuario_id)
@@ -467,8 +467,8 @@ async function resetearOnboarding(usuario_id) {
     
   try {
       const auditRepository = require('../../repositories/audit.repository');
-      await auditRepository.logAction({ usuario_id, accion: 'reiniciar_onboarding', entidad: 'Usuario', ip: 'Sistema', payload: { estado: 'Reinicio Manual' } });
-  } catch (err) {}
+      await auditRepository.logAction({ empresa_id, usuario_id, accion: 'reiniciar_onboarding', entidad: 'Usuario', ip: 'Sistema', payload: { estado: 'Reinicio Manual' } });
+  } catch (err) { require('fs').writeFileSync('audit_error.txt', Object.getOwnPropertyNames(err).map(k=>k+': '+err[k]).join('\\n'), {flag:'a'}); }
 
   return { message: 'Onboarding reiniciado.' };
 }
