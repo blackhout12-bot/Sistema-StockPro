@@ -78,3 +78,9 @@ gantt
 - [x] **RESUELTO**: Corrección silenciosa de constraint de SQL persistiendo exitosamente eventos de UX (`finalizar_onboarding` / `reiniciar_onboarding`) en la tabla Auditoría atados al `empresa_id`.
 - [x] **RESUELTO**: Corrección Estructural del motor MSSQL inyectando la columna `onboarding_completed` evadiendo la falla encubierta HTTP 500 originaria de migraciones previas.
 - [x] **ESTADO**: El Sistema superó la validación estricta de Interfaz de Usuario bajo la Fase 12. Listos para QA y Producción.
+
+### [✔️] v1.27.2.2 - Verificación Integral Pre-Fase 13
+- [x] **RESUELTO**: Simulación agresiva End-to-End validando MFA, Tokens TOTP y rechazos HTTP 400.
+- [x] **RESUELTO**: Operatividad del TPV e Historial de Ventas superaron la criba de estabilización (`sin rastro de WSOD`).
+- [x] **RESUELTO**: Blindaje RBAC activo y eficiente restringiendo accesos por roles directos.
+- [x] **ESTADO GLOBAL**: **APROBADO**. El ERP demostró madurez total pre-observabilidad. Ningún componente clave fue corrompido durante las inyecciones criptográficas o de interfaz.
