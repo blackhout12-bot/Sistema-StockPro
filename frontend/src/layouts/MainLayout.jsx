@@ -43,7 +43,7 @@ function NavItem({ mod, isActive, isMobile }) {
   return (
     <Link
       to={mod.path}
-      id={isMobile ? `mobile-tour-${mod.id}` : `tour-${mod.id}`}
+      id={`tour-${mod.id}`}
       className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[12px] font-semibold transition-all duration-200 group ${
         isActive
           ? 'bg-品牌-500 text-white shadow-sm border border-white/10 bg-brand-base'

@@ -1,15 +1,9 @@
-[dotenv@17.3.1] injecting env (16) from .env -- tip: ⚙️  enable debug logging with { debug: true }
-[36m=>[0m 1. TEST MFA: Login Inicial (Esperando Requires MFA)
-[32m✔[0m MFA Requerido interceptado con éxito.
-[36m=>[0m 2. TEST MFA: Token Inválido
-[23:44:19] [32mINFO[39m: [36mConectado a SQL Server (Escritura)[39m
-[32m✔[0m Token inválido rechazado (status: 401).
-[36m=>[0m 2.b TEST MFA: Bypass DevMode
-[32m✔[0m Bypass de Login MFA Exitoso. JWT originado.
-[36m=>[0m 3. TEST MFA: Token Válido de Speakeasy
-[32m✔[0m Login MFA Exitoso. JWT emitido.
-[36m=>[0m 4. TEST RBAC: Acceder Facturación (Permitido para Admin)
-[32m✔[0m RBAC: Admin accedió a Facturación satisfactoriamente (200).
-[36m=>[0m 5. TEST RBAC: Intrusión desde Rol Restringido (Cajero no puede editar Usuarios)
-Fallo crear usaurio: { error: 'Recurso no encontrado' }
-cajeroLogin payload: { error: 'Credenciales inválidas' }
+Sin navegacion post-login
+C:\Users\egar0\stock-system\test-tour.js:23
+  await page.waitForTimeout(2000); // 1000ms delay en TourGuide + margen
+             ^
+
+TypeError: page.waitForTimeout is not a function
+    at C:\Users\egar0\stock-system\test-tour.js:23:14
+
+Node.js v24.13.1

@@ -1,85 +1,79 @@
 import React, { useEffect, useState } from 'react';
-import { Joyride, STATUS, ACTIONS, EVENTS } from 'react-joyride';
-import { useNavigate, useLocation } from 'react-router-dom';
+import Joyride, { STATUS, EVENTS, ACTIONS } from 'react-joyride';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/axiosConfig';
 
+/**
+ * TourGuide — Onboarding Joyride
+ * 
+ * REGLAS DE DISEÑO (v1.27.2.7):
+ * - Todos los targets usan IDs #tour-{id} (sidebar desktop siempre visible).
+ * - NO se navega programáticamente entre rutas. El sidebar muestra todos los
+ *   módulos sin importar la ruta activa, por lo tanto los targets ya existen en DOM.
+ * - isMobile se ignora: los IDs son unificados para desktop y mobile.
+ * - skipMissingSteps={true} para no bloquearse si un módulo no está habilitado.
+ */
 const TourGuide = ({ setMobileOpen }) => {
   const { user, login } = useAuth();
   const [run, setRun] = useState(false);
   const [steps, setSteps] = useState([]);
-  const [stepIndex, setStepIndex] = useState(0);
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  // Memoria del viewport para evitar re-calculos innecesarios
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   useEffect(() => {
     if (!user) return;
-    
+
     // Si ya completó el onboarding, no arrancar
     if (user.onboarding_completed) {
       setRun(false);
       return;
     }
 
-    const prefix = isMobile ? '#mobile-tour-' : '#tour-';
-    
     // Configuración condicional según el rol jerárquico
+    // IMPORTANTE: todos los targets apuntan al sidebar — siempre está montado.
     let configuredSteps = [];
-    
+
     if (['admin', 'gerente'].includes(user.rol)) {
       configuredSteps = [
         {
           target: 'body',
           placement: 'center',
           content: 'Bienvenido al panel táctico de TB Gestión. Exploremos las entrañas operativas.',
-          title: 'Sistema ERP',
-          route: '/'
-        },
-        {
-          target: `${prefix}facturacion`,
-          content: 'Bases de la Operativa Comercial. Factura y procesa tickets interactuando con el inventario real.',
-          title: 'Facturación / POS',
-          route: '/facturacion'
-        },
-        {
-          target: `${prefix}sucursales`,
-          content: 'Maneja el Multi-Contexto. Con un clic podrás saltar orgánicamente de franquicia base de datos.',
-          title: 'Múltiples Sucursales',
-          route: '/sucursales'
-        },
-        {
-          target: `${prefix}delegaciones`,
-          content: '¿Viaje imprevisto? Transfiere tus atributos gerenciales (Rol Temporal) a un operario en este módulo M:N.',
-          title: 'Delegación Organizacional',
-          route: '/delegaciones'
-        },
-        {
-          target: `${prefix}auditoria`,
-          content: 'Trazabilidad estricta. Entérate de quién ingresó, quién erró la clave, y quién alteró roles.',
-          title: 'Auditoría Continua',
-          route: '/auditoria'
-        },
-        {
-          target: `${prefix}usuarios`,
-          content: 'Gestión de roles asimétricos, políticas de contraseñas y Segundo Factor de Autenticación (MFA/TOTP) para blindar el entorno.',
-          title: 'Seguridad y MFA',
-          route: '/usuarios',
+          title: '🏢 Sistema ERP',
           disableBeacon: true,
         },
         {
-          target: `${prefix}empresa`,
+          target: '#tour-facturacion',
+          content: 'Bases de la Operativa Comercial. Factura y procesa tickets interactuando con el inventario real.',
+          title: '🧾 Facturación / POS',
+        },
+        {
+          target: '#tour-productos',
+          content: 'Catálogo centralizado de productos con imágenes, lotes y precios por sucursal.',
+          title: '📦 Catálogo de Productos',
+        },
+        {
+          target: '#tour-sucursales',
+          content: 'Maneja el Multi-Contexto. Con un clic podrás saltar orgánicamente de franquicia.',
+          title: '🏪 Múltiples Sucursales',
+        },
+        {
+          target: '#tour-delegaciones',
+          content: '¿Viaje imprevisto? Transfiere tus atributos gerenciales (Rol Temporal) a un operario en este módulo M:N.',
+          title: '🤝 Delegación Organizacional',
+        },
+        {
+          target: '#tour-auditoria',
+          content: 'Trazabilidad estricta. Entérate de quién ingresó, quién erró la clave, y quién alteró roles.',
+          title: '🔍 Auditoría Continua',
+        },
+        {
+          target: '#tour-usuarios',
+          content: 'Gestión de roles asimétricos, políticas de contraseñas y MFA/TOTP para blindar el entorno.',
+          title: '🔐 Seguridad y MFA',
+        },
+        {
+          target: '#tour-empresa',
           content: 'Escala y adapta el entorno. Modifica KPIs, Comprobantes o activa Features desde tu consola global.',
-          title: 'Configuración Central',
-          route: '/empresa'
+          title: '⚙️ Configuración Central',
         }
       ];
     } else {
@@ -88,72 +82,60 @@ const TourGuide = ({ setMobileOpen }) => {
           target: 'body',
           placement: 'center',
           content: 'Comienza tu turno en TB ERP. Te mostraremos las herramientas esenciales.',
-          title: 'Panel Operativo',
-          route: '/'
+          title: '🏪 Panel Operativo',
+          disableBeacon: true,
         },
         {
-          target: `${prefix}facturacion`,
+          target: '#tour-facturacion',
           content: 'Tu caja registradora o Punto de Venta (TPV). Factura rápido manteniendo el stock pulcro.',
-          title: 'Punto de Venta',
-          route: '/facturacion'
+          title: '🧾 Punto de Venta',
         },
         {
-          target: `${prefix}kardex`,
+          target: '#tour-productos',
+          content: 'Consulta el catálogo de productos con stock en tiempo real.',
+          title: '📦 Catálogo',
+        },
+        {
+          target: '#tour-kardex',
           content: 'Rastrea en tiempo real el oxígeno de la tienda: Entradas y Salidas al milímetro.',
-          title: 'Trazabilidad Física',
-          route: '/kardex'
+          title: '📊 Trazabilidad Física',
         }
       ];
     }
-    
+
     setSteps(configuredSteps);
-    // Permitir un renderizado limpio
+
+    // Retardo de 1s para que el MainLayout termine de renderizar los nodos #id del sidebar
     const timer = setTimeout(() => {
-        setRun(true);
+      setRun(true);
     }, 1000);
+
     return () => clearTimeout(timer);
-  }, [user?.id, user?.onboarding_completed, isMobile]);
+  }, [user?.id, user?.onboarding_completed]);
 
   const handleJoyrideCallback = async (data) => {
-    const { action, index, status, type } = data;
+    const { status, type } = data;
     const finishedStatuses = [STATUS.FINISHED, STATUS.SKIPPED];
 
-    // Si el usuario termina el paseo o lo saltea, llamar a Backend
+    // Registrar inicio del tour en auditoría
+    if (type === EVENTS.TOUR_START) {
+      try {
+        await api.post('/auth/me/onboarding/start');
+      } catch (e) {
+        console.error('Error auditando inicio del tour', e);
+      }
+    }
+
+    // Si el usuario termina el paseo o lo saltea, marcar en backend
     if (finishedStatuses.includes(status)) {
       setRun(false);
-      setStepIndex(0);
       try {
         await api.patch('/auth/me/onboarding');
-        // Actualizar state in situ para evitar reinicio
+        // Actualizar state in situ para evitar reinicio del tour
         login({ token: localStorage.getItem('token'), user: { ...user, onboarding_completed: true } });
-        // Retornar al dashboard para que no quede en rutas sueltas si abandonó a medias
-        navigate('/');
       } catch (err) {
-        console.error('Fallo marcando UX complete', err);
+        console.error('Fallo marcando onboarding completo', err);
       }
-    } else if (type === EVENTS.STEP_AFTER) {
-        const nextIndex = index + (action === ACTIONS.PREV ? -1 : 1);
-        
-        if (nextIndex >= 0 && nextIndex < steps.length) {
-            const nextStep = steps[nextIndex];
-            
-            // Si el paso objetivo está en el sidebar y estamos en móvil, abrir el menú automáticamente
-            if (isMobile && nextStep.target.startsWith('#mobile-tour-')) {
-                setMobileOpen(true);
-            }
-
-            if (nextStep.route && location.pathname !== nextStep.route) {
-                navigate(nextStep.route);
-                // Race-condition prevention: esperar un frame para que el router monte el componente
-                setTimeout(() => setStepIndex(nextIndex), 50);
-            } else {
-                setStepIndex(nextIndex);
-            }
-        }
-    } else if (type === EVENTS.TARGET_NOT_FOUND) {
-        console.warn(`Joyride: Target ${steps[index].target} not found. Skipping to prevent loop.`);
-        // Si no se encuentra, pausamos para que el usuario no vea un crash
-        setRun(false);
     }
   };
 
@@ -165,16 +147,15 @@ const TourGuide = ({ setMobileOpen }) => {
       continuous
       hideCloseButton
       run={run}
-      stepIndex={stepIndex}
       scrollToFirstStep
       showProgress
       showSkipButton
-      skipMissingSteps={false}
+      skipMissingSteps={true}
       steps={steps}
       styles={{
         options: {
           zIndex: 10000,
-          primaryColor: '#000000',
+          primaryColor: '#4f46e5',
           textColor: '#333333',
           backgroundColor: '#ffffff',
           arrowColor: '#ffffff',
