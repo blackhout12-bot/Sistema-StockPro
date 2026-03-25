@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Joyride, { STATUS, EVENTS, ACTIONS } from 'react-joyride';
+import { Joyride, STATUS, EVENTS, ACTIONS } from 'react-joyride';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/axiosConfig';
 
