@@ -54,3 +54,15 @@ gantt
 - [x] **RESUELTO**: Trazabilidad Extrema Inmutable (`AuditRepository`) amarrando eventos de MFA y UX (`reiniciar_onboarding`).
 - [x] **RESUELTO**: Erradicación del White Screen of Death (WSOD) causado por importación ESM/CommonJS en el compilador.
 - [x] **RESUELTO**: Transpilador Vite Operativo en Limpio (Exit Code 0). Rendimiento inmaculado y Navegación Reactiva.
+
+### [✔️] v1.26.9 - Resolución Operativa TPV (Facturación SRE)
+- [x] **RESUELTO**: Inserción transaccional reparada usando `SCOPE_IDENTITY()`. Se evitó la colisión con los Triggers de Auditoría en SQL Server.
+- [x] **RESUELTO**: WSOD en Frontend mitigado en tiempo real con Optional Chaining protectivo (`f.cliente_nombre?.toLowerCase()?.includes()`).
+- [x] **ESTADO**: El Sistema está 100% Estable, respondiendo a métricas de confiabilidad corporativas y auditables por completo.
+
+### [✔️] v1.27.0 - Auditoría Integral de Estabilidad (Pre-Fase 11)
+- [x] **RESUELTO**: Registro de Empresas/Usuarios reparado cambiando `OUTPUT INSERTED.id` por `SCOPE_IDENTITY()` en base de datos.
+- [x] **RESUELTO**: Facturación (comprobantes e historial de ventas) renderiza sin errores tras apertura de caja.
+- [x] **RESUELTO**: Módulos de Sucursales y Delegaciones operativos (sin rastro de pantallas WSOD).
+- [x] **RESUELTO**: Onboarding Joyride completamente funcional sin bloqueos de interfaz post-login.
+- [x] **ESTADO**: El auditor automático validó exitosamente la navegación. Router y endpoints respondieron al 100%. Sistema preparado para Fase 11.

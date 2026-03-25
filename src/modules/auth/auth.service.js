@@ -159,7 +159,7 @@ async function registerEmpresa({ empresaNombre, nombre, email, password }) {
   try {
     const resEmpresa = await new sql.Request(transaction)
       .input('nombre_empresa', sql.VarChar, empresaNombre)
-      .query(`INSERT INTO Empresa (nombre, documento_identidad) OUTPUT INSERTED.id VALUES (@nombre_empresa, 'Pendiente')`);
+      .query(`INSERT INTO Empresa (nombre, documento_identidad) VALUES (@nombre_empresa, 'Pendiente'); SELECT SCOPE_IDENTITY() AS id;`);
 
     const empresa_id = resEmpresa.recordset[0].id;
 
@@ -168,10 +168,9 @@ async function registerEmpresa({ empresaNombre, nombre, email, password }) {
       .input('eid', sql.Int, empresa_id)
       .query("INSERT INTO ConfigComprobantes (empresa_id, tipo_comprobante, prefijo, proximo_nro, activo) VALUES (@eid, 'Factura', '0001', 1, 1)");
 
-    // ── NUEVO: Depósito Principal por defecto ──
     const resDep = await new sql.Request(transaction)
       .input('eid', sql.Int, empresa_id)
-      .query("INSERT INTO Depositos (empresa_id, nombre, direccion, es_principal, activo) OUTPUT INSERTED.id VALUES (@eid, 'Depósito Principal', 'Central', 1, 1)");
+      .query("INSERT INTO Depositos (empresa_id, nombre, direccion, es_principal, activo) VALUES (@eid, 'Depósito Principal', 'Central', 1, 1); SELECT SCOPE_IDENTITY() AS id;");
     
     // ── NUEVO: Caja POS Principal por defecto ──
     // POS Cajas no requiere sucursal_id obligatoriamente, se puede vincular luego
@@ -200,7 +199,7 @@ async function registerEmpresa({ empresaNombre, nombre, email, password }) {
       .input('password_hash', sql.VarChar, hashedPassword)
       .input('rol', sql.VarChar, 'admin')
       .input('empresa_id', sql.Int, empresa_id)
-      .query(`INSERT INTO Usuarios (nombre, email, password_hash, rol, empresa_id) OUTPUT INSERTED.id VALUES (@nombre, @email, @password_hash, @rol, @empresa_id)`);
+      .query(`INSERT INTO Usuarios (nombre, email, password_hash, rol, empresa_id) VALUES (@nombre, @email, @password_hash, @rol, @empresa_id); SELECT SCOPE_IDENTITY() AS id;`);
 
     const usuario_id = resUser.recordset[0].id;
 
