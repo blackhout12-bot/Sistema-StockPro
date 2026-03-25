@@ -51,6 +51,7 @@
     "simple-statistics": "^7.8.9",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
+    "speakeasy": "^2.0.0",
     "stripe": "^20.4.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",

@@ -66,3 +66,9 @@ gantt
 - [x] **RESUELTO**: Módulos de Sucursales y Delegaciones operativos (sin rastro de pantallas WSOD).
 - [x] **RESUELTO**: Onboarding Joyride completamente funcional sin bloqueos de interfaz post-login.
 - [x] **ESTADO**: El auditor automático validó exitosamente la navegación. Router y endpoints respondieron al 100%. Sistema preparado para Fase 11.
+
+### [✔️] v1.27.1-validation - Seguridad Avanzada Consolidada
+- [x] **RESUELTO**: Control de acceso granular (RBAC) mitigado para usuarios estándar en el TPV (Facturación y Cajeros).
+- [x] **RESUELTO**: Autenticación de Doble Factor (MFA/TOTP) completamente testeada y parcheada a `speakeasy` debido a fallas criprográficas del transpilador con `otplib` v13.
+- [x] **RESUELTO**: Logs de Auditoría transaccional capturados satisfactoriamente en eventos de creación de rol, activación de cuentas y login MFA.
+- [x] **ESTADO**: Despliegue seguro de Fase 11 superado en el entorno `localhost:5173`. Listos para innovaciones posteriores.

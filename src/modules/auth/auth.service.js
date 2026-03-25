@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const authRepository = require('../../repositories/auth.repository');
 const { sql, connectDB } = require('../../config/db');
 const logger = require('../../utils/logger');
-const { authenticator } = require('otplib');
+const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
 
 const ROLES_PERMITIDOS = ['admin', 'vendedor'];
@@ -476,14 +476,14 @@ async function resetearOnboarding(usuario_id) {
 // ─── Control y Flujos MFA (TOTP) ──────────────────────────────────────────────
 
 async function setupMfa(usuario_id, email) {
-  const secret = authenticator.generateSecret();
-  const otpauth = authenticator.keyuri(email, 'StockPro ERP', secret);
-  const qrCodeDataUrl = await qrcode.toDataURL(otpauth);
+  const secretObj = speakeasy.generateSecret({ name: 'StockPro ERP (' + email + ')' });
+  const secret = secretObj.base32;
+  const qrCodeDataUrl = await qrcode.toDataURL(secretObj.otpauth_url);
   return { secret, qrCodeDataUrl };
 }
 
 async function verifyAndEnableMfa(usuario_id, secret, tokenPin) {
-  const isValid = authenticator.verify({ token: tokenPin, secret: secret });
+  const isValid = speakeasy.totp.verify({ token: tokenPin, secret: secret, encoding: 'base32', window: 1 });
   if (!isValid) {
     throw Object.assign(new Error('El código PIN es incorrecto o estiró su vida útil.'), { statusCode: 400 });
   }
@@ -513,7 +513,7 @@ async function loginMfa(usuario_id, tokenPin) {
     throw Object.assign(new Error('Login inválido para flujo MFA.'), { statusCode: 400 });
   }
 
-  const isValid = authenticator.verify({ token: tokenPin, secret: usuario.totp_secret });
+  const isValid = speakeasy.totp.verify({ token: tokenPin, secret: usuario.totp_secret, encoding: 'base32', window: 1 });
   if (!isValid) {
     throw Object.assign(new Error('Código MFA incorrecto.'), { statusCode: 401 });
   }
