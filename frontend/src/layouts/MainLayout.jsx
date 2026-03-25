@@ -38,12 +38,12 @@ const ICON_MAP = {
 };
 
 // ── Componente de item de nav ──────────────────────────────────
-function NavItem({ mod, isActive }) {
+function NavItem({ mod, isActive, isMobile }) {
   const icon = ICON_MAP[mod.icon] || <Package size={16} />;
   return (
     <Link
       to={mod.path}
-      id={`tour-${mod.id}`}
+      id={isMobile ? `mobile-tour-${mod.id}` : `tour-${mod.id}`}
       className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[12px] font-semibold transition-all duration-200 group ${
         isActive
           ? 'bg-品牌-500 text-white shadow-sm border border-white/10 bg-brand-base'
@@ -62,7 +62,7 @@ function NavItem({ mod, isActive }) {
 }
 
 // ── Componente de sección del menú ─────────────────────────────
-function NavSection({ sectionKey, mods, currentPath, defaultOpen = true }) {
+function NavSection({ sectionKey, mods, currentPath, defaultOpen = true, isMobile }) {
   const [open, setOpen] = useState(defaultOpen);
   const meta = sectionMeta[sectionKey];
   if (!mods || mods.length === 0) return null;
@@ -86,7 +86,7 @@ function NavSection({ sectionKey, mods, currentPath, defaultOpen = true }) {
       {open && (
         <div className="space-y-0.5 mt-1">
           {mods.map(mod => (
-            <NavItem key={mod.id} mod={mod} isActive={
+            <NavItem key={mod.id} mod={mod} isMobile={isMobile} isActive={
               mod.index ? currentPath === '/' : currentPath === mod.path
             } />
           ))}
@@ -144,7 +144,7 @@ const MainLayout = () => {
     );
   };
 
-  const SidebarContent = () => (
+  const SidebarContent = ({ isMobile }) => (
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="h-16 flex items-center px-5 border-b border-white/10 flex-shrink-0">
@@ -172,6 +172,7 @@ const MainLayout = () => {
             key={sectionKey}
             sectionKey={sectionKey}
             mods={mods}
+            isMobile={isMobile}
             currentPath={location.pathname}
             defaultOpen={!user?.onboarding_completed || (sectionKey !== 'administracion' && sectionKey !== 'extras')}
           />
@@ -204,7 +205,7 @@ const MainLayout = () => {
     <div className="flex h-screen bg-surface-50 overflow-hidden">
       {/* Desktop Sidebar */}
       <aside className="w-56 bg-brand-dark border-r border-brand-900 hidden md:flex flex-col h-full flex-shrink-0 shadow-lg z-50 text-white">
-        <SidebarContent />
+        <SidebarContent isMobile={false} />
       </aside>
 
       {/* Mobile Overlay */}
@@ -229,7 +230,7 @@ const MainLayout = () => {
             <X size={16} />
           </button>
         </div>
-        <SidebarContent />
+        <SidebarContent isMobile={true} />
       </aside>
 
       {/* Main content */}
@@ -292,7 +293,7 @@ const MainLayout = () => {
             <TopBarNotifications />
             <div className="h-6 w-px bg-white/10 mx-2 hidden sm:block"></div>
             <div className="flex flex-col items-end mr-4">
-              <button title="Configurar 2FA (MFA)" onClick={() => setIsMfaModalOpen(true)} className="flex items-center gap-2 hover:bg-slate-50 p-1.5 rounded-lg transition-colors cursor-pointer text-left focus:outline-none">
+              <button id="tour-seguridad" title="Configurar 2FA (MFA)" onClick={() => setIsMfaModalOpen(true)} className="flex items-center gap-2 hover:bg-slate-50 p-1.5 rounded-lg transition-colors cursor-pointer text-left focus:outline-none">
                 <div className="text-right hidden sm:block">
                   <p className="text-[11px] font-bold text-slate-800 leading-none">{user?.nombre || user?.email}</p>
                   <p className="text-[9px] font-black uppercase tracking-widest text-primary-500 mt-0.5">{user?.rol}</p>
@@ -304,7 +305,10 @@ const MainLayout = () => {
               <button 
                 onClick={async () => {
                   try {
-                    await import('../utils/axiosConfig').then(m => m.default.post('/auth/me/onboarding/reset'));
+                    const { default: api } = await import('../utils/axiosConfig');
+                    await api.post('/auth/me/onboarding/reset');
+                    // Forzar limpieza y recarga real
+                    localStorage.removeItem('user');
                     window.location.reload();
                   } catch(e) {}
                 }} 
@@ -321,7 +325,7 @@ const MainLayout = () => {
           <Outlet />
         </div>
 
-        <TourGuide />
+        <TourGuide setMobileOpen={setMobileOpen} />
         <MfaSetupModal isOpen={isMfaModalOpen} onClose={() => setIsMfaModalOpen(false)} />
       </main>
     </div>

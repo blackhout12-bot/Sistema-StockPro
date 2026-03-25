@@ -174,6 +174,17 @@ export function AuthProvider({ children }) {
         }
     }, [queryClient]);
 
+    const refreshUser = useCallback(async () => {
+        try {
+            const res = await api.get('/auth/refresh');
+            _setSession(res.data.token, res.data.user);
+            return res.data.user;
+        } catch (err) {
+            console.error('Error refrescando usuario:', err);
+            return null;
+        }
+    }, [_setSession]);
+
     // Validar token expirado al montar
     useEffect(() => {
         if (!token) return;
@@ -206,6 +217,7 @@ export function AuthProvider({ children }) {
         logout,
         selectEmpresa,
         switchEmpresa,
+        refreshUser,
         misEmpresas,
         empresaSelector,
         isAuthenticated: !!token,

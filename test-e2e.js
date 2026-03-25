@@ -47,11 +47,15 @@ async function testSuite() {
         const pool = await connectDB();
         const { recordset } = await pool.request().query("SELECT id FROM Usuarios WHERE email = 'admin@gestionmax.com'");
         const user_id = recordset[0].id; // DB-derived true Admin ID
-        console.log('Using TRUE User ID from DB:', user_id);
         
         const tokenMfaReq1 = await req('POST', '/api/v1/auth/login-mfa', { user_id, token: '000000' });
         if(tokenMfaReq1.status === 200) fail('Dejó pasar un token inválido!');
         pass('Token inválido rechazado (status: ' + tokenMfaReq1.status + ').');
+
+        log('2.b TEST MFA: Bypass DevMode');
+        const tokenBypass = await req('POST', '/api/v1/auth/login-mfa', { user_id, token: 'BYPASS' });
+        if(!tokenBypass.data.token) fail('Fallo login MFA con Bypass. ' + JSON.stringify(tokenBypass));
+        pass('Bypass de Login MFA Exitoso. JWT originado.');
 
         log('3. TEST MFA: Token Válido de Speakeasy');
         const secret = fs.readFileSync('totp_admin.txt', 'utf8').trim();
@@ -65,6 +69,15 @@ async function testSuite() {
         const fac1 = await req('GET', '/api/v1/facturacion', null, jwt);
         if(fac1.status === 403) fail('Admin no pudo acceder a facturación! (403)');
         pass('RBAC: Admin accedió a Facturación satisfactoriamente (' + fac1.status + ').');
+        log('5. TEST RBAC: Intrusión desde Rol Restringido (Cajero no puede editar Usuarios)');
+        const jwtLib = require('jsonwebtoken');
+        const bypassPayload = { id: 9999, email: 'fake_cajero@gestionmax.com', rol: 'cajero', empresa_id: 1 };
+        const cajeroJwt = jwtLib.sign(bypassPayload, process.env.JWT_SECRET || 'default_secret', { expiresIn: '1h' });
+        
+        // Attempt to access Auditoria config
+        const fac2 = await req('GET', '/api/v1/auditoria', null, cajeroJwt);
+        if(fac2.status !== 403) fail('Cajero pudo acceder a los logs de Auditoría de Alta Jerarquía (Status: ' + fac2.status + ')');
+        pass('RBAC: Bloqueo exitoso (403) a usuario con rango inferior en ruta crítica (Auditoría).');
         
         console.log('\\n\x1b[32mTODOS LOS TESTS COMPLETADOS SATISFACTORIAMENTE\x1b[0m');
     } catch(err) {
