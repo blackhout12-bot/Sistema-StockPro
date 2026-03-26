@@ -12,6 +12,12 @@ import ResetPassword from './pages/ResetPassword';
 
 import moduleRegistry, { getAccessibleModules } from './config/moduleRegistry';
 
+// ── Cache de componentes Lazy (Crucial para evitar infinitos renders) ──
+const lazyComponentsCache = {};
+moduleRegistry.forEach(mod => {
+  lazyComponentsCache[mod.id] = React.lazy(mod.lazy);
+});
+
 // ── Loading Fallback ────────────────────────────────────────────
 const PageLoader = () => (
   <div className="flex items-center justify-center h-full min-h-[60vh]">
@@ -55,7 +61,7 @@ function AppRoutes() {
       {/* Layout principal con todas las rutas dinámicas */}
       <Route path="/" element={<MainLayout onLogout={logout} />}>
         {accessibleModules.map(mod => {
-          const LazyPage = React.lazy(mod.lazy);
+          const LazyPage = lazyComponentsCache[mod.id];
 
           if (mod.index) {
             return (

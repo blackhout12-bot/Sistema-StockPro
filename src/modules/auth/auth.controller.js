@@ -274,7 +274,7 @@ router.delete('/:id', authenticate, checkPermiso('usuarios', 'eliminar'), audit(
 });
 
 // ── PATCH /auth/me/onboarding — marcar onboarding como completado ────────────
-router.patch('/me/onboarding', authenticate, async (req, res, next) => {
+router.patch('/me/onboarding', authenticate, audit('finalizar_tour', 'Sistema'), async (req, res, next) => {
   try {
     const result = await authService.completarOnboarding(req.user.id, req.tenant_id || req.user.empresa_id);
     res.json(result);
@@ -282,10 +282,17 @@ router.patch('/me/onboarding', authenticate, async (req, res, next) => {
 });
 
 // ── POST /auth/me/onboarding/reset — reiniciar UX guiado ────────────
-router.post('/me/onboarding/reset', authenticate, async (req, res, next) => {
+router.post('/me/onboarding/reset', authenticate, audit('reiniciar_tour', 'Sistema'), async (req, res, next) => {
   try {
     const result = await authService.resetearOnboarding(req.user.id, req.tenant_id || req.user.empresa_id);
     res.json(result);
+  } catch (err) { next(err); }
+});
+
+// ── POST /auth/me/onboarding/start — auditar inicio de UX guiado ────────────
+router.post('/me/onboarding/start', authenticate, audit('iniciar_tour', 'Sistema'), async (req, res, next) => {
+  try {
+    res.json({ message: 'Tour iniciado' });
   } catch (err) { next(err); }
 });
 

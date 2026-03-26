@@ -1,7 +1,11 @@
 const { connectDB } = require('../config/db');
+const { trace, context } = require('@opentelemetry/api');
 
 class AuditRepository {
     async logAction({ empresa_id, usuario_id, accion, entidad, entidad_id, payload, valor_anterior, valor_nuevo, ip }) {
+        const span = trace.getSpan(context.active());
+        const trace_id = span ? span.spanContext().traceId : null;
+        
         const vNuevo = valor_nuevo || payload;
         try {
             const pool = await connectDB();
@@ -11,14 +15,15 @@ class AuditRepository {
                 .input('accion', accion)
                 .input('entidad', entidad)
                 .input('entidad_id', entidad_id ? parseInt(entidad_id, 10) : null)
+                .input('trace_id', trace_id)
                 .input('valor_anterior', valor_anterior ? (typeof valor_anterior === 'object' ? JSON.stringify(valor_anterior) : valor_anterior) : null)
                 .input('valor_nuevo', vNuevo ? (typeof vNuevo === 'object' ? JSON.stringify(vNuevo) : vNuevo) : null)
                 .input('ip', ip)
                 .query(`
           INSERT INTO dbo.Auditoria
-          (empresa_id, usuario_id, accion, entidad, entidad_id, valor_anterior, valor_nuevo, ip)
+          (empresa_id, usuario_id, accion, entidad, entidad_id, valor_anterior, valor_nuevo, ip, trace_id)
           VALUES
-          (@empresa_id, @usuario_id, @accion, @entidad, @entidad_id, @valor_anterior, @valor_nuevo, @ip)
+          (@empresa_id, @usuario_id, @accion, @entidad, @entidad_id, @valor_anterior, @valor_nuevo, @ip, @trace_id)
         `);
         } catch (err) {
             // Ignoramos errores de auditoría para no bloquear la operación principal,

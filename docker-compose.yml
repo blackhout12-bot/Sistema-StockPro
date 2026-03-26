@@ -73,3 +73,16 @@ services:
       - ./backend_logs:/app/logs
     command: -config.file=/etc/promtail/config.yml
     restart: unless-stopped
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: stock_otel_collector
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./observability/otel-collector/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+      - "8888:8888" # Metrics internal
+      - "8889:8889" # Prometheus exporter port
+    restart: unless-stopped

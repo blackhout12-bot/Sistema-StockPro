@@ -79,8 +79,17 @@ gantt
 - [x] **RESUELTO**: Corrección Estructural del motor MSSQL inyectando la columna `onboarding_completed` evadiendo la falla encubierta HTTP 500 originaria de migraciones previas.
 - [x] **ESTADO**: El Sistema superó la validación estricta de Interfaz de Usuario bajo la Fase 12. Listos para QA y Producción.
 
+
+
 ### [✔️] v1.27.2.2 - Verificación Integral Pre-Fase 13
 - [x] **RESUELTO**: Simulación agresiva End-to-End validando MFA, Tokens TOTP y rechazos HTTP 400.
 - [x] **RESUELTO**: Operatividad del TPV e Historial de Ventas superaron la criba de estabilización (`sin rastro de WSOD`).
 - [x] **RESUELTO**: Blindaje RBAC activo y eficiente restringiendo accesos por roles directos.
 - [x] **ESTADO GLOBAL**: **APROBADO**. El ERP demostró madurez total pre-observabilidad. Ningún componente clave fue corrompido durante las inyecciones criptográficas o de interfaz.
+
+### [✔️] v1.27.3-observability - Observabilidad con OpenTelemetry
+- [x] **RESUELTO**: Integración de OpenTelemetry SDK en Backend (Node.js/Express) y Frontend (React).
+- [x] **RESUELTO**: Configuración de exportadores OTLP para trazas, métricas (Prometheus) y logs (Loki).
+- [x] **RESUELTO**: Correlación de `trace_id` en logs de Auditoría y propagación de contexto W3C entre frontend y backend.
+- [x] **RESUELTO**: Infraestructura de monitoreo robustecida con OTel Collector simplificando la ingesta de telemetría.
+- [x] **ESTADO**: El Sistema cuenta con Observabilidad Full-Stack activa. Dashboards en Grafana listos para visualización en tiempo real.
