@@ -10,6 +10,8 @@ const dbConfig = {
   server: process.env.DB_SERVER,
   database: process.env.DB_NAME,
   port: parseInt(process.env.DB_PORT) || 1433,
+  connectionTimeout: 5000, // 5 segundos para fallar si no conecta
+  requestTimeout: 15000,   // 15 segundos para consultas
   options: {
     encrypt: false,
     trustServerCertificate: true,

@@ -1,5 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const withHealth = require('../../middlewares/health.middleware');
+
+// Health Check por Módulo
+router.use(withHealth('Monedas'));
 const monedaService = require('./monedas.service');
 const authenticate = require('../../middlewares/auth');
 

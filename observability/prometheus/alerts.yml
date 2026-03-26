@@ -1,34 +1,42 @@
-# observability/prometheus/alerts.yml
-# Reglas de Alertas: Disparador CI/CD (v1.20)
 groups:
-  - name: Resiliencia-ERP-Deployments
+  - name: stock-system-alerts
     rules:
-      - alert: ErrorRateHigh
-        expr: rate(stock_system_http_requests_total{status=~"5.."}[2m]) > 5
+      # 1. Disponibilidad del Servicio
+      - alert: BackendServiceDown
+        expr: up{job="otel-collector"} == 0
         for: 1m
         labels:
           severity: critical
-          auto_rollback: "true"
         annotations:
-          summary: "Umbral crítico de Error 5XX post-despligue"
-          description: "La API de TB Gestión está fallando severamente tras el último release. Iniciando Rollback CI/CD."
+          summary: "Servidor Backend caido"
+          description: "La instancia {{ $labels.instance }} del job {{ $labels.job }} está caída."
 
-      - alert: APIHighLatency
-        expr: histogram_quantile(0.95, rate(stock_system_http_request_duration_seconds_bucket[2m])) > 2.0
+      # 2. Latencia Alta (> 500ms)
+      - alert: HighLatency
+        expr: rate(http_server_duration_sum[5m]) / rate(http_server_duration_count[5m]) > 0.5
         for: 2m
         labels:
           severity: warning
-          auto_rollback: "false"
         annotations:
-          summary: "Tiempos de respuesta lentos detectados (P95 > 2s)"
-          description: "La API presenta latencia elevada. Puede requerir escalado o revisión de índices SQL."
+          summary: "Latencia alta detectada"
+          description: "La latencia promedio es superior a 500ms en los últimos 2 minutos."
 
-      - alert: POSNodeDisconnected
-        expr: up{job="stock-system-pos"} == 0
-        for: 1m
+      # 3. Tasa de Errores Crítica (> 5% errores 5xx)
+      - alert: HighErrorRate
+        expr: (sum by(instance) (rate(http_server_duration_count{status_code=~"5.."}[5m]))) / (sum by(instance) (rate(http_server_duration_count[5m]))) > 0.05
+        for: 2m
         labels:
           severity: critical
-          auto_rollback: "true"
         annotations:
-          summary: "Corte de Comunicación con POS/Facturación"
-          description: "Los pods primarios de Facturación cayeron. Esto indica un crash loop post-despliegue."
+          summary: "Tasa de errores 5xx superior al 5%"
+          description: "Se detectó una tasa de errores críticos mayor al 5% en la instancia {{ $labels.instance }}."
+
+      # 4. Fallos de Readiness
+      - alert: ModuleNotReady
+        expr: http_response_status_code{path=~".*/ready"} != 200
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Módulo no está listo (Readiness Check fallido)"
+          description: "El endpoint {{ $labels.path }} está reportando fallos de salud."

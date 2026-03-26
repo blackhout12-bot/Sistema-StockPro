@@ -9,6 +9,10 @@ const audit = require('../../middlewares/audit');
 const { validateBody } = require('../../middlewares/validateRequest');
 const { facturacionSchema } = require('../../schemas/facturacion.schema');
 const { businessFacturasTotal, businessPosSalesTotal } = require('../../middlewares/metrics');
+const withHealth = require('../../middlewares/health.middleware');
+
+// Health Check por Módulo
+router.use(withHealth('Facturacion'));
 
 // Get all facturas
 router.get('/', checkPermiso('facturacion', 'leer'), async (req, res, next) => {

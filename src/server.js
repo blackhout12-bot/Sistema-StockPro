@@ -1,11 +1,13 @@
 // src/server.js
-// Debe ser lo primero para instrumentar todos los módulos
-if (process.env.OTEL_ENABLED === 'true') {
-  require('./config/tracing');
-}
 const express = require('express');
 const promClient = require('prom-client');
 const dotenv = require('dotenv');
+dotenv.config();
+
+if (process.env.OTEL_ENABLED === 'true') {
+  require('./config/tracing');
+}
+
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -15,8 +17,6 @@ const authenticate = require('./middlewares/auth');
 const { metricsMiddleware } = require('./middlewares/metrics');
 const http = require('http');
 const { initSocket } = require('./config/socket');
-
-dotenv.config(); // Carga .env de la raíz de forma estándar
 
 const app = express();
 
@@ -164,7 +164,7 @@ const setupAuditSubscribers = require('./events/subscribers/auditSubscriber');
 const setupNotificationSubscribers = require('./events/subscribers/notificationSubscriber');
 
 // ─── Arranque ────────────────────────────────────────────────────
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 const server = http.createServer(app);
 initSocket(server);
 

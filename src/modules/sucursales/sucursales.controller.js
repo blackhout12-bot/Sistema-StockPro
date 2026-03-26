@@ -1,5 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const withHealth = require('../../middlewares/health.middleware');
+
+// Health Check por Módulo
+router.use(withHealth('Sucursales'));
 const sucursalesModel = require('./sucursales.model');
 const checkPermiso = require('../../middlewares/rbac');
 

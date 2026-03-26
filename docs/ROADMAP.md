@@ -94,9 +94,10 @@ gantt
 - [x] **RESUELTO**: Robustez ante fallos de red: el frontend permanece operativo aunque el colector de telemetría o el backend estén fuera de línea.
 - [x] **ESTADO**: Sistema 100% estable en Fase 13. Observabilidad reactivada de forma segura y no bloqueante.
 
-### [✔️] v1.27.3-observability - Observabilidad con OpenTelemetry
-- [x] **RESUELTO**: Integración de OpenTelemetry SDK en Backend (Node.js/Express) y Frontend (React).
-- [x] **RESUELTO**: Configuración de exportadores OTLP para trazas, métricas (Prometheus) y logs (Loki).
-- [x] **RESUELTO**: Correlación de `trace_id` en logs de Auditoría y propagación de contexto W3C entre frontend y backend.
-- [x] **RESUELTO**: Infraestructura de monitoreo robustecida con OTel Collector simplificando la ingesta de telemetría.
-- [x] **ESTADO**: El Sistema cuenta con Observabilidad Full-Stack activa. Dashboards en Grafana listos para visualización en tiempo real.
+### [✔️] v1.27.4 - Resiliencia y Rollback Automático
+- [x] **RESUELTO**: Implementación de Health Checks (`/health`, `/ready`) granulares por módulo para Liveness y Readiness probes.
+- [x] **RESUELTO**: Configuración de `RollingUpdate` con `maxSurge` y `maxUnavailable` para despliegues sin tiempo de inactividad.
+- [x] **RESUELTO**: **HOTFIX v1.27.4.2**: Implementación de `connectionTimeout` y `requestTimeout` en el pool de MSSQL, evitando bloqueos de sonda (hangs) y garantizando reconexión automática tras caídas de red.
+- [x] **RESUELTO**: Activación de Auto-Rollback nativo en Kubernetes si los Pods no superan las pruebas de salud en 60 segundos.
+- [x] **RESUELTO**: Instrumentación de alertas en Prometheus para detectar degradación de servicio (latencia > 2s o errores 5xx > 5%).
+- [x] **ESTADO**: El Sistema superó las pruebas de estrés y validación de fallos. Resiliencia garantizada bajo carga operativa.

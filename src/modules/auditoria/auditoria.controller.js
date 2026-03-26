@@ -1,5 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const { connectDB } = require('../../config/db');
+const withHealth = require('../../middlewares/health.middleware');
+
+// Health Check por Módulo
+router.use(withHealth('Auditoria'));
 const auditoriaModel = require('./auditoria.model');
 
 // GET /api/v1/auditoria -- Endpoint con filtros avanzados (solo administradores)

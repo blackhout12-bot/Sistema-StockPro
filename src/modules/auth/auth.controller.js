@@ -2,6 +2,10 @@
 const { z } = require('zod');
 const express = require('express');
 const router = express.Router();
+const withHealth = require('../../middlewares/health.middleware');
+
+// Health Check por Módulo
+router.use(withHealth('Auth'));
 const authService = require('./auth.service');
 const authenticate = require('../../middlewares/auth');
 const checkPermiso = require('../../middlewares/rbac');

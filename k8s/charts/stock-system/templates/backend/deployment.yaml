@@ -6,6 +6,11 @@ metadata:
     app: {{ .Release.Name }}-backend
 spec:
   replicas: {{ .Values.backend.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
   selector:
     matchLabels:
       app: {{ .Release.Name }}-backend
@@ -20,20 +25,20 @@ spec:
           imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 5000
+              containerPort: 5001
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /health
-              port: 5000
-            initialDelaySeconds: 15
+              path: /api/v1/ping
+              port: 5001
+            initialDelaySeconds: 30
             periodSeconds: 20
           readinessProbe:
             httpGet:
-              path: /health
-              port: 5000
-            initialDelaySeconds: 10
-            periodSeconds: 10
+              path: /api/v1/ping
+              port: 5001
+            initialDelaySeconds: 15
+            periodSeconds: 15
           envFrom:
             - secretRef:
                 name: {{ .Release.Name }}-secrets
