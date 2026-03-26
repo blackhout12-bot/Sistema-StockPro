@@ -117,6 +117,26 @@ app.get('/health', async (_req, res) => {
   }
 });
 
+// ─── Global /ready & /ping ──────────────────────────────────────
+app.get('/ready', async (_req, res) => {
+  const checks = { database: 'UNKNOWN', redis: 'UNKNOWN', rabbitmq: 'UNKNOWN' };
+  let healthy = true;
+  try {
+    const pool = await connectDB();
+    await pool.request().query('SELECT 1 AS ping');
+    checks.database = 'OK';
+  } catch (e) {
+    checks.database = 'DOWN'; healthy = false;
+  }
+  const rStatus = getRedisStatus();
+  checks.redis = rStatus === 'OK' ? 'OK' : 'DEGRADED';
+  checks.rabbitmq = (rabbitMQ.connection && rabbitMQ.channel) ? 'OK' : 'DEGRADED';
+  const httpStatus = checks.database === 'OK' ? (healthy ? 200 : 207) : 503;
+  return res.status(httpStatus).json({ status: checks.database === 'OK' ? 'READY' : 'NOT_READY', checks, time: new Date().toISOString() });
+});
+
+app.get('/ping', (_req, res) => res.json({ status: 'pong', time: new Date().toISOString() }));
+
 // ─── Prometheus Metrics ──────────────────────────────────────────
 const collectDefaultMetrics = promClient.collectDefaultMetrics;
 collectDefaultMetrics({ prefix: 'stock_system_' });

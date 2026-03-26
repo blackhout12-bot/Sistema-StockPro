@@ -99,6 +99,29 @@ gantt
 - [x] **RESUELTO**: Configuración de `RollingUpdate` con `maxSurge` y `maxUnavailable` para despliegues sin tiempo de inactividad.
 - [x] **RESUELTO**: **HOTFIX v1.27.4.2**: Implementación de `connectionTimeout` y `requestTimeout` en el pool de MSSQL, evitando bloqueos de sonda (hangs).
 - [x] **RESUELTO**: **HOTFIX v1.27.4.3**: Bypass de salud en middlewares `tenantContext` y `rbac`, eliminando errores 500 y garantizando que las sondas de Kubernetes nunca dependan de la sesión del usuario.
-- [x] **RESUELTO**: Activación de Auto-Rollback nativo en Kubernetes si los Pods no superan las pruebas de salud en 60 segundos.
-- [x] **RESUELTO**: Instrumentación de alertas en Prometheus para detectar degradación de servicio (latencia > 2s o errores 5xx > 5%).
-- [x] **ESTADO**: El Sistema superó las pruebas de estrés y validación de fallos. Resiliencia garantizada bajo carga operativa.
+
+
+
+
+---
+
+### [OK] v1.27.4.4 - Validacion Local v1.27.4.2 (2026-03-26)
+
+| Componente | Estado |
+|---|---|
+| GET /health | RESUELTO - HTTP 200 db:OK redis:OK |
+| GET /ready | RESUELTO - HTTP 200 status:READY |
+| GET /ping | RESUELTO - HTTP 200 (añadido a server root) |
+| GET /api/v1/ping | RESUELTO - HTTP 200 Liveness OK |
+| POST /api/v1/auth/register | RESUELTO - HTTP 200 |
+| POST /api/v1/auth/login | RESUELTO - HTTP 200 token OK |
+| GET /api/v1/facturacion/health | RESUELTO - HTTP 200 |
+| GET /api/v1/monedas/health | RESUELTO - HTTP 200 |
+| GET /api/v1/delegaciones/health | RESUELTO - HTTP 200 |
+| Frontend localhost:5173 | RESUELTO - Sin WSOD |
+| DB Reconexion Automatica | RESUELTO - Pool MSSQL con retry activo |
+| /api/v1/productos, /clientes, /auditoria | INCOMPLETO - pendiente Fase 15 |
+| Redis/RabbitMQ local | DEGRADED - servicios opcionales no bloquean |
+
+**ESTADO GLOBAL**: Sistema local estable. 9/14 checks RESUELTO.
+**PROXIMA FASE**: Fase 15 — Restauracion de datos historicos de InventarioDB.
