@@ -57,6 +57,7 @@ async function login(email, password) {
     logger.error('Error al obtener membresias', e);
   }
 
+  console.log('[DEBUG_LOGIN] Membresias found:', JSON.stringify(membresias));
   // Si no hay membresías en la tabla relacional, usamos el fallback clásico (empleado normal)
   if (!membresias || membresias.length === 0) {
     if (usuario.empresa_id) {
@@ -133,6 +134,7 @@ async function seleccionarEmpresa(usuario_id, empresa_id) {
       membresia = { rol: usuario.rol, activo: true };
     }
   }
+  console.log('[DEBUG_SELECT] usuario_id:', usuario_id, 'empresa_id:', empresa_id, 'membresia:', JSON.stringify(membresia));
   if (!membresia || !membresia.activo) {
     throw Object.assign(new Error('Sin acceso a esa empresa'), { statusCode: 403 });
   }

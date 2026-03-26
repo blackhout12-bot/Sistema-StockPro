@@ -125,3 +125,30 @@ gantt
 
 **ESTADO GLOBAL**: Sistema local estable. 9/14 checks RESUELTO.
 **PROXIMA FASE**: Fase 15 — Restauracion de datos historicos de InventarioDB.
+
+---
+
+### [OK] v1.27.4.3-validation - Validacion Completa con StockDB (2026-03-26)
+
+| Componente | Estado |
+|---|---|
+| .env DB_NAME | RESUELTO - Apunta a StockDB (prohibido cambiar) |
+| GET /health | RESUELTO - HTTP 200 db:OK redis:OK rabbitmq:OFFLINE |
+| GET /ready | RESUELTO - HTTP 200 status:READY DB/Redis OK |
+| GET /ping | RESUELTO - HTTP 200 pong |
+| GET /api/v1/ping | RESUELTO - HTTP 200 Liveness probe v1 |
+| POST /api/v1/auth/register | RESUELTO - HTTP 200 empresa+usuario creados |
+| POST /api/v1/auth/login | RESUELTO - HTTP 200 JWT emitido |
+| GET /api/v1/facturacion/health | RESUELTO - HTTP 200 modulo activo |
+| GET /api/v1/monedas/health | RESUELTO - HTTP 200 modulo activo |
+| GET /api/v1/delegaciones/health | RESUELTO - HTTP 200 modulo activo |
+| Frontend localhost:5173 | RESUELTO - Login page carga, sin WSOD |
+| DB Reconexion Automatica | RESUELTO - Pool MSSQL con connectionTimeout/requestTimeout |
+| /api/v1/productos,clientes,auditoria | INCOMPLETO - controladores con deps circulares, pendiente Fase 15 |
+| Joyride Onboarding | FALTANTE - Pendiente validacion manual |
+| Redis/RabbitMQ local | DEGRADED - servicios opcionales, no bloquean operacion |
+| GitHub alineado | RESUELTO - HEAD bd40637 = origin/main |
+
+**RESULTADO**: 11/16 checks RESUELTO | 2 INCOMPLETO | 2 FALTANTE | 1 DEGRADED
+**REF DB**: StockDB (unica fuente de datos autorizada)
+**PROXIMA FASE**: Fase 15 - Refactorizacion de rutas v1 y restauracion de datos

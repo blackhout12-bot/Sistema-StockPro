@@ -1,0 +1,1 @@
+Cannot insert the value NULL into column 'empresa_id', table 'StockDB.dbo.Auditoria'; column does not allow nulls. INSERT fails.\nCannot insert the value NULL into column 'empresa_id', table 'StockDB.dbo.Auditoria'; column does not allow nulls. INSERT fails.\n

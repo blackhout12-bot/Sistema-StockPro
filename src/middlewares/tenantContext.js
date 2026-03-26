@@ -45,6 +45,7 @@ async function tenantContext(req, res, next) {
 
         // Establecer el contexto seguro para el resto de la ejecución
         req.tenant_id = selectedId;
+        req.log.info({ userId: req.user.id, tenantId: selectedId, path: req.path }, 'Tenant Context Establecido');
         req.user.rol = membresia.rol; // Actualizar el rol según la empresa actual por si varía
 
         next();
