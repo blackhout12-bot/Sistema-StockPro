@@ -97,7 +97,8 @@ gantt
 ### [✔️] v1.27.4 - Resiliencia y Rollback Automático
 - [x] **RESUELTO**: Implementación de Health Checks (`/health`, `/ready`) granulares por módulo para Liveness y Readiness probes.
 - [x] **RESUELTO**: Configuración de `RollingUpdate` con `maxSurge` y `maxUnavailable` para despliegues sin tiempo de inactividad.
-- [x] **RESUELTO**: **HOTFIX v1.27.4.2**: Implementación de `connectionTimeout` y `requestTimeout` en el pool de MSSQL, evitando bloqueos de sonda (hangs) y garantizando reconexión automática tras caídas de red.
+- [x] **RESUELTO**: **HOTFIX v1.27.4.2**: Implementación de `connectionTimeout` y `requestTimeout` en el pool de MSSQL, evitando bloqueos de sonda (hangs).
+- [x] **RESUELTO**: **HOTFIX v1.27.4.3**: Bypass de salud en middlewares `tenantContext` y `rbac`, eliminando errores 500 y garantizando que las sondas de Kubernetes nunca dependan de la sesión del usuario.
 - [x] **RESUELTO**: Activación de Auto-Rollback nativo en Kubernetes si los Pods no superan las pruebas de salud en 60 segundos.
 - [x] **RESUELTO**: Instrumentación de alertas en Prometheus para detectar degradación de servicio (latencia > 2s o errores 5xx > 5%).
 - [x] **ESTADO**: El Sistema superó las pruebas de estrés y validación de fallos. Resiliencia garantizada bajo carga operativa.

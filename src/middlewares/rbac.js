@@ -10,6 +10,11 @@ const { verificarPermisoRol } = require('../repositories/auth.repository');
  */
 const checkPermiso = (recurso, accion) => {
     return async (req, res, next) => {
+        // BYPASS: No validar permisos en health checks
+        if (req.path.endsWith('/health') || req.path.endsWith('/ready') || req.path === '/ping') {
+            return next();
+        }
+
         try {
             // 1. Asegurar que tenemos perfil de usuario autenticado
             if (!req.user || !req.user.rol) {

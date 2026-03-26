@@ -6,6 +6,11 @@ const { obtenerMembresia } = require('../repositories/auth.repository');
  * Evita fugas de datos al validar que el usuario tenga acceso a la empresa solicitada.
  */
 async function tenantContext(req, res, next) {
+    // BYPASS: No validar contexto en health checks
+    if (req.path.endsWith('/health') || req.path.endsWith('/ready') || req.path === '/ping') {
+        return next();
+    }
+
     try {
         // PRIORIDAD 1: Header explícito (usado por el frontend para cambiar de empresa)
         const headerEmpresaId = req.headers['x-empresa-id'];
