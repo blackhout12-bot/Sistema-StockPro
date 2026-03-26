@@ -1,6 +1,9 @@
-import './tracing';
+import { initTracing } from './tracing';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+
+// Hotfix v1.27.3.1: Inicializar observabilidad sin bloquear el render
+initTracing();
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './index.css';
 import App from './App';
@@ -55,7 +58,7 @@ reportWebVitals((metric) => {
     const body = JSON.stringify(metric);
     // Cambiar por el dominio del backend real
     const endpoint = (window.location.hostname === 'localhost') 
-        ? 'http://localhost:5000/api/v1/telemetry/vitals'
+        ? 'http://localhost:5001/api/v1/telemetry/vitals'
         : '/api/v1/telemetry/vitals';
 
     if (navigator.sendBeacon) {

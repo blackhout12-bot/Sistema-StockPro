@@ -87,6 +87,13 @@ gantt
 - [x] **RESUELTO**: Blindaje RBAC activo y eficiente restringiendo accesos por roles directos.
 - [x] **ESTADO GLOBAL**: **APROBADO**. El ERP demostró madurez total pre-observabilidad. Ningún componente clave fue corrompido durante las inyecciones criptográficas o de interfaz.
 
+
+### [✔️] v1.27.3.1 - Hotfix Observabilidad (Pantalla en Blanco)
+- [x] **RESUELTO**: Erradicación del White Screen of Death (WSOD) causado por importación bloqueante de OpenTelemetry SDK en React.
+- [x] **RESUELTO**: Inicialización asíncrona de `initTracing()` para nunca bloquear el ciclo de renderizado de la interfaz.
+- [x] **RESUELTO**: Robustez ante fallos de red: el frontend permanece operativo aunque el colector de telemetría o el backend estén fuera de línea.
+- [x] **ESTADO**: Sistema 100% estable en Fase 13. Observabilidad reactivada de forma segura y no bloqueante.
+
 ### [✔️] v1.27.3-observability - Observabilidad con OpenTelemetry
 - [x] **RESUELTO**: Integración de OpenTelemetry SDK en Backend (Node.js/Express) y Frontend (React).
 - [x] **RESUELTO**: Configuración de exportadores OTLP para trazas, métricas (Prometheus) y logs (Loki).
