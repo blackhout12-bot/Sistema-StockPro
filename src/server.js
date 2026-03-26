@@ -189,16 +189,21 @@ const server = http.createServer(app);
 initSocket(server);
 
 if (require.main === module) {
-  server.listen(PORT, '0.0.0.0', async () => {
-    try {
-        await rabbitMQ.connect();
-        await eventBus.init();
-        await setupAuditSubscribers();
-        await setupNotificationSubscribers();
-    } catch (err) {
-        logger.error({ err }, 'Failed to initialize Event Driven Architecture');
-    }
+  server.listen(PORT, '0.0.0.0', () => {
     logger.info({ port: PORT, env: process.env.NODE_ENV || 'development' }, '🚀 Servidor backend iniciado con WebSockets (IPv4)');
+    
+    // Inicialización Asíncrona de EDA (RabbitMQ) para evitar bloqueos en el arranque
+    (async () => {
+        try {
+            await rabbitMQ.connect();
+            await eventBus.init();
+            await setupAuditSubscribers();
+            await setupNotificationSubscribers();
+            logger.info('📡 Arquitectura de Eventos (EDA) inicializada correctamente');
+        } catch (err) {
+            logger.error({ err: err.message }, '⚠️ Fallo crítico inicializando EDA. Reintentando en background...');
+        }
+    })();
   });
 }
 

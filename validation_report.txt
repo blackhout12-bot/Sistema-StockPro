@@ -1,0 +1,29 @@
+=== VALIDACIÓN INTEGRAL v1.27.4.4 ===
+
+✅ /health                                       HTTP:200  RESUELTO  db:OK
+✅ /ready                                        HTTP:200  RESUELTO  READY
+✅ /api/v1/auth/register                         HTTP:201  RESUELTO  Usuario Creado
+✅ /api/v1/auth/login                            HTTP:200  RESUELTO  Token OK | empresa_id:66
+✅ /api/v1/categorias                            HTTP:200  RESUELTO  0 items
+✅ /api/v1/productos                             HTTP:200  RESUELTO  0 items
+✅ /api/v1/clientes                              HTTP:200  RESUELTO  0 items
+✅ /api/v1/auditoria                             HTTP:200  RESUELTO  4 items
+✅ /api/v1/sucursales                            HTTP:200  RESUELTO  0 items
+✅ /api/v1/inventario                            HTTP:200  RESUELTO  0 items
+✅ /api/v1/inventario/transferencias/historial   HTTP:200  RESUELTO  0 items
+✅ /api/v1/bi/financial-kpis                     HTTP:200  RESUELTO  {"tenant":66,"metrics":{"ingre
+✅ /api/v1/dashboard/financial-kpis              HTTP:200  RESUELTO  {"tenant":66,"metrics":{"ingre
+✅ /api/v1/empresa                               HTTP:200  RESUELTO  {"id":66,"nombre":"StockTest_1
+❌ /api/v1/depositos                             HTTP:404  FALTANTE  {"error":"Recurso no encontrad
+✅ /api/v1/compras                               HTTP:200  RESUELTO  0 items
+✅ /api/v1/proveedores                           HTTP:200  RESUELTO  0 items
+❌ /api/v1/kardex                                HTTP:404  FALTANTE  {"error":"Recurso no encontrad
+❌ /api/v1/reportes                              HTTP:404  FALTANTE  {"error":"Recurso no encontrad
+❌ /api/v1/facturacion/facturas                  HTTP:404  FALTANTE  {"error":"Factura no encontrad
+❌ /api/v1/pos/health                            HTTP:404  FALTANTE  {"error":"Recurso no encontrad
+❌ /api/v1/notificaciones/health                 HTTP:404  FALTANTE  {"error":"Recurso no encontrad
+
+=== RESULTADO FINAL ===
+TOTAL: 22 | RESUELTO: 16 | FALTANTE: 6
+
+⚠️ VALIDACIÓN PARCIAL: Algunos módulos fallaron o retornaron error.

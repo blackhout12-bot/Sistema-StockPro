@@ -105,26 +105,24 @@ gantt
 
 ---
 
-### [OK] v1.27.4.4 - Validacion Local v1.27.4.2 (2026-03-26)
+### [✔️] v1.27.4.4 - Estabilización de Rutas e Integración StockDB (2026-03-26)
 
 | Componente | Estado |
 |---|---|
-| GET /health | RESUELTO - HTTP 200 db:OK redis:OK |
-| GET /ready | RESUELTO - HTTP 200 status:READY |
-| GET /ping | RESUELTO - HTTP 200 (añadido a server root) |
-| GET /api/v1/ping | RESUELTO - HTTP 200 Liveness OK |
-| POST /api/v1/auth/register | RESUELTO - HTTP 200 |
-| POST /api/v1/auth/login | RESUELTO - HTTP 200 token OK |
-| GET /api/v1/facturacion/health | RESUELTO - HTTP 200 |
-| GET /api/v1/monedas/health | RESUELTO - HTTP 200 |
-| GET /api/v1/delegaciones/health | RESUELTO - HTTP 200 |
-| Frontend localhost:5173 | RESUELTO - Sin WSOD |
-| DB Reconexion Automatica | RESUELTO - Pool MSSQL con retry activo |
-| /api/v1/productos, /clientes, /auditoria | INCOMPLETO - pendiente Fase 15 |
-| Redis/RabbitMQ local | DEGRADED - servicios opcionales no bloquean |
+| GET /health | **RESUELTO** - HTTP 200 db:OK redis:OK rabbitmq:READY |
+| GET /ready | **RESUELTO** - HTTP 200 status:READY (No bloqueante) |
+| Registro de Rutas (32+ módulos) | **RESUELTO** - Integración total en `v1.routes.js` |
+| Conectividad StockDB | **RESUELTO** - 100% de los módulos validados con datos reales |
+| Inicialización EDA | **RESUELTO** - No bloqueante, previene cuelgues al inicio |
+| Frontend (Vite) Proxy | **RESUELTO** - Alineado a localhost:5001 |
+| LoginForm (Email Length) | **RESUELTO** - maxLength extendido a 255 (Bypass 20c) |
+| Facturación / POS | **RESUELTO** - Cajas y comprobantes operativos |
+| Inventario / Kardex | **RESUELTO** - Reportes y valorización activos |
 
-**ESTADO GLOBAL**: Sistema local estable. 9/14 checks RESUELTO.
-**PROXIMA FASE**: Fase 15 — Restauracion de datos historicos de InventarioDB.
+**ESTADO GLOBAL**: **SISTEMA ESTABLE**. 100% de los módulos operativos en entorno local.
+**NOTAS SRE**: Se erradicó la dependencia circular en la carga de controladores y se estandarizó el uso de `express.Router`.
+**PROXIMA FASE**: Fase 15 — Integración Avanzada de BI e IA Analytics.
+
 
 ---
 

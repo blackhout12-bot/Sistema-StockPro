@@ -42,6 +42,7 @@ const LoginForm = () => {
     });
 
     const onSubmit = async (data) => {
+        console.log('[DEBUG_LOGIN_SUBMIT]', { email: data.email, password: data.password ? '****' : 'EMPTY' });
         setLoading(true);
         try {
             if (isForgotPassword) {
@@ -204,6 +205,7 @@ const LoginForm = () => {
                                         <input
                                             type="email"
                                             {...register('email')}
+                                            maxLength={255}
                                             className={`block w-full pl-10 pr-3 py-2.5 border ${errors.email ? 'border-red-500' : 'border-gray-200'} rounded-lg focus:ring-black focus:border-black sm:text-sm bg-gray-50/50 hover:bg-gray-50 transition-colors`}
                                             placeholder="ejemplo@correo.com"
                                         />

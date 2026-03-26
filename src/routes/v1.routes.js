@@ -89,7 +89,19 @@ router.use('/payments', sessionBypass, require('../modules/payments/payments.con
 router.use('/importacion', sessionBypass, tenantContext, require('../modules/importacion/importacion.controller'));
 router.use('/monedas', sessionBypass, require('../modules/configuracion/monedas.controller'));
 router.use('/contextos', sessionBypass, tenantContext, require('../modules/contextos/contextos.controller'));
-router.use('/delegaciones', sessionBypass, tenantContext, require('../modules/delegaciones/delegaciones.controller'));
+router.use('/categorias', sessionBypass, tenantContext, require('../modules/categorias/categorias.controller'));
+router.use('/productos', sessionBypass, tenantContext, require('../modules/productos/productos.controller'));
+router.use('/clientes', sessionBypass, tenantContext, require('../modules/clientes/clientes.controller'));
+router.use('/auditoria', sessionBypass, tenantContext, require('../modules/auditoria/auditoria.controller'));
+router.use('/sucursales', sessionBypass, tenantContext, require('../modules/sucursales/sucursales.controller'));
+router.use('/inventario', sessionBypass, tenantContext, require('../modules/movimientos/movimientos.controller'));
+router.use('/movimientos', sessionBypass, tenantContext, require('../modules/movimientos/movimientos.controller'));
+router.use('/compras', sessionBypass, tenantContext, require('../modules/compras/compras.controller'));
+router.use('/proveedores', sessionBypass, tenantContext, require('../modules/proveedores/proveedores.controller'));
+router.use('/empresa', sessionBypass, tenantContext, require('../modules/empresa/empresa.controller'));
+router.use('/dashboard', authenticate, tenantContext, require('./bi.routes'));
+router.use('/reportes', sessionBypass, tenantContext, require('../modules/reportes/reportes.controller'));
+router.use('/kardex', sessionBypass, tenantContext, require('../modules/kardex/kardex.controller'));
 
 // Analítica y Business Intelligence (Fase 14)
 router.use('/bi', authenticate, tenantContext, require('./bi.routes'));

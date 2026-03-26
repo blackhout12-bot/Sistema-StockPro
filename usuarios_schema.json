@@ -1,0 +1,79 @@
+[dotenv@17.3.1] injecting env (16) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[01:14:27] [32mINFO[39m: [36mConectado a SQL Server (Escritura)[39m
+[
+  {
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": null
+  },
+  {
+    "COLUMN_NAME": "nombre",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": 100
+  },
+  {
+    "COLUMN_NAME": "email",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": 150
+  },
+  {
+    "COLUMN_NAME": "password_hash",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": 255
+  },
+  {
+    "COLUMN_NAME": "rol",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": 50
+  },
+  {
+    "COLUMN_NAME": "creado_en",
+    "DATA_TYPE": "datetime",
+    "CHARACTER_MAXIMUM_LENGTH": null
+  },
+  {
+    "COLUMN_NAME": "empresa_id",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": null
+  },
+  {
+    "COLUMN_NAME": "activo",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": null
+  },
+  {
+    "COLUMN_NAME": "reset_token",
+    "DATA_TYPE": "nvarchar",
+    "CHARACTER_MAXIMUM_LENGTH": 255
+  },
+  {
+    "COLUMN_NAME": "reset_token_exp",
+    "DATA_TYPE": "datetime2",
+    "CHARACTER_MAXIMUM_LENGTH": null
+  },
+  {
+    "COLUMN_NAME": "sucursal_id",
+    "DATA_TYPE": "int",
+    "CHARACTER_MAXIMUM_LENGTH": null
+  },
+  {
+    "COLUMN_NAME": "mfa_secret",
+    "DATA_TYPE": "varchar",
+    "CHARACTER_MAXIMUM_LENGTH": 64
+  },
+  {
+    "COLUMN_NAME": "mfa_enabled",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": null
+  },
+  {
+    "COLUMN_NAME": "totp_secret",
+    "DATA_TYPE": "varchar",
+    "CHARACTER_MAXIMUM_LENGTH": 64
+  },
+  {
+    "COLUMN_NAME": "onboarding_completed",
+    "DATA_TYPE": "bit",
+    "CHARACTER_MAXIMUM_LENGTH": null
+  }
+]
