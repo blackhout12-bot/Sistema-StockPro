@@ -104,6 +104,8 @@ router.use('/dashboard', sessionBypass, tenantContext, require('./bi.routes'));
 router.use('/reportes', sessionBypass, tenantContext, require('../modules/reportes/reportes.controller'));
 router.use('/delegaciones', sessionBypass, tenantContext, require('../modules/delegaciones/delegaciones.controller'));
 router.use('/kardex', sessionBypass, tenantContext, require('../modules/kardex/kardex.controller'));
+router.use('/cuentas-cobrar', sessionBypass, tenantContext, require('../modules/cuentas_cobrar/cuentas_cobrar.controller'));
+router.use('/cuentas-pagar', sessionBypass, tenantContext, require('../modules/cuentas_pagar/cuentas_pagar.controller'));
 
 // Analítica y Business Intelligence (Fase 14)
 router.use('/bi', sessionBypass, tenantContext, require('./bi.routes'));
