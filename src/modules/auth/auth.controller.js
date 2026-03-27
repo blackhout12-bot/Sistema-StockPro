@@ -4,8 +4,19 @@ const express = require('express');
 const router = express.Router();
 const withHealth = require('../../middlewares/health.middleware');
 
-// Health Check por Módulo
-router.use(withHealth('Auth'));
+// Health Check por Módulo (Validando MFA/TOTP)
+router.use(withHealth('Auth', {
+    customCheck: async () => {
+        const speakeasy = require('speakeasy');
+        // Verificamos que speakeasy puede generar un secreto (indicativo de que la lib está OK)
+        const testSecret = speakeasy.generateSecret({ length: 20 }).base32;
+        return { 
+            mfa_service: 'READY',
+            totp_engine: 'speakeasy',
+            library_status: testSecret ? 'LOADED' : 'ERROR' 
+        };
+    }
+}));
 const authService = require('./auth.service');
 const authenticate = require('../../middlewares/auth');
 const checkPermiso = require('../../middlewares/rbac');

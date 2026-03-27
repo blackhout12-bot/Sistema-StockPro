@@ -7,16 +7,33 @@ const logger = require('../utils/logger');
 /**
  * Middleware para inyectar endpoints de salud en un router.
  * @param {string} moduleName Nombre del módulo para identificación en logs.
+ * @param {Object} [options] Opciones adicionales.
+ * @param {Function} [options.customCheck] Función asíncrona que retorna un booleano o lanza error.
  */
-const withHealth = (moduleName) => {
+const withHealth = (moduleName, options = {}) => {
     return (req, res, next) => {
         // Solo respondemos si es el path exacto /health o /ready
         if (req.path === '/health') {
-            return res.json({
-                status: 'UP',
-                module: moduleName,
-                timestamp: new Date().toISOString()
-            });
+            return (async () => {
+                let status = 'UP';
+                let extra = {};
+                if (options.customCheck) {
+                    try {
+                        const result = await options.customCheck();
+                        if (result === false) status = 'DEGRADED';
+                        if (typeof result === 'object') extra = result;
+                    } catch (e) {
+                        status = 'DEGRADED';
+                        extra = { error: e.message };
+                    }
+                }
+                return res.json({
+                    status,
+                    module: moduleName,
+                    ...extra,
+                    timestamp: new Date().toISOString()
+                });
+            })();
         }
 
         if (req.path === '/ready') {
