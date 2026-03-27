@@ -29,7 +29,7 @@ class SearchService {
                 id: p.id,
                 tipo: 'PRODUCTO',
                 nombre: p.nombre,
-                extra: `SKU: ${p.codigo || 'N/A'} - Stock: ${p.stock}`,
+                extra: `SKU: ${p.sku || 'N/A'} - Stock: ${p.stock}`,
                 ruta: '/productos' // La grilla filtrará
             });
         });

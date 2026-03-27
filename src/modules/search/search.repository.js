@@ -18,10 +18,10 @@ class SearchRepository {
 
         // Productos (Top 5 matches)
         const prodRes = await req.query(`
-            SELECT TOP 5 id, nombre, codigo, codigo_barras, stock 
+            SELECT TOP 5 id, nombre, sku, stock 
             FROM Productos 
             WHERE empresa_id = @emp_id 
-              AND (nombre LIKE @term OR codigo LIKE @term OR codigo_barras LIKE @term)
+              AND (nombre LIKE @term OR sku LIKE @term)
         `);
         results.productos = prodRes.recordset;
 
@@ -60,10 +60,10 @@ class SearchRepository {
         // Proveedores (Top 5)
         if (permissions.fetchProveedores) {
             const provRes = await req.query(`
-                SELECT TOP 5 id, nombre, documento_identidad 
+                SELECT TOP 5 id, razon_social as nombre, cuit as documento_identidad 
                 FROM Proveedores 
                 WHERE empresa_id = @emp_id 
-                  AND (nombre LIKE @term OR documento_identidad LIKE @term)
+                  AND (razon_social LIKE @term OR cuit LIKE @term)
             `);
             results.proveedores = provRes.recordset;
         }

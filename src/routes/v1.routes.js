@@ -83,6 +83,7 @@ router.use('/auth/sso', authLimiter, require('../modules/auth/auth_sso.controlle
 // Protegidas (Requieren Auth y Tenant Context)
 router.use('/notificaciones', sessionBypass, tenantContext, require('../modules/notificaciones/notificaciones.controller'));
 router.use('/facturacion', sessionBypass, tenantContext, require('../modules/facturacion/facturacion.controller'));
+router.use('/search', sessionBypass, tenantContext, require('../modules/search/search.controller'));
 
 router.use('/pos', sessionBypass, tenantContext, require('../modules/pos/pos.controller'));
 router.use('/payments', sessionBypass, require('../modules/payments/payments.controller'));
