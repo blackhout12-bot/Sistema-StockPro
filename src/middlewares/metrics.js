@@ -36,6 +36,13 @@ const webVitalsSummary = new promClient.Summary({
   labelNames: ['metric_name']
 });
 
+// Counter para Reconexiones de Base de Datos
+const dbReconnectionsTotal = new promClient.Counter({
+  name: 'stock_system_db_reconnections_total',
+  help: 'Total de reconexiones exitosas a la base de datos SQL Server',
+  labelNames: ['pool']
+});
+
 // Middleware de recolección de métricas HTTP
 const metricsMiddleware = (req, res, next) => {
   const start = Date.now();
@@ -64,5 +71,6 @@ module.exports = {
   businessFacturasTotal,
   businessPosSalesTotal,
   businessInventoryMovementsTotal,
-  webVitalsSummary
+  webVitalsSummary,
+  dbReconnectionsTotal
 };

@@ -3,6 +3,7 @@ const sql = require('mssql');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 const logger = require('../utils/logger');
+const { dbReconnectionsTotal } = require('../middlewares/metrics');
 
 const dbConfig = {
   user: process.env.DB_USER,
@@ -49,6 +50,26 @@ async function connectDB() {
       connectingPromise = null;
       pool.on('error', (err) => { logger.error({ err }, 'SQL Server pool error'); pool = null; });
       logger.info('Conectado a SQL Server (Escritura)');
+      
+      // ─── Métricas y Auditoría de Reconexión ───
+      try {
+        dbReconnectionsTotal.inc({ pool: 'Escritura' });
+        const { trace, context } = require('@opentelemetry/api');
+        const span = trace.getSpan(context.active());
+        const trace_id = span ? span.spanContext().traceId : null;
+
+        // Registro silencioso en Auditoría (empresa_id: 1 para el sistema)
+        pool.request()
+          .input('accion', 'reconexion_exitosa')
+          .input('entidad', 'BaseDatos')
+          .input('trace_id', trace_id)
+          .query(`
+            INSERT INTO dbo.Auditoria (empresa_id, usuario_id, accion, entidad, valor_nuevo, trace_id)
+            VALUES (1, NULL, @accion, @entidad, 'Pool Escritura Reestablecido', @trace_id)
+          `).catch(() => {});
+      } catch (e) {}
+      // ──────────────────────────────────────────
+
       return pool;
     })
     .catch((err) => {
