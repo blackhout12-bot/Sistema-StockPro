@@ -27,8 +27,8 @@ class ProveedorRepository {
             .input('direccion', sql.NVarChar, data.direccion)
             .query(`
                 INSERT INTO Proveedores (empresa_id, razon_social, cuit, condicion_fiscal, email, telefono, direccion)
-                OUTPUT INSERTED.id
                 VALUES (@empresa_id, @razon_social, @cuit, @condicion_fiscal, @email, @telefono, @direccion);
+                SELECT SCOPE_IDENTITY() AS id;
             `);
         return result.recordset[0].id;
     }

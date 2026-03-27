@@ -62,7 +62,7 @@ const Facturacion = () => {
     const productos = useMemo(() => productosBrutos.map(p => ({
         ...p,
         stock: p.stock_deposito !== undefined ? p.stock_deposito : p.stock
-    })).filter(p => p.stock > 0), [productosBrutos]);
+    })), [productosBrutos]);
 
     const { data: empresa = {}, isLoading: loadingEmpresa } = useQuery({
         queryKey: ['empresa'],

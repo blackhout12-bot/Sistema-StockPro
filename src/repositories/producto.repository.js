@@ -189,7 +189,7 @@ class ProductoRepository {
             if (hasImageUrlColumn) { queryStr += `, image_url`; valStr += `, @image_url`; }
             if (hasMonedaIdColumn) { queryStr += `, moneda_id`; valStr += `, @moneda_id`; }
 
-            queryStr += `) OUTPUT INSERTED.id ${valStr})`;
+            queryStr += `) ${valStr}); SELECT SCOPE_IDENTITY() AS id;`;
 
             const request = pool.request()
                 .input('sku', sql.NVarChar, sku || null)
@@ -216,7 +216,7 @@ class ProductoRepository {
             if (hasCustomFieldsColumn) { queryStr += `, custom_fields`; valStr += `, @custom_fields`; }
             if (hasImageUrlColumn) { queryStr += `, image_url`; valStr += `, @image_url`; }
 
-            queryStr += `) OUTPUT INSERTED.id ${valStr})`;
+            queryStr += `) ${valStr}); SELECT SCOPE_IDENTITY() AS id;`;
 
             const request = pool.request()
                 .input('nombre', sql.NVarChar, nombre)
