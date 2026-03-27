@@ -1,8 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const categoriasService = require('./categorias.service');
+const withHealth = require('../../middlewares/health.middleware');
 const checkPermiso = require('../../middlewares/rbac');
 const logger = require('../../utils/logger');
+
+// Health Check por Módulo
+router.use(withHealth('Categorias'));
 
 // POST /api/v1/categorias
 router.post('/', checkPermiso('productos', 'crear'), async (req, res, next) => {

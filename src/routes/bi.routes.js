@@ -4,6 +4,10 @@ const authenticate = require('../middlewares/auth');
 const tenantContext = require('../middlewares/tenantContext');
 const checkPermiso = require('../middlewares/rbac');
 const biController = require('../modules/bi/bi.controller');
+const withHealth = require('../middlewares/health.middleware');
+
+// Health Check por Módulo
+router.use(withHealth('Dashboard'));
 
 // GET /api/v1/bi/financial-kpis
 router.get('/financial-kpis', authenticate, tenantContext, checkPermiso('dashboard', 'leer'), biController.exportFinancialKPIs.bind(biController));
