@@ -128,7 +128,7 @@ gantt
 
 ---
 
-### [✔️] v1.27.4.5 - Restauración Integral con StockDB (2026-03-27)
+### [✔️] v1.27.4.5-validation - Restauración Integral con StockDB (2026-03-27)
 
 | Componente | Estado |
 |---|---|
@@ -143,6 +143,6 @@ gantt
 | Estabilidad Global | **RESUELTO** - Sistema 100% Robusto y Validado |
 
 **RESULTADO FINAL**: **RESTAURACIÓN EXITOSA - SISTEMA OPERATIVO**.
-**REFERENCIA GITHUB**: Alineado con v1.27.4.5.
+**REFERENCIA GITHUB**: Alineado con v1.27.4.5-validation.
 **PROXIMA FASE**: Fase 15 - Refactorización de rutas v1 y restauración de datos.
 
