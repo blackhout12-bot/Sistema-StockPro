@@ -157,6 +157,6 @@ gantt
 | UI Selector de Roles | **RESUELTO** - Frontend expone `rolesDisponibles` (Users.jsx) |
 | DB persistencia en StockDB | **RESUELTO** - Tabla Usuarios actualiza los roles vía `SCOPE_IDENTITY()` |
 | Joyride Operativo | **RESUELTO** - El frontend permanece estable tras altas Multi-Rol |
-| Convergencia GitHub | **RESUELTO** - Referencias validadas y versionado sincronizado con tag v1.27.4.6 |
+| Convergencia GitHub | **RESUELTO** - Referencias validadas y versionado sincronizado con tag v1.27.4.6-validation |
 
 **ESTADO GLOBAL**: **MÓDULO USUARIOS ESTABLE Y ESCALADO**.
