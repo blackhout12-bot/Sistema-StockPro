@@ -146,3 +146,17 @@ gantt
 **REFERENCIA GITHUB**: Alineado con v1.27.4.5-validation.
 **PROXIMA FASE**: Fase 15 - Refactorización de rutas v1 y restauración de datos.
 
+---
+
+### [✔️] v1.27.4.6 - Optimización Módulo de Usuarios y Múltiples Roles (2026-04-02)
+
+| Checklist Validación | Estado |
+|---|---|
+| POST /api/v1/auth/register con cualquier rol autorizado | **RESUELTO** - Extendidos schemas y registerEmpresa para roles dinámicos |
+| Auditoría de roles | **RESUELTO** - Registro persistido vía auditMiddleware y logs |
+| UI Selector de Roles | **RESUELTO** - Frontend expone `rolesDisponibles` (Users.jsx) |
+| DB persistencia en StockDB | **RESUELTO** - Tabla Usuarios actualiza los roles vía `SCOPE_IDENTITY()` |
+| Joyride Operativo | **RESUELTO** - El frontend permanece estable tras altas Multi-Rol |
+| Convergencia GitHub | **RESUELTO** - Referencias validadas y versionado sincronizado con tag v1.27.4.6 |
+
+**ESTADO GLOBAL**: **MÓDULO USUARIOS ESTABLE Y ESCALADO**.

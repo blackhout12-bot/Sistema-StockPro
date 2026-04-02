@@ -7,7 +7,7 @@ const logger = require('../../utils/logger');
 const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
 
-const ROLES_PERMITIDOS = ['admin', 'vendedor'];
+const ROLES_PERMITIDOS = ['admin', 'gerente', 'supervisor', 'vendedor', 'cajero', 'operador', 'auditor'];
 const JWT_EXPIRY = '8h';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -149,7 +149,8 @@ async function seleccionarEmpresa(usuario_id, empresa_id) {
 
 // ─── Registro ─────────────────────────────────────────────────────────────────
 
-async function registerEmpresa({ empresaNombre, nombre, email, password }) {
+async function registerEmpresa({ empresaNombre, nombre, email, password, rol }) {
+  const rolAAsignar = rol && ROLES_PERMITIDOS.includes(rol.toLowerCase()) ? rol.toLowerCase() : 'admin';
   if (!empresaNombre || !nombre || !email || !password) {
     throw Object.assign(new Error('Todos los campos son requeridos.'), { statusCode: 400 });
   }
@@ -199,7 +200,7 @@ async function registerEmpresa({ empresaNombre, nombre, email, password }) {
       .input('nombre', sql.VarChar, nombre)
       .input('email', sql.VarChar, email)
       .input('password_hash', sql.VarChar, hashedPassword)
-      .input('rol', sql.VarChar, 'admin')
+      .input('rol', sql.VarChar, rolAAsignar)
       .input('empresa_id', sql.Int, empresa_id)
       .query(`INSERT INTO Usuarios (nombre, email, password_hash, rol, empresa_id) VALUES (@nombre, @email, @password_hash, @rol, @empresa_id); SELECT SCOPE_IDENTITY() AS id;`);
 
@@ -210,7 +211,7 @@ async function registerEmpresa({ empresaNombre, nombre, email, password }) {
       await new sql.Request(transaction)
         .input('uid', sql.Int, usuario_id)
         .input('eid', sql.Int, empresa_id)
-        .input('rol', sql.VarChar, 'admin')
+        .input('rol', sql.VarChar, rolAAsignar)
         .query(`INSERT INTO UsuarioEmpresas (usuario_id, empresa_id, rol, activo) VALUES (@uid, @eid, @rol, 1)`);
     } catch { /* tabla puede no existir — se sincroniza en primer login */ }
 

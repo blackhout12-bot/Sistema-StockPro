@@ -10,6 +10,7 @@ const registerSchema = z.object({
     nombre: z.string({ required_error: 'El nombre es obligatorio' }).min(2, 'Mínimo 2 caracteres').max(255),
     email: z.string({ required_error: 'El email es obligatorio' }).email('Email inválido').max(255),
     password: z.string({ required_error: 'La contraseña es obligatoria' }).min(6, 'Mínimo 6 caracteres'),
+    rol: z.string().optional().default('admin'),
     plan: z.enum(['starter', 'pro', 'enterprise']).optional().default('starter')
 }).strict();
 
