@@ -195,17 +195,33 @@ async function registerEmpresa({ empresaNombre, nombre, email, password, rol }) 
       .input('eid', sql.Int, empresa_id)
       .query("INSERT INTO POS_Cajas (empresa_id, nombre, activa) VALUES (@eid, 'Caja Principal', 1)");
 
-    // ── NUEVO: Sembrar Roles por defecto (¡CRÍTICO PARA RBAC!) ──
+    // ── NUEVO: Sembrar Roles por defecto (Seguridad Avanzada v1.27.8) ──
+    const adminPerm = JSON.stringify({"*":["leer","crear","actualizar","eliminar","exportar"]});
+    const auditorPerm = JSON.stringify({"*":["leer"],"auditoria":["leer","exportar"]});
+    const facturacionPerm = JSON.stringify({"facturacion":["leer","crear","actualizar","exportar"],"clientes":["leer","crear"],"reportes":["leer"]});
+    const inventarioPerm = JSON.stringify({"productos":["leer","crear","actualizar","eliminar","exportar"],"movimientos":["leer","crear","exportar"],"categorias":["leer","crear"]});
+    const sucursalesPerm = JSON.stringify({"sucursales":["leer","crear","actualizar"],"reportes":["leer"]});
+    const seguridadPerm = JSON.stringify({"roles":["leer","crear","actualizar"],"usuarios":["leer","actualizar"],"auditoria":["leer"]});
+    const basicoPerm = JSON.stringify({"dashboard":["leer"],"reportes":["leer"]});
+
     await new sql.Request(transaction)
       .input('eid', sql.Int, empresa_id)
-      .input('adminPerm', sql.NVarChar, '{"*":["leer","crear","actualizar","eliminar","exportar"]}')
-      .input('gerentePerm', sql.NVarChar, '{"dashboard":["leer"],"facturacion":["leer","crear","exportar"],"movimientos":["leer","crear","actualizar","exportar"],"productos":["leer","crear","actualizar","exportar"],"clientes":["leer","crear","actualizar","exportar"],"reportes":["leer","exportar"]}')
-      .input('cajeroPerm', sql.NVarChar, '{"dashboard":["leer"],"facturacion":["leer","crear"],"clientes":["leer","crear"],"movimientos":["leer"]}')
+      .input('adminPerm', sql.NVarChar, adminPerm)
+      .input('auditorPerm', sql.NVarChar, auditorPerm)
+      .input('factPerm', sql.NVarChar, facturacionPerm)
+      .input('invPerm', sql.NVarChar, inventarioPerm)
+      .input('sucPerm', sql.NVarChar, sucursalesPerm)
+      .input('segPerm', sql.NVarChar, seguridadPerm)
+      .input('basPerm', sql.NVarChar, basicoPerm)
       .query(`
         INSERT INTO Roles (empresa_id, nombre, codigo_rol, permisos, es_sistema) VALUES 
         (@eid, 'Administrador', 'admin', @adminPerm, 1),
-        (@eid, 'Gerente', 'gerente', @gerentePerm, 1),
-        (@eid, 'Cajero', 'cajero', @cajeroPerm, 1)
+        (@eid, 'Auditor', 'auditor', @auditorPerm, 1),
+        (@eid, 'Facturación', 'facturacion', @factPerm, 1),
+        (@eid, 'Inventario', 'inventario', @invPerm, 1),
+        (@eid, 'Sucursales', 'sucursales', @sucPerm, 1),
+        (@eid, 'Seguridad', 'seguridad', @segPerm, 1),
+        (@eid, 'Usuario Básico', 'user_basico', @basPerm, 1)
       `);
 
     const hashedPassword = await bcrypt.hash(password, 12);
