@@ -60,7 +60,7 @@ export default function TabRoles() {
                 await api.put(`/empresa/roles/${editId}`, payload);
                 toast.success('Rol actualizado');
             } else {
-                await api.post('/empresa/roles', payload);
+                await api.post('/roles/create', payload);
                 toast.success('Rol creado');
             }
             setIsEditing(false);

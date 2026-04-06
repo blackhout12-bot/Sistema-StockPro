@@ -158,5 +158,6 @@ gantt
 | DB persistencia en StockDB | **RESUELTO** - Tabla Usuarios actualiza los roles vía `SCOPE_IDENTITY()` |
 | Joyride Operativo | **RESUELTO** - El frontend permanece estable tras altas Multi-Rol |
 | Convergencia GitHub | **RESUELTO** - Referencias validadas y versionado sincronizado con tag v1.27.4.6-validation |
+| Creación de Roles (/api/v1/roles/create) | **RESUELTO** - Endpoint restaurado, UI conectada, y error de triggers en DB solucionado (`SCOPE_IDENTITY`) |
 
-**ESTADO GLOBAL**: **MÓDULO USUARIOS ESTABLE Y ESCALADO**.
+**ESTADO GLOBAL**: **MÓDULOS USUARIOS Y ROLES ESTABLES Y ESCALADOS**.

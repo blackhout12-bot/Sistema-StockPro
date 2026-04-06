@@ -100,6 +100,7 @@ router.use('/movimientos', sessionBypass, tenantContext, require('../modules/mov
 router.use('/compras', sessionBypass, tenantContext, require('../modules/compras/compras.controller'));
 router.use('/proveedores', sessionBypass, tenantContext, require('../modules/proveedores/proveedores.controller'));
 router.use('/empresa', sessionBypass, tenantContext, require('../modules/empresa/empresa.controller'));
+router.use('/roles', sessionBypass, tenantContext, require('../modules/roles/roles.controller'));
 router.use('/dashboard', sessionBypass, tenantContext, require('./bi.routes'));
 router.use('/reportes', sessionBypass, tenantContext, require('../modules/reportes/reportes.controller'));
 router.use('/delegaciones', sessionBypass, tenantContext, require('../modules/delegaciones/delegaciones.controller'));

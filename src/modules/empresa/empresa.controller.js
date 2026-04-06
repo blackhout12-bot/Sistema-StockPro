@@ -234,8 +234,8 @@ router.post('/roles', checkPermiso('empresa', 'crear'), validateBody(rolSchema),
             .input('permisos', JSON.stringify(permisos || {}))
             .query(`
                 INSERT INTO Roles (empresa_id, nombre, codigo_rol, permisos)
-                OUTPUT INSERTED.*
-                VALUES (@empresa_id, @nombre, @codigo_rol, @permisos)
+                VALUES (@empresa_id, @nombre, @codigo_rol, @permisos);
+                SELECT * FROM Roles WHERE id = SCOPE_IDENTITY();
             `);
         res.status(201).json(result.recordset[0]);
     } catch (err) { next(err); }
@@ -257,7 +257,7 @@ router.put('/roles/:id', checkPermiso('empresa', 'actualizar'), validateBody(rol
         if (activo !== undefined && !esSistema) q += `, activo = @activo`;
         if (nombre !== undefined && !esSistema) q += `, nombre = @nombre`;
         if (codigo_rol !== undefined && !esSistema) q += `, codigo_rol = @codigo_rol`;
-        q += ` OUTPUT INSERTED.* WHERE id = @id AND empresa_id = @empresa_id`;
+        q += ` WHERE id = @id AND empresa_id = @empresa_id; SELECT * FROM Roles WHERE id = @id AND empresa_id = @empresa_id;`;
 
         const result = await pool.request()
             .input('id', req.params.id)
