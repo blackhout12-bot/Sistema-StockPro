@@ -7,10 +7,24 @@ const logger = require('../../utils/logger');
 const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
 
-const ROLES_PERMITIDOS = ['admin', 'gerente', 'supervisor', 'vendedor', 'cajero', 'operador', 'auditor'];
-const JWT_EXPIRY = '8h';
-
 // ─── Helpers ────────────────────────────────────────────────────────────────
+
+async function validarRolExistente(rol, empresa_id) {
+  const pool = await connectDB();
+  const q = empresa_id 
+    ? 'SELECT 1 FROM Roles WHERE codigo_rol = @rol AND (empresa_id = @eid OR es_sistema = 1) AND activo = 1'
+    : 'SELECT 1 FROM Roles WHERE codigo_rol = @rol AND es_sistema = 1 AND activo = 1';
+    
+  const req = pool.request().input('rol', sql.VarChar, rol);
+  if (empresa_id) req.input('eid', sql.Int, empresa_id);
+  
+  const check = await req.query(q);
+  if (!check.recordset[0]) {
+    throw Object.assign(new Error(`Rol inválido o inactivo: ${rol}`), { statusCode: 400 });
+  }
+}
+
+const JWT_EXPIRY = '8h';
 
 function generarToken(payload) {
   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: JWT_EXPIRY });
@@ -150,7 +164,7 @@ async function seleccionarEmpresa(usuario_id, empresa_id) {
 // ─── Registro ─────────────────────────────────────────────────────────────────
 
 async function registerEmpresa({ empresaNombre, nombre, email, password, rol }) {
-  const rolAAsignar = rol && ROLES_PERMITIDOS.includes(rol.toLowerCase()) ? rol.toLowerCase() : 'admin';
+  const rolAAsignar = rol ? rol.toLowerCase() : 'admin';
   if (!empresaNombre || !nombre || !email || !password) {
     throw Object.assign(new Error('Todos los campos son requeridos.'), { statusCode: 400 });
   }
@@ -225,9 +239,7 @@ async function registerEmpresa({ empresaNombre, nombre, email, password, rol }) 
 }
 
 async function crearUsuarioAdmin({ nombre, email, password, rol, empresa_id }) {
-  if (!ROLES_PERMITIDOS.includes(rol)) {
-    throw Object.assign(new Error(`Rol inválido. Use: ${ROLES_PERMITIDOS.join(', ')}`), { statusCode: 400 });
-  }
+  await validarRolExistente(rol, empresa_id);
   if (!password || password.length < 8) {
     throw Object.assign(new Error('La contraseña debe tener al menos 8 caracteres.'), { statusCode: 400 });
   }
@@ -260,16 +272,12 @@ async function obtenerMisEmpresas(usuario_id) {
 }
 
 async function actualizarRolUsuario(usuario_id, empresa_id, rol) {
-  if (!ROLES_PERMITIDOS.includes(rol)) {
-    throw Object.assign(new Error(`Rol inválido. Use: ${ROLES_PERMITIDOS.join(', ')}`), { statusCode: 400 });
-  }
+  await validarRolExistente(rol, empresa_id);
   return await authRepository.actualizarRolEnEmpresa(usuario_id, empresa_id, rol);
 }
 
 async function agregarUsuarioAEmpresa(usuario_id, empresa_id, rol) {
-  if (!ROLES_PERMITIDOS.includes(rol)) {
-    throw Object.assign(new Error(`Rol inválido. Use: ${ROLES_PERMITIDOS.join(', ')}`), { statusCode: 400 });
-  }
+  await validarRolExistente(rol, empresa_id);
   // Verificar que el usuario existe
   const pool = await connectDB();
   const uRes = await pool.request()

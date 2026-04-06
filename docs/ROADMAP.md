@@ -159,5 +159,6 @@ gantt
 | Joyride Operativo | **RESUELTO** - El frontend permanece estable tras altas Multi-Rol |
 | Convergencia GitHub | **RESUELTO** - Referencias validadas y versionado sincronizado con tag v1.27.4.6-validation |
 | Creación de Roles (/api/v1/roles/create) | **RESUELTO** - Endpoint restaurado, UI conectada, y error de triggers en DB solucionado (`SCOPE_IDENTITY`) |
+| Roles Dinámicos sin Hardcodeo | **RESUELTO** - Validación estática (`ROLES_PERMITIDOS`) por base de datos (`Roles`) eliminada en `auth.service.js` |
 
-**ESTADO GLOBAL**: **MÓDULOS USUARIOS Y ROLES ESTABLES Y ESCALADOS**.
+**ESTADO GLOBAL**: **MÓDULOS USUARIOS Y ROLES ESTABLES, DINÁMICOS Y ESCALADOS**.
