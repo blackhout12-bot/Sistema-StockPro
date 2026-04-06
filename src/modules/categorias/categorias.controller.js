@@ -3,6 +3,7 @@ const router = express.Router();
 const categoriasService = require('./categorias.service');
 const withHealth = require('../../middlewares/health.middleware');
 const checkPermiso = require('../../middlewares/rbac');
+const cacheMiddleware = require('../../middlewares/cache.middleware');
 const logger = require('../../utils/logger');
 
 // Health Check por Módulo
@@ -30,7 +31,7 @@ router.post('/', checkPermiso('productos', 'crear'), async (req, res, next) => {
 });
 
 // GET /api/v1/categorias
-router.get('/', checkPermiso('productos', 'leer'), async (req, res, next) => {
+router.get('/', checkPermiso('productos', 'leer'), cacheMiddleware(300), async (req, res, next) => {
     try {
         const filtros = {
             sucursal_id: req.query.sucursal_id,
@@ -45,7 +46,7 @@ router.get('/', checkPermiso('productos', 'leer'), async (req, res, next) => {
 });
 
 // GET /api/v1/categorias/:id
-router.get('/:id', checkPermiso('productos', 'leer'), async (req, res, next) => {
+router.get('/:id', checkPermiso('productos', 'leer'), cacheMiddleware(300), async (req, res, next) => {
     try {
         const cat = await categoriasService.getCategoriaById(parseInt(req.params.id), req.tenant_id);
         res.json(cat);

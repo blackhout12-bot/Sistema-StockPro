@@ -30,6 +30,14 @@ jobs:
     - name: Ejecutar pruebas unitarias backend
       run: npm run test --if-present
 
+    - name: Cache Frontend Node Modules
+      uses: actions/cache@v3
+      with:
+        path: frontend/node_modules
+        key: ${{ runner.os }}-frontend-npm-${{ hashFiles('frontend/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-frontend-npm-
+
     - name: Instalar dependencias frontend
       run: cd frontend && (npm ci || npm install)
 

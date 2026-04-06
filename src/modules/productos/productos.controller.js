@@ -6,6 +6,7 @@ const fs = require('fs');
 const authenticate = require('../../middlewares/auth');
 const authorizeRole = require('../../middlewares/roles');
 const checkPermiso = require('../../middlewares/rbac');
+const cacheMiddleware = require('../../middlewares/cache.middleware');
 const requireFeature = require('../../middlewares/features');
 const audit = require('../../middlewares/audit');
 const { validateBody } = require('../../middlewares/validateRequest');
@@ -33,7 +34,7 @@ const upload = multer({
 });
 
 // ── GET /productos/categorias/esquemas ─────────
-router.get('/categorias/esquemas', authenticate, async (req, res, next) => {
+router.get('/categorias/esquemas', authenticate, cacheMiddleware(300), async (req, res, next) => {
   try {
     const esquemas = await productosService.getCategoriasEsquemas(req.tenant_id);
     res.json(esquemas);
@@ -54,7 +55,7 @@ router.post('/categorias/esquemas', checkPermiso('productos', 'crear'), validate
 });
 
 // Listar productos con paginación server-side
-router.get('/', checkPermiso('productos', 'leer'), async (req, res, next) => {
+router.get('/', checkPermiso('productos', 'leer'), cacheMiddleware(300), async (req, res, next) => {
   try {
     const { page, limit, search, categoria, sucursal_id } = req.query;
 
