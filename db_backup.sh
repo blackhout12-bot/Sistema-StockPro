@@ -23,6 +23,10 @@ echo "-- Backup de $DB_NAME completado exitosamente --" > "$BACKUP_FILE"
 if [ $? -eq 0 ]; then
     echo "✅ Backup generado exitosamente: $BACKUP_FILE"
     echo "Tamaño del archivo: $(ls -lh $BACKUP_FILE | awk '{print $5}')"
+    
+    # Crear copia fija para rollback automático (Fase 18)
+    cp "$BACKUP_FILE" "${BACKUP_DIR}/${DB_NAME}_safe.bak"
+    echo "✅ Snapshot 'safe' actualizado para rollback automático."
 else
     echo "❌ Error al generar el backup."
     exit 1

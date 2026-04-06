@@ -12,6 +12,7 @@ El sistema expone métricas en formato Prometheus en el endpoint `/metrics`.
 - `stock_system_db_query_duration_seconds`: Duración de consultas SQL (Histogram).
 - `stock_system_db_reconnections_total`: Contador de reconexiones a la base de datos.
 - `stock_system_business_facturas_total`: Total de facturas emitidas (Métrica de Negocio).
+- `up`: Métrica estándar de Prometheus (1 = arriba, 0 = abajo).
 
 ### 🔹 Tabla inicial de métricas observadas (baseline)
 
@@ -56,6 +57,15 @@ groups:
         for: 5m
         labels:
           severity: warning
+          
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Servicio caído en {{ $labels.instance }}"
+          description: "La instancia no responde por más de 1 minuto. Verificando auto-restart."
 ```
 
 ## 📈 Grafana Dashboard (Blueprint)
@@ -120,3 +130,14 @@ Todos los logs se emiten en formato JSON e incluyen un `traceId` único por peti
   "msg": "Factura creada correctamente"
 }
 ```
+
+## 🔄 Auto-reinicio (Resiliencia Local)
+
+Para asegurar la continuidad del servicio en entornos locales o servidores dedicados, se recomienda el uso de **PM2** (Process Manager 2).
+
+### Configuración de PM2
+1. Instalar: `npm install pm2 -g`
+2. Iniciar: `pm2 start src/server.js --name stock-backend --watch`
+3. Monitorear: `pm2 monit`
+
+PM2 reiniciará automáticamente el proceso en caso de crash inesperado o fuga de memoria excedida.

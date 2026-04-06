@@ -200,4 +200,15 @@ gantt
 | Logs de Acceso | **RESUELTO** - Estandarizado JSON con `traceId` y `userId`. |
 | Auditoría Crítica | **RESUELTO** - Registro de intentos fallidos y operaciones bypass-safe. |
 
-**ESTADO GLOBAL**: **SISTEMA PROTEGIDO BAJO PROTOCOLOS DE SEGURIDAD AVANZADA**.
+---
+
+### [✔️] v1.27.9 - Resiliencia y Rollback Automático (Fase 18)
+
+| Componente | Estado |
+|---|---|
+| Snapshots DB | **RESUELTO** - Scripts `db_backup.ps1` (Local) y `db_backup.sh` (CI). |
+| Rollback CI/CD | **RESUELTO** - Lógica de reversión automática a tag estable detectada. |
+| Monitoreo Resiliencia | **RESUELTO** - Regla `ServiceDown` configurada en Observabilidad. |
+| Documentación DRP | **RESUELTO** - Creado `docs/RESILIENCE.md` con manuales de recuperación. |
+
+**ESTADO GLOBAL**: **SISTEMA PROTEGIDO, RESILIENTE Y CERTIFICADO BAJO PROTOCOLOS DE SEGURIDAD AVANZADA**.
