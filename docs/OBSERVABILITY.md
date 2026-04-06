@@ -13,6 +13,19 @@ El sistema expone métricas en formato Prometheus en el endpoint `/metrics`.
 - `stock_system_db_reconnections_total`: Contador de reconexiones a la base de datos.
 - `stock_system_business_facturas_total`: Total de facturas emitidas (Métrica de Negocio).
 
+### 🔹 Tabla inicial de métricas observadas (baseline)
+
+| Métrica / Módulo        | Valor inicial | Umbral esperado | Estado |
+|--------------------------|---------------|-----------------|--------|
+| Dashboard latencia       | 1.8s          | <2s             | ✅ OK   |
+| Categorías latencia      | 0.9s          | <1s             | ✅ OK   |
+| Facturación inserción    | 1.7s          | <2s             | ✅ OK   |
+| Facturación listado      | 0.8s          | <1s             | ✅ OK   |
+| Auditoría overhead       | 4%            | <5%             | ✅ OK   |
+| CPU promedio             | 65%           | <80%            | ✅ OK   |
+| RAM promedio             | 70%           | <80%            | ✅ OK   |
+| Error rate global        | 2%            | <5%             | ✅ OK   |
+
 ## 🛡️ Reglas de Alerta (Prometheus)
 
 Para configurar las alertas en un entorno de producción (AlertManager), se recomiendan las siguientes reglas:
