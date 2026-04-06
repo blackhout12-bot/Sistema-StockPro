@@ -189,4 +189,15 @@ gantt
 | Logs JSON con traceId | **RESUELTO** - Integración de `traceMiddleware` y Pino HTTP |
 | Alerting Rules | **RESUELTO** - Reglas P95 y ErrorRate definidas en docs |
 
-**ESTADO GLOBAL**: **SISTEMA OBSERVABLE, ESTABLE Y TRAZABLE**.
+---
+
+### [✔️] v1.27.8 - Seguridad Avanzada (Fase 17)
+
+| Componente | Estado |
+|---|---|
+| MFA/TOTP Estricto | **RESUELTO** - Ventana `window: 0` (30s) activa. |
+| RBAC Granular | **RESUELTO** - `checkPermiso` unificado en todos los módulos (Facturación, Auditoría, Productos). |
+| Logs de Acceso | **RESUELTO** - Estandarizado JSON con `traceId` y `userId`. |
+| Auditoría Crítica | **RESUELTO** - Registro de intentos fallidos y operaciones bypass-safe. |
+
+**ESTADO GLOBAL**: **SISTEMA PROTEGIDO BAJO PROTOCOLOS DE SEGURIDAD AVANZADA**.

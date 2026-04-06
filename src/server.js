@@ -68,6 +68,10 @@ app.use(pinoHttp({
     logger, 
     genReqId: (req) => req.traceId, // Usar nuestro traceId generado por el middleware
     autoLogging: { ignore: (req) => req.url === '/health' || req.url === '/metrics' },
+    customProps: (req) => ({
+        userId: req.user ? req.user.id : undefined,
+        traceId: req.traceId
+    }),
     customLogLevel: (req, res, err) => {
         if (res.statusCode >= 500 || err) return 'error';
         if (res.statusCode >= 400) return 'warn';

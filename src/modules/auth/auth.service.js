@@ -495,9 +495,9 @@ async function setupMfa(usuario_id, email) {
 }
 
 async function verifyAndEnableMfa(usuario_id, secret, tokenPin) {
-  const isValid = speakeasy.totp.verify({ token: tokenPin, secret: secret, encoding: 'base32', window: 1 });
+  const isValid = speakeasy.totp.verify({ token: tokenPin, secret: secret, encoding: 'base32', window: 0 });
   if (!isValid) {
-    throw Object.assign(new Error('El código PIN es incorrecto o estiró su vida útil.'), { statusCode: 400 });
+    throw Object.assign(new Error('Código PIN incorrecto o expirado.'), { statusCode: 400 });
   }
 
   const pool = await connectDB();
@@ -529,11 +529,11 @@ async function loginMfa(usuario_id, tokenPin) {
   if (process.env.NODE_ENV !== 'production' && tokenPin === 'BYPASS') {
       isValid = true;
   } else {
-      isValid = speakeasy.totp.verify({ token: tokenPin, secret: usuario.totp_secret, encoding: 'base32', window: 1 });
+      isValid = speakeasy.totp.verify({ token: tokenPin, secret: usuario.totp_secret, encoding: 'base32', window: 0 });
   }
   
   if (!isValid) {
-    throw Object.assign(new Error('Código MFA incorrecto.'), { statusCode: 401 });
+    throw Object.assign(new Error('Código MFA incorrecto o expirado.'), { statusCode: 401 });
   }
 
   let membresias = [];
