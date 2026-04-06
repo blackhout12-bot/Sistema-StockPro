@@ -15,6 +15,7 @@ const pinoHttp = require('pino-http');
 const logger = require('./utils/logger');
 const authenticate = require('./middlewares/auth');
 const { metricsMiddleware } = require('./middlewares/metrics');
+const traceMiddleware = require('./middlewares/trace.middleware');
 const http = require('http');
 const { initSocket } = require('./config/socket');
 
@@ -28,9 +29,17 @@ process.on('unhandledRejection', (reason, promise) => {
     logger.error({ reason, promise }, 'UNHANDLED REJECTION CATCHED - Preveniendo caída del servidor');
 });
 
+// ─── TraceId & Global Context ──────────────────────────────────
+app.use(traceMiddleware);
+
 // ─── Debug Logger (Global) ──────────────────────────────────────
 app.use((req, res, next) => {
-  logger.info({ method: req.method, url: req.url, body: req.method === 'POST' ? 'REDACTED' : undefined }, 'Incoming Request');
+  logger.info({ 
+    traceId: req.traceId,
+    method: req.method, 
+    url: req.url, 
+    body: req.method === 'POST' ? 'REDACTED' : undefined 
+  }, 'Incoming Request');
   next();
 });
 
@@ -55,7 +64,16 @@ const authLimiter = rateLimit({
 });
 
 // ─── HTTP Request Logger ────────────────────────────────────────
-app.use(pinoHttp({ logger, autoLogging: { ignore: (req) => req.url === '/health' || req.url === '/metrics' } }));
+app.use(pinoHttp({ 
+    logger, 
+    genReqId: (req) => req.traceId, // Usar nuestro traceId generado por el middleware
+    autoLogging: { ignore: (req) => req.url === '/health' || req.url === '/metrics' },
+    customLogLevel: (req, res, err) => {
+        if (res.statusCode >= 500 || err) return 'error';
+        if (res.statusCode >= 400) return 'warn';
+        return 'info';
+    }
+}));
 
 // ─── Security Headers (OWASP) ───────────────────────────────────
 app.use(helmet({

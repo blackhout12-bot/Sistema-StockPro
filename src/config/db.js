@@ -3,7 +3,7 @@ const sql = require('mssql');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 const logger = require('../utils/logger');
-const { dbReconnectionsTotal } = require('../middlewares/metrics');
+const { dbReconnectionsTotal, dbQueryDurationSeconds } = require('../middlewares/metrics');
 
 const dbConfig = {
   user: process.env.DB_USER,
@@ -118,9 +118,32 @@ async function closeDB() {
   logger.info('Conexiones a SQL Server cerradas');
 }
 
+/**
+ * Ejecuta una consulta SQL midiendo su tiempo de ejecución para métricas.
+ */
+async function queryWithMetrics(queryString, params = {}, type = 'SELECT', table = 'unknown') {
+    const start = Date.now();
+    try {
+        const activePool = await connectDB();
+        const request = activePool.request();
+        
+        // Cargar parámetros si existen
+        Object.keys(params).forEach(key => {
+            request.input(key, params[key]);
+        });
+
+        const result = await request.query(queryString);
+        const duration = (Date.now() - start) / 1000; // Segundos
+        dbQueryDurationSeconds.labels(type, table).observe(duration);
+        return result;
+    } catch (err) {
+        throw err;
+    }
+}
+
 // Graceful shutdown
 process.on('SIGTERM', async () => { await closeDB(); process.exit(0); });
 process.on('SIGINT', async () => { await closeDB(); process.exit(0); });
 
-module.exports = { connectDB, connectReadOnlyDB, closeDB, sql };
+module.exports = { connectDB, connectReadOnlyDB, closeDB, queryWithMetrics, sql };
 

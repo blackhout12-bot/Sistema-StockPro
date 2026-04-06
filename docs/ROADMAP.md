@@ -176,4 +176,17 @@ gantt
 | Estabilidad Frontend | **RESUELTO** - POS y Reportes visualizados correctamente en localhost:5173. |
 | Referencia GitHub | **RESUELTO** - Tag v1.27.6-validation generado y alineado. |
 
-**ESTADO GLOBAL**: **MÓDULO DE FACTURACIÓN CERTIFICADO Y OPTIMIZADO**.
+---
+
+### [✔️] v1.27.7 - Observabilidad y Monitoreo (Fase 16)
+
+| Componente | Estado |
+|---|---|
+| Latencia endpoints | **RESUELTO** - Instrumentado Histogram en `metrics.js` |
+| Error rate | **RESUELTO** - Trackeo de 4xx/5xx en endpoints críticos |
+| DB consultas optimizadas | **RESUELTO** - Métrica `db_query_duration_seconds` activa |
+| Dashboard Grafana | **RESUELTO** - Blueprint JSON disponible en `docs/OBSERVABILITY.md` |
+| Logs JSON con traceId | **RESUELTO** - Integración de `traceMiddleware` y Pino HTTP |
+| Alerting Rules | **RESUELTO** - Reglas P95 y ErrorRate definidas en docs |
+
+**ESTADO GLOBAL**: **SISTEMA OBSERVABLE, ESTABLE Y TRAZABLE**.
