@@ -28,9 +28,11 @@ async function crearUsuario(nombre, email, passwordHash, rol, empresa_id) {
       .input('rol', sql.NVarChar(50), rol)
       .input('empresa_id', sql.Int, empresa_id)
       .query(`
-                INSERT INTO Usuarios (nombre, email, password_hash, rol, empresa_id)
-                OUTPUT INSERTED.id
-                VALUES (@nombre, @email, @password_hash, @rol, @empresa_id)
+            DECLARE @InsertedRows TABLE (id INT);
+            INSERT INTO Usuarios (nombre, email, password_hash, rol, empresa_id)
+            OUTPUT INSERTED.id INTO @InsertedRows
+            VALUES (@nombre, @email, @password_hash, @rol, @empresa_id);
+            SELECT id FROM @InsertedRows;
             `);
     const usuario_id = res.recordset[0].id;
 
