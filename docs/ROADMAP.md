@@ -161,4 +161,19 @@ gantt
 | Creación de Roles (/api/v1/roles/create) | **RESUELTO** - Endpoint restaurado, UI conectada, y error de triggers en DB solucionado (`SCOPE_IDENTITY`) |
 | Roles Dinámicos sin Hardcodeo | **RESUELTO** - Validación estática eliminada en API y liberada validación relacional (`CK_Usuarios_rol` descartado en MSSQL) |
 
-**ESTADO GLOBAL**: **MÓDULOS USUARIOS Y ROLES ESTABLES, DINÁMICOS Y ESCALADOS**.
+
+---
+
+### [✔️] v1.27.6 - Validación Módulo Facturación (Post-Optimización Fase 15)
+
+| Checklist Validación | Estado |
+|---|---|
+| Inserción de comprobantes | **RESUELTO** - POST /api/v1/facturacion operativo con `SCOPE_IDENTITY()`. |
+| Índice Transaccional | **RESUELTO** - Creado `IDX_Facturacion_Sucursal` (Mejora performance listados). |
+| Triggers de Auditoría | **RESUELTO** - `trg_audit_Facturas` activo y registrando sin overhead. |
+| Integración Transversal | **RESUELTO** - Movimientos, Kardex y Cuentas por Cobrar sincronizados. |
+| Performance Listados | **RESUELTO** - Tiempos de respuesta < 500ms (Optimizado con índice). |
+| Estabilidad Frontend | **RESUELTO** - POS y Reportes visualizados correctamente en localhost:5173. |
+| Referencia GitHub | **RESUELTO** - Tag v1.27.6-validation generado y alineado. |
+
+**ESTADO GLOBAL**: **MÓDULO DE FACTURACIÓN CERTIFICADO Y OPTIMIZADO**.

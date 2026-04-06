@@ -1,0 +1,62 @@
+[
+  {
+    "table": "AuditoriaMoneda",
+    "columns": [
+      "id",
+      "entidad_tipo",
+      "entidad_id",
+      "moneda_origen",
+      "moneda_destino",
+      "tasa_aplicada",
+      "fecha"
+    ]
+  },
+  {
+    "table": "Auditoria",
+    "columns": [
+      "id",
+      "usuario_id",
+      "ip",
+      "timestamp",
+      "accion",
+      "entidad",
+      "entidad_id",
+      "valor_anterior",
+      "valor_nuevo",
+      "empresa_id",
+      "trace_id"
+    ]
+  },
+  {
+    "table": "Logs",
+    "columns": [
+      "id",
+      "usuario_id",
+      "accion",
+      "detalle",
+      "fecha"
+    ]
+  },
+  {
+    "table": "SSOLog",
+    "columns": [
+      "id",
+      "email",
+      "proveedor",
+      "ip",
+      "fecha",
+      "exito",
+      "detalles"
+    ]
+  },
+  {
+    "table": "OLAPLog",
+    "columns": [
+      "id",
+      "usuario_id",
+      "consulta",
+      "fecha",
+      "tiempo_ejecucion_ms"
+    ]
+  }
+]

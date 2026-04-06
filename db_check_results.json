@@ -1,0 +1,47 @@
+{
+  "indices": [],
+  "triggers": [
+    {
+      "name": "trg_audit_Facturas",
+      "parent_class_desc": "OBJECT_OR_COLUMN",
+      "is_disabled": false
+    }
+  ],
+  "columnsFacturas": [
+    "id",
+    "nro_factura",
+    "cliente_id",
+    "usuario_id",
+    "fecha_emision",
+    "total",
+    "estado",
+    "empresa_id",
+    "cliente_nombre_snapshot",
+    "cliente_doc_snapshot",
+    "vendedor_nombre_snapshot",
+    "empresa_nombre_snapshot",
+    "empresa_nit_snapshot",
+    "empresa_direccion_snapshot",
+    "empresa_telefono_snapshot",
+    "tipo_comprobante",
+    "metodo_pago",
+    "moneda_id",
+    "tipo_cambio",
+    "afip_cae",
+    "afip_cae_vto",
+    "moneda",
+    "tasa_cambio",
+    "origen_venta",
+    "sucursal_id"
+  ],
+  "columnsDetalle": [
+    "id",
+    "factura_id",
+    "producto_id",
+    "cantidad",
+    "precio_unitario",
+    "subtotal",
+    "producto_nombre_snapshot",
+    "deposito_id"
+  ]
+}

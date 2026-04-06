@@ -1,0 +1,5 @@
+Error: Producto ID 6 no encontrado.\nError: Producto ID 6 no encontrado.
+    at FacturacionModel.createFactura (C:\Users\egar0\stock-system\src\repositories\facturacion.repository.js:321:33)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async FacturacionService.createFactura (C:\Users\egar0\stock-system\src\modules\facturacion\facturacion.service.js:21:27)
+    at async C:\Users\egar0\stock-system\src\modules\facturacion\facturacion.controller.js:102:28
