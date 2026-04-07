@@ -277,6 +277,19 @@ const moduleRegistry = [
     requiredRoles: ['admin', 'gerente', 'supervisor'],
     lazy: () => import('../pages/Clientes'), // reusa Clientes con contexto VIP
     breadcrumb: 'Programa de Fidelización'
+  },
+
+  // ── SUPERADMIN (Solo visible para rol superadmin) ───────────────────────
+  {
+    id: 'superadmin',
+    label: 'Panel SuperAdmin',
+    path: '/superadmin',
+    icon: 'ShieldAlert',
+    section: 'administracion',
+    requiredToggle: null,
+    requiredRoles: ['superadmin'],
+    lazy: () => import('../pages/SuperAdminPanel'),
+    breadcrumb: 'Panel SuperAdministrador'
   }
 ];
 
@@ -294,11 +307,19 @@ export default moduleRegistry;
  */
 export function getAccessibleModules(featureToggles = {}, userRole = '') {
   const toggles = featureToggles || {};
-  
+
+  // SUPERADMIN: acceso total a todos los módulos de la plataforma
+  if (userRole === 'superadmin') {
+    return moduleRegistry.filter(mod => mod.requiredRoles?.includes('superadmin') || mod.requiredRoles?.includes('*') || mod.section === 'core');
+  }
+
   return moduleRegistry.filter(mod => {
+    // Excluir módulos exclusivos de superadmin para otros roles
+    if (mod.requiredRoles?.length === 1 && mod.requiredRoles[0] === 'superadmin') return false;
+
     // 1. Módulos Core/Administración Básica siempre visibles
     const isCore = mod.section === 'core' || mod.id === 'empresa' || mod.id === 'usuarios';
-    
+
     // 2. Si no es core, debe estar habilitado en el Plan (toggles)
     if (!isCore && !toggles[mod.id]) {
         // Excepción: Si el módulo tiene un toggle específico (ej: mod_marketplace)

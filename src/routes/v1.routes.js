@@ -112,4 +112,7 @@ router.use('/cuentas-pagar', sessionBypass, tenantContext, require('../modules/c
 router.use('/bi', sessionBypass, tenantContext, require('./bi.routes'));
 router.use('/olap', authenticate, tenantContext, require('./olap.routes'));
 
+// SuperAdmin (rutas globales — autenticado pero SIN tenantContext, el controlador tiene su propia guardia)
+router.use('/superadmin', sessionBypass, require('../modules/superadmin/superadmin.controller'));
+
 module.exports = router;

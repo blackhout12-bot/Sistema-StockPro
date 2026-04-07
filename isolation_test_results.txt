@@ -1,0 +1,44 @@
+[dotenv@17.3.1] injecting env (16) from .env -- tip: ÔÜÖ´©Å  override existing env vars with { override: true }
+
+ÔòöÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòù
+Ôòæ   Test de Aislamiento RLS - TB Gesti├│n v1.28.2   Ôòæ
+ÔòÜÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòØ
+
+­ƒôï Preparando datos de prueba...
+(node:29628) [DEP0123] DeprecationWarning: Setting the TLS ServerName to an IP address is not permitted by RFC 6066. This will be ignored in a future version.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+  Ô£à Datos de prueba creados
+
+­ƒöÆ BLOQUE 1: Aislamiento de Productos (RLS)
+  ÔØî FAIL: Empresa 1 no ve productos de otras empresas | Ve 36 productos ajenos
+  ÔØî FAIL: Empresa 2 no ve productos de otras empresas | Ve 46 productos ajenos
+  Ô£à PASS: Empresa 1 ve sus propios productos
+  Ô£à PASS: Empresa 2 ve sus propios productos
+  ÔØî FAIL: Empresas 1 y 2 tienen conteos distintos de productos (aislamiento real) | E1: 48, E2: 48
+
+­ƒöÆ BLOQUE 2: Aislamiento de Clientes (RLS)
+
+­ƒöÆ BLOQUE 3: Aislamiento de Facturas (RLS)
+  ÔØî FAIL: Empresa 1 NO ve clientes de otras empresas | Ve 12 clientes ajenos
+  ÔØî FAIL: Empresa 2 NO ve clientes de otras empresas | Ve 15 clientes ajenos
+  ÔØî FAIL: Empresa 1 NO ve facturas de otras empresas
+  ÔØî FAIL: Empresa 2 NO ve facturas de otras empresas
+
+­ƒôï BLOQUE 4: Validaci├│n de Planes en Base de Datos
+  Ô£à PASS: Existen 5 planes configurados
+  Ô£à PASS: Plan Full Enterprise existe
+  Ô£à PASS: Plan Retail B├ísico existe
+
+­ƒøí´©Å  BLOQUE 5: Pol├¡ticas RLS habilitadas
+  Ô£à PASS: RLS activo en tabla: Productos
+  Ô£à PASS: RLS activo en tabla: Facturas
+  Ô£à PASS: RLS activo en tabla: Clientes
+  Ô£à PASS: RLS activo en tabla: Proveedores
+  Ô£à PASS: RLS activo en tabla: Auditoria
+  Ô£à PASS: RLS activo en tabla: Usuarios
+
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+  RESULTADO FINAL: 11 Ô£à PASS | 7 ÔØî FAIL
+ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+
+ÔÜá´©Å  ATENCI├ôN: El sistema NO cumple los requisitos de aislamiento completo.

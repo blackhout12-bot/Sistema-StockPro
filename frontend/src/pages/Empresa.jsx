@@ -19,6 +19,7 @@ const TABS = [
     { id: 'estadisticas', label: 'Estadísticas', icon: BarChart3 },
     { id: 'configuracion', label: 'Configuración', icon: Settings },
     { id: 'modulos', label: 'Módulos Extra', icon: Package },
+    { id: 'plan', label: 'Mi Plan', icon: Crown, adminOnly: true },
     { id: 'roles', label: 'Roles', icon: Shield, adminOnly: true },
 ];
 
@@ -88,6 +89,8 @@ const Empresa = () => {
     const [tab, setTab] = useState('perfil');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [planData, setPlanData] = useState(null);
+    const [planLoading, setPlanLoading] = useState(false);
 
     // Datos del perfil
     const [perfil, setPerfil] = useState({
@@ -343,6 +346,15 @@ const Empresa = () => {
     useEffect(() => {
         if (tab === 'estadisticas' && !stats) fetchStats();
     }, [tab, stats, fetchStats]);
+    useEffect(() => {
+        if (tab === 'plan' && !planData) {
+            setPlanLoading(true);
+            api.get('/empresa/plan')
+                .then(r => setPlanData(r.data))
+                .catch(() => {})
+                .finally(() => setPlanLoading(false));
+        }
+    }, [tab, planData]);
 
     // ── Handlers de guardado ────────────────────────────────────
     const savePerfil = async (e) => {
@@ -1377,6 +1389,85 @@ const Empresa = () => {
                     {/* ══ TAB: ROLES ══════════════════════════════════════ */}
                     {tab === 'roles' && <TabRoles />}
 
+                    {/* ══ TAB: PLAN ════════════════════════════════════════ */}
+                    {tab === 'plan' && (
+                        <div className="space-y-6">
+                            <div>
+                                <h2 className="text-base font-semibold text-gray-900">Plan de Suscripción</h2>
+                                <p className="text-sm text-gray-500 mt-0.5">Detalle del plan activo y módulos habilitados para tu organización.</p>
+                            </div>
+
+                            {planLoading ? (
+                                <div className="flex items-center justify-center h-40">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600" />
+                                </div>
+                            ) : planData ? (
+                                <div className="space-y-6">
+                                    {/* Tarjeta del plan */}
+                                    <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl border border-indigo-100 p-6 flex flex-col sm:flex-row sm:items-center gap-4">
+                                        <div className="h-14 w-14 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0">
+                                            <Crown size={28} className="text-amber-500" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-xs text-indigo-500 font-semibold uppercase tracking-wider">Plan Activo</p>
+                                            <h3 className="text-2xl font-bold text-gray-900">{planData.plan_nombre || 'Sin plan asignado'}</h3>
+                                            {planData.plan_descripcion && (
+                                                <p className="text-sm text-gray-500 mt-0.5">{planData.plan_descripcion}</p>
+                                            )}
+                                        </div>
+                                        <div className="text-right shrink-0">
+                                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-green-100 text-green-700">
+                                                <CheckCircle size={13} /> Activo
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Módulos habilitados */}
+                                    <div>
+                                        <h3 className="text-sm font-semibold text-gray-700 mb-3">Módulos Habilitados</h3>
+                                        {planData.modulos && planData.modulos.length > 0 ? (
+                                            planData.modulos[0] === '*' ? (
+                                                <div className="flex items-center gap-2 p-4 bg-amber-50 border border-amber-100 rounded-xl">
+                                                    <Crown size={18} className="text-amber-500" />
+                                                    <span className="text-sm font-semibold text-amber-700">Plan Enterprise — Acceso ilimitado a todos los módulos</span>
+                                                </div>
+                                            ) : (
+                                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                                    {planData.modulos.map(m => (
+                                                        <div key={m} className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-100 rounded-lg text-sm">
+                                                            <Check size={14} className="text-green-500 shrink-0" />
+                                                            <span className="capitalize text-gray-700">{m.replace(/_/g, ' ')}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )
+                                        ) : (
+                                            <p className="text-sm text-gray-400 italic">No hay módulos configurados en este plan.</p>
+                                        )}
+                                    </div>
+
+                                    {/* CTA Upgrade */}
+                                    <div className="bg-indigo-600 rounded-2xl p-6 text-white">
+                                        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                                            <div className="flex-1">
+                                                <h3 className="text-lg font-bold">¿Necesitás más módulos?</h3>
+                                                <p className="text-indigo-200 text-sm mt-1">Contactanos para actualizar tu plan y habilitar funcionalidades adicionales.</p>
+                                            </div>
+                                            <a
+                                                href="mailto:soporte@tbgestion.com?subject=Solicitud%20de%20Upgrade%20de%20Plan"
+                                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-indigo-700 font-bold text-sm rounded-xl hover:bg-indigo-50 transition shrink-0"
+                                            >
+                                                <ArrowUpCircle size={16} />
+                                                Solicitar Upgrade
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <p className="text-sm text-gray-400 italic">No se pudo cargar la información del plan.</p>
+                            )}
+                        </div>
+                    )}
 
 
                 </div>

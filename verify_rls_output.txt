@@ -1,0 +1,102 @@
+[dotenv@17.3.1] injecting env (16) from .env -- tip: ­ƒøá´©Å  run anywhere with `dotenvx run -- yourcommand`
+(node:43412) [DEP0123] DeprecationWarning: Setting the TLS ServerName to an IP address is not permitted by RFC 6066. This will be ignored in a future version.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Connected to DB
+
+--- Testing as Empresa 1 ---
+Empresa 1 sees 46 products.
+ - ID: 1, Name: Laptop, Empresa: 1
+ - ID: 2, Name: notebook, Empresa: 1
+ - ID: 4, Name: Secret Product A, Empresa: 2
+ - ID: 6, Name: Test Item, Empresa: 7
+ - ID: 7, Name: Test Item, Empresa: 8
+ - ID: 8, Name: Test Item, Empresa: 9
+ - ID: 9, Name: Test Item, Empresa: 10
+ - ID: 10, Name: Test Item, Empresa: 11
+ - ID: 11, Name: Test Item, Empresa: 12
+ - ID: 12, Name: Test Item, Empresa: 13
+ - ID: 13, Name: Test Item, Empresa: 14
+ - ID: 15, Name: Zapatillas, Empresa: 1
+ - ID: 16, Name: caja, Empresa: 15
+ - ID: 17, Name: Test, Empresa: 16
+ - ID: 18, Name: camisa, Empresa: 1
+ - ID: 19, Name: Product 1, Empresa: 18
+ - ID: 20, Name: Tornillos, Empresa: 19
+ - ID: 21, Name: Test Product, Empresa: 20
+ - ID: 22, Name: Test Product, Empresa: 23
+ - ID: 23, Name: Martillo Galponero, Empresa: 25
+ - ID: 25, Name: Teclado Mec├ínico RGB IA, Empresa: 30
+ - ID: 26, Name: Teclado Mec├ínico RGB IA, Empresa: 31
+ - ID: 27, Name: Teclado Mec├ínico RGB IA, Empresa: 32
+ - ID: 28, Name: Teclado Mec├ínico RGB IA, Empresa: 33
+ - ID: 29, Name: Teclado Mec├ínico RGB IA, Empresa: 34
+ - ID: 30, Name: Teclado Mec├ínico RGB IA, Empresa: 35
+ - ID: 31, Name: Servidor E2E Rack, Empresa: 40
+ - ID: 32, Name: Servidor E2E Rack, Empresa: 41
+ - ID: 33, Name: Servidor E2E Rack, Empresa: 42
+ - ID: 34, Name: Servidor E2E Rack, Empresa: 43
+ - ID: 35, Name: Servidor E2E Rack, Empresa: 46
+ - ID: 36, Name: aspirinas, Empresa: 1
+ - ID: 37, Name: Mause, Empresa: 1
+ - ID: 38, Name: Test Service, Empresa: 1
+ - ID: 39, Name: arroz, Empresa: 1
+ - ID: 40, Name: yerba, Empresa: 1
+ - ID: 42, Name: Yerbamat Premium, Empresa: 52
+ - ID: 44, Name: galletitas, Empresa: 1
+ - ID: 45, Name: YERBA, Empresa: 58
+ - ID: 46, Name: YERBA, Empresa: 59
+ - ID: 47, Name: paquete de fideos, Empresa: 59
+ - ID: 48, Name: Test, Empresa: 59
+ - ID: 49, Name: Fideo Fake, Empresa: 59
+ - ID: 50, Name: TEST SCRIPT 1774578732960, Empresa: 1
+ - ID: 51, Name: YERBA TEST FINAL, Empresa: 59
+ - ID: 52, Name: AZUCAR, Empresa: 59
+
+--- Testing as Empresa 2 ---
+Empresa 2 sees 46 products.
+ - ID: 1, Name: Laptop, Empresa: 1
+ - ID: 2, Name: notebook, Empresa: 1
+ - ID: 4, Name: Secret Product A, Empresa: 2
+ - ID: 6, Name: Test Item, Empresa: 7
+ - ID: 7, Name: Test Item, Empresa: 8
+ - ID: 8, Name: Test Item, Empresa: 9
+ - ID: 9, Name: Test Item, Empresa: 10
+ - ID: 10, Name: Test Item, Empresa: 11
+ - ID: 11, Name: Test Item, Empresa: 12
+ - ID: 12, Name: Test Item, Empresa: 13
+ - ID: 13, Name: Test Item, Empresa: 14
+ - ID: 15, Name: Zapatillas, Empresa: 1
+ - ID: 16, Name: caja, Empresa: 15
+ - ID: 17, Name: Test, Empresa: 16
+ - ID: 18, Name: camisa, Empresa: 1
+ - ID: 19, Name: Product 1, Empresa: 18
+ - ID: 20, Name: Tornillos, Empresa: 19
+ - ID: 21, Name: Test Product, Empresa: 20
+ - ID: 22, Name: Test Product, Empresa: 23
+ - ID: 23, Name: Martillo Galponero, Empresa: 25
+ - ID: 25, Name: Teclado Mec├ínico RGB IA, Empresa: 30
+ - ID: 26, Name: Teclado Mec├ínico RGB IA, Empresa: 31
+ - ID: 27, Name: Teclado Mec├ínico RGB IA, Empresa: 32
+ - ID: 28, Name: Teclado Mec├ínico RGB IA, Empresa: 33
+ - ID: 29, Name: Teclado Mec├ínico RGB IA, Empresa: 34
+ - ID: 30, Name: Teclado Mec├ínico RGB IA, Empresa: 35
+ - ID: 31, Name: Servidor E2E Rack, Empresa: 40
+ - ID: 32, Name: Servidor E2E Rack, Empresa: 41
+ - ID: 33, Name: Servidor E2E Rack, Empresa: 42
+ - ID: 34, Name: Servidor E2E Rack, Empresa: 43
+ - ID: 35, Name: Servidor E2E Rack, Empresa: 46
+ - ID: 36, Name: aspirinas, Empresa: 1
+ - ID: 37, Name: Mause, Empresa: 1
+ - ID: 38, Name: Test Service, Empresa: 1
+ - ID: 39, Name: arroz, Empresa: 1
+ - ID: 40, Name: yerba, Empresa: 1
+ - ID: 42, Name: Yerbamat Premium, Empresa: 52
+ - ID: 44, Name: galletitas, Empresa: 1
+ - ID: 45, Name: YERBA, Empresa: 58
+ - ID: 46, Name: YERBA, Empresa: 59
+ - ID: 47, Name: paquete de fideos, Empresa: 59
+ - ID: 48, Name: Test, Empresa: 59
+ - ID: 49, Name: Fideo Fake, Empresa: 59
+ - ID: 50, Name: TEST SCRIPT 1774578732960, Empresa: 1
+ - ID: 51, Name: YERBA TEST FINAL, Empresa: 59
+ - ID: 52, Name: AZUCAR, Empresa: 59

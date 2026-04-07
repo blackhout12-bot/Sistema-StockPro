@@ -28,6 +28,70 @@ router.get('/', checkPermiso('empresa', 'leer'), async (req, res, next) => {
     }
 });
 
+// ── GET /empresa/plan — Plan actual y módulos habilitados (v1.28.2) ───────────
+router.get('/plan', async (req, res, next) => {
+    try {
+        const empresaId = req.tenant_id;
+        if (!empresaId) {
+            // Superadmin sin empresa en contexto: devuelve lista de planes disponibles
+            const pool = await require('../../config/db').connectDB();
+            const planesRes = await pool.request().query(
+                `SELECT id, nombre, descripcion, modulos_json FROM Planes ORDER BY id`
+            );
+            return res.json({ 
+                superadmin: true,
+                planes: planesRes.recordset.map(p => ({
+                    ...p,
+                    modulos: (() => { try { return JSON.parse(p.modulos_json); } catch { return {}; } })()
+                }))
+            });
+        }
+
+        const pool = await require('../../config/db').connectDB();
+        const result = await pool.request()
+            .input('eid', require('mssql').Int, empresaId)
+            .query(`
+                SELECT e.id AS empresa_id, e.nombre AS empresa_nombre,
+                       p.id AS plan_id, p.nombre AS plan_nombre, p.descripcion AS plan_descripcion,
+                       p.modulos_json
+                FROM Empresa e
+                LEFT JOIN Planes p ON e.plan_id = p.id
+                WHERE e.id = @eid
+            `);
+
+        if (!result.recordset[0]) {
+            return res.status(404).json({ error: 'Empresa no encontrada' });
+        }
+
+        const row = result.recordset[0];
+        let modulos = {};
+        try { modulos = JSON.parse(row.modulos_json); } catch {}
+
+        // Convertir formato {modulo: true} a array de nombres de módulos activos
+        let modulosArray;
+        if (modulos['*']) {
+            modulosArray = ['*']; // Enterprise: todos
+        } else {
+            modulosArray = Object.entries(modulos)
+                .filter(([, v]) => v === true)
+                .map(([k]) => k);
+        }
+
+        res.json({
+            empresa_id: row.empresa_id,
+            empresa_nombre: row.empresa_nombre,
+            plan_id: row.plan_id,
+            plan_nombre: row.plan_nombre,
+            plan_descripcion: row.plan_descripcion,
+            modulos: modulosArray,
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+
+
 // ── GET /empresa/configuracion/completa ───────────────────────────────────────
 router.get('/configuracion/completa', checkPermiso('empresa', 'leer'), async (req, res, next) => {
     try {

@@ -1,0 +1,96 @@
+[dotenv@17.3.1] injecting env (16) from .env -- tip: ­ƒöÉ prevent committing .env to code: https://dotenvx.com/precommit
+(node:27724) [DEP0123] DeprecationWarning: Setting the TLS ServerName to an IP address is not permitted by RFC 6066. This will be ignored in a future version.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Ô£à Connected to StockDB
+
+--- SQL Server Version ---
+Microsoft SQL Server 2025 (RTM-GDR) (KB5077468) - 17.0.1105.2 (X64) 
+
+--- RLS Policies Active ---
+  Policy: policy_Productos | Table: Productos | Enabled: true
+
+--- Security Predicate Function ---
+Ô£à fn_securitypredicate EXISTS
+
+--- Security Schema ---
+Ô£à Security schema EXISTS
+
+--- Planes Table ---
+  Ô£à Plan 5: Full Enterprise
+  Ô£à Plan 2: Log├¡stica Avanzada
+  Ô£à Plan 3: Manufactura Pro
+  Ô£à Plan 1: Retail B├ísico
+  Ô£à Plan 4: Servicios Premium
+
+--- plan_id in Empresa ---
+Ô£à plan_id EXISTS in Empresa table
+
+--- Empresa Plan Assignment ---
+  Empresa 1 (Mi Empresa Prueba): Plan 2 (Log├¡stica Avanzada)
+  Empresa 2 (Company A 1772598915856): Plan 1 (Retail B├ísico)
+  Empresa 3 (Company B 1772598915856): Plan 1 (Retail B├ísico)
+  Empresa 4 (Company_1772599481419): Plan 1 (Retail B├ísico)
+  Empresa 5 (Company_1772599498984): Plan 1 (Retail B├ísico)
+  Empresa 6 (Company_1772599534156): Plan 1 (Retail B├ísico)
+  Empresa 7 (Company_1772599545852): Plan 1 (Retail B├ísico)
+  Empresa 8 (Company_1772599610187): Plan 1 (Retail B├ísico)
+  Empresa 9 (Company_1772599678261): Plan 1 (Retail B├ísico)
+  Empresa 10 (Company_1772599692494): Plan 1 (Retail B├ísico)
+  Empresa 11 (Company_1772599703527): Plan 1 (Retail B├ísico)
+  Empresa 12 (Company_1772599743048): Plan 1 (Retail B├ísico)
+  Empresa 13 (Company_1772599790614): Plan 1 (Retail B├ísico)
+  Empresa 14 (Company_1772599810564): Plan 1 (Retail B├ísico)
+  Empresa 15 (empresa2): Plan 1 (Retail B├ísico)
+  Empresa 16 (Test Corp): Plan 1 (Retail B├ísico)
+  Empresa 17 (My Test Company): Plan 1 (Retail B├ísico)
+  Empresa 18 (Test Company): Plan 1 (Retail B├ísico)
+  Empresa 19 (Test Company): Plan 1 (Retail B├ísico)
+  Empresa 20 (Test Corp): Plan 1 (Retail B├ísico)
+  Empresa 21 (Test Empresa): Plan 1 (Retail B├ísico)
+  Empresa 22 (Test Corp): Plan 1 (Retail B├ísico)
+  Empresa 23 (Admin Corp): Plan 1 (Retail B├ísico)
+  Empresa 25 (Ferreteria Diego): Plan 1 (Retail B├ísico)
+  Empresa 26 (Empresa Test Automatizado): Plan 1 (Retail B├ísico)
+  Empresa 27 (Empresa Test Automatizado): Plan 1 (Retail B├ísico)
+  Empresa 28 (Empresa Test Automatizado): Plan 1 (Retail B├ísico)
+  Empresa 29 (Empresa Test Automatizado): Plan 1 (Retail B├ísico)
+  Empresa 30 (Empresa Test Automatizado): Plan 1 (Retail B├ísico)
+  Empresa 31 (Empresa Test Automatizado): Plan 1 (Retail B├ísico)
+  Empresa 32 (Empresa Test Automatizado): Plan 1 (Retail B├ísico)
+  Empresa 33 (Empresa Test Automatizado): Plan 1 (Retail B├ísico)
+  Empresa 34 (Empresa Test Automatizado): Plan 1 (Retail B├ísico)
+  Empresa 35 (Empresa Test Automatizado): Plan 1 (Retail B├ísico)
+  Empresa 36 (E2 Corp 1773723021685): Plan 1 (Retail B├ísico)
+  Empresa 37 (E2 Corp 1773723035006): Plan 1 (Retail B├ísico)
+  Empresa 38 (E2 Corp 1773723075351): Plan 1 (Retail B├ísico)
+  Empresa 39 (E2 Corp 1773723100702): Plan 1 (Retail B├ísico)
+  Empresa 40 (E2 Corp 1773723130063): Plan 1 (Retail B├ísico)
+  Empresa 41 (E2 Corp 1773723144851): Plan 1 (Retail B├ísico)
+  Empresa 42 (E2 Corp 1773723287488): Plan 1 (Retail B├ísico)
+  Empresa 43 (E2 Corp 1773799972848): Plan 1 (Retail B├ísico)
+  Empresa 44 (Test Corp 1773800051377): Plan 1 (Retail B├ísico)
+  Empresa 45 (Test Corp 1773800228883): Plan 1 (Retail B├ísico)
+  Empresa 46 (E2 Corp 1773801328253): Plan 1 (Retail B├ísico)
+  Empresa 47 (Test Corp 1773801336031): Plan 1 (Retail B├ísico)
+  Empresa 48 (Test Corp 1773801368834): Plan 1 (Retail B├ísico)
+  Empresa 49 (Test Corp 1773801963180): Plan 1 (Retail B├ísico)
+  Empresa 50 (EmpresaTest1): Plan 1 (Retail B├ísico)
+  Empresa 51 (EmpPrueba1): Plan 1 (Retail B├ísico)
+  Empresa 52 (Admin Corp): Plan 1 (Retail B├ísico)
+  Empresa 53 (Admin Corp Two): Plan 1 (Retail B├ísico)
+  Empresa 54 (Tester Corp): Plan 1 (Retail B├ísico)
+  Empresa 55 (Test Corp 1774050654759): Plan 1 (Retail B├ísico)
+  Empresa 56 (EdgardoEmp): Plan 1 (Retail B├ísico)
+  Empresa 57 (Subagent Test Inc): Plan 1 (Retail B├ísico)
+  Empresa 58 (nueva-empresa): Plan 1 (Retail B├ísico)
+  Empresa 59 (Empresa MultiRubro): Plan 1 (Retail B├ísico)
+  Empresa 62 (Empresa Test): Plan 1 (Retail B├ísico)
+  Empresa 63 (EmpresaTest_1774494750986): Plan 1 (Retail B├ísico)
+  Empresa 64 (EmpresaTest_1774495450022): Plan 1 (Retail B├ísico)
+  Empresa 65 (StockTest_1774497306675): Plan 1 (Retail B├ísico)
+  Empresa 66 (StockTest_1774497327269): Plan 1 (Retail B├ísico)
+  Empresa 67 (StockTest_1774497375531): Plan 1 (Retail B├ísico)
+  Empresa 68 (StockTest_1774498737941): Plan 1 (Retail B├ísico)
+
+--- ModulosActivos Table ---
+  Ô£à 0 records in ModulosActivos

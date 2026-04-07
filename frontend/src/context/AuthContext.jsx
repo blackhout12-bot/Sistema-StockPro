@@ -14,6 +14,8 @@ export function AuthProvider({ children }) {
         try {
             const u = JSON.parse(localStorage.getItem('user'));
             // Anti-Corrupción: Forzar re-login si el usuario en caché corresponde a la versión pre Multi-Tenant
+            // EXCEPCIÓN: el superadmin no tiene empresa_id (acceso global)
+            if (u && u.rol === 'superadmin') return u;
             if (u && (!u.empresa_id || !u.rol)) {
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
@@ -59,6 +61,8 @@ export function AuthProvider({ children }) {
 
     const fetchConfiguracionGlobal = useCallback(async () => {
         if (!user || !token) return;
+        // El superadmin no necesita configuración de empresa
+        if (user.rol === 'superadmin') return;
         try {
             const res = await api.get('/empresa/configuracion/completa');
             const data = res.data || {};

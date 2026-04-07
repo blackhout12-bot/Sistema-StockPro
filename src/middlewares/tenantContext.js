@@ -1,9 +1,25 @@
 const { obtenerMembresia, obtenerPlanEmpresa } = require('../repositories/auth.repository');
+const { connectDB, sql } = require('../config/db');
+const fs = require('fs');
+const path = require('path');
+
+/**
+ * Logger simple para auditoría de seguridad
+ */
+const securityLogger = (msg) => {
+    const logPath = path.join(process.cwd(), 'logs', 'security.log');
+    const logDir = path.dirname(logPath);
+    if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
+    fs.appendFileSync(logPath, `[${new Date().toISOString()}] ${msg}\n`);
+};
 
 /**
  * Middleware para asegurar y validar el contexto del tenant (empresa).
- * Evita fugas de datos al validar que el usuario tenga acceso a la empresa solicitada.
- * Además, valida que el módulo solicitado esté habilitado en el PLAN contratado. (v1.28.1-fixed)
+ *
+ * Estratificación de acceso (v1.28.2-admin-plan-visibility+superadmin):
+ *   - superadmin → bypass total (acceso global a toda la plataforma, sin restricciones)
+ *   - admin       → validar empresa + plan habilitado
+ *   - otros roles → validar empresa + plan + permisos RBAC
  */
 async function tenantContext(req, res, next) {
     // BYPASS: No validar contexto en health checks
@@ -12,6 +28,28 @@ async function tenantContext(req, res, next) {
     }
 
     try {
+        // ─── SUPERADMIN BYPASS ────────────────────────────────────────────
+        // El superadmin tiene acceso global a toda la plataforma.
+        // El rol es determinante, no la empresa_id.
+        if (req.user && req.user.rol === 'superadmin') {
+            const headerEmpresaId = req.headers['x-empresa-id'];
+            const queryEmpresaId = req.query.empresa_id || (req.body && req.body.empresa_id);
+            const contextEmpresaId = headerEmpresaId || queryEmpresaId;
+
+            if (contextEmpresaId && !isNaN(parseInt(contextEmpresaId))) {
+                req.tenant_id = parseInt(contextEmpresaId);
+                // Activar RLS para la empresa en contexto si se proporcionó
+                const pool = await connectDB();
+                await pool.request()
+                    .input('eid', sql.Int, req.tenant_id)
+                    .query('EXEC sp_set_session_context @key=N\'empresa_id\', @value=@eid');
+            }
+
+            req.is_superadmin = true;
+            return next();
+        }
+
+        // ─── FLUJO NORMAL (admin / operadores) ───────────────────────────
         const headerEmpresaId = req.headers['x-empresa-id'];
         const queryEmpresaId = req.query.empresa_id || (req.body && req.body.empresa_id);
         const jwtEmpresaId = req.user.empresa_id;
@@ -26,17 +64,21 @@ async function tenantContext(req, res, next) {
         const membresia = await obtenerMembresia(req.user.id, selectedId);
 
         if (!membresia || !membresia.activo) {
-            req.log.warn({ msg: 'Intento de acceso a empresa no autorizada', userId: req.user.id, requestedEmpresaId: selectedId });
+            securityLogger(`INTENTO DE ACCESO CRUZADO: Usuario ${req.user.id} intentó acceder a Empresa ${selectedId} desde IP ${req.ip}`);
             return res.status(403).json({ error: 'No tienes permiso para acceder a los datos de esta empresa.' });
         }
 
-        // 2. VALIDACIÓN DE PLAN: ¿Está el módulo habilitado en el plan? (v1.28.1-fixed)
-        // Extraemos el módulo de la ruta (e.g., /api/v1/facturacion/... -> facturacion)
+        // 2. ACTIVACIÓN DE AISLAMIENTO (RLS) - Set Session Context
+        const pool = await connectDB();
+        await pool.request()
+            .input('eid', sql.Int, selectedId)
+            .query('EXEC sp_set_session_context @key=N\'empresa_id\', @value=@eid');
+
+        // 3. VALIDACIÓN DE PLAN (v1.28.1-fix-isolation+plans)
         const pathParts = req.path.split('/');
         const moduleName = pathParts[3]; // [ "", "api", "v1", "modulo" ]
 
-        // Módulos "Core" que siempre están activos
-        const coreModules = ['auth', 'empresa', 'dashboard', 'notificaciones', 'perfil', 'configuracion'];
+        const coreModules = ['auth', 'empresa', 'dashboard', 'notificaciones', 'perfil', 'configuracion', 'superadmin'];
 
         if (moduleName && !coreModules.includes(moduleName)) {
             const plan = await obtenerPlanEmpresa(selectedId);
@@ -45,7 +87,7 @@ async function tenantContext(req, res, next) {
                 const isAllowed = plan.modulos[moduleName] === true;
 
                 if (!isEnterprise && !isAllowed) {
-                    req.log.warn({ msg: 'Acceso denegado por Plan', module: moduleName, plan: plan.nombre, empresaId: selectedId });
+                    securityLogger(`ACCESO DENEGADO PLAN: Usuario ${req.user.id} intentó acceder a Módulo ${moduleName} (No incluido en plan ${plan.nombre})`);
                     return res.status(403).json({
                         error: `El módulo '${moduleName}' no está incluido en su plan actual (${plan.nombre}). Contacte a soporte para actualizar su plan.`
                     });
@@ -55,7 +97,6 @@ async function tenantContext(req, res, next) {
 
         // Establecer el contexto seguro
         req.tenant_id = selectedId;
-        req.log.info({ userId: req.user.id, tenantId: selectedId, path: req.path }, 'Tenant Context Establecido');
         req.user.rol = membresia.rol;
 
         next();

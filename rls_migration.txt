@@ -1,0 +1,17 @@
+[dotenv@17.3.1] injecting env (16) from .env -- tip: ­ƒøá´©Å  run anywhere with `dotenvx run -- yourcommand`
+(node:24316) [DEP0123] DeprecationWarning: Setting the TLS ServerName to an IP address is not permitted by RFC 6066. This will be ignored in a future version.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Ô£à Connected to StockDB
+Ô£à RLS applied to: Facturas
+Ô£à RLS applied to: Clientes
+Ô£à RLS applied to: Proveedores
+Ô£à RLS applied to: Auditoria
+Ô£à RLS applied to: Usuarios
+
+=== Active RLS Policies ===
+  Ô£à policy_Auditoria ÔåÆ table: Auditoria | enabled: true
+  Ô£à policy_Clientes ÔåÆ table: Clientes | enabled: true
+  Ô£à policy_Facturas ÔåÆ table: Facturas | enabled: true
+  Ô£à policy_Productos ÔåÆ table: Productos | enabled: true
+  Ô£à policy_Proveedores ÔåÆ table: Proveedores | enabled: true
+  Ô£à policy_Usuarios ÔåÆ table: Usuarios | enabled: true

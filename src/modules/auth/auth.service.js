@@ -63,6 +63,38 @@ async function login(email, password) {
     throw Object.assign(new Error('Credenciales inválidas'), { statusCode: 401 });
   }
 
+  // ─── SUPERADMIN FAST-PATH ───────────────────────────────────────────────────
+  // El superadmin no pertenece a ninguna empresa. Genera token con acceso global.
+  if (usuario.rol === 'superadmin') {
+    // Verificar si debe cambiar su contraseña
+    if (usuario.must_change_password) {
+      logger.info({ userId: usuario.id }, 'Superadmin login: must_change_password flag activo');
+    }
+    const token = generarToken({
+      id: usuario.id,
+      nombre: usuario.nombre,
+      email: usuario.email,
+      empresa_id: null,  // Sin empresa específica
+      rol: 'superadmin',
+      must_change_password: !!usuario.must_change_password,
+      onboarding_completed: true,
+    });
+    logger.info({ userId: usuario.id }, 'Superadmin login exitoso');
+    return {
+      token,
+      user: {
+        id: usuario.id,
+        nombre: usuario.nombre,
+        email: usuario.email,
+        empresa_id: null,
+        rol: 'superadmin',
+        must_change_password: !!usuario.must_change_password,
+        onboarding_completed: true,
+      },
+    };
+  }
+  // ───────────────────────────────────────────────────────────────────────────
+
   // Buscar membresías activas.
   let membresias = [];
   try {
@@ -124,6 +156,7 @@ async function login(email, password) {
     })),
   };
 }
+
 
 /**
  * Genera JWT para un usuario + empresa específica.
