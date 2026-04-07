@@ -7,7 +7,26 @@ class EmpresaService {
 
     async getEmpresa(empresa_id) {
         const pool = await connectDB();
-        return await empresaModel.getEmpresa(pool, empresa_id);
+        const empresa = await empresaModel.getEmpresa(pool, empresa_id);
+        
+        if (empresa && empresa.plan_modulos) {
+            try {
+                const planToggles = typeof empresa.plan_modulos === 'string' 
+                    ? JSON.parse(empresa.plan_modulos) 
+                    : empresa.plan_modulos;
+                
+                const manualToggles = empresa.feature_toggles 
+                    ? (typeof empresa.feature_toggles === 'string' ? JSON.parse(empresa.feature_toggles) : empresa.feature_toggles)
+                    : {};
+                
+                // Mezclar: el plan manda, pero permitimos manualToggles si el plan tiene "*"
+                empresa.feature_toggles = { ...manualToggles, ...planToggles };
+            } catch (e) {
+                logger.error({ err: e.message, empresa_id }, 'Error parsing plan_modulos');
+            }
+        }
+        
+        return empresa;
     }
 
     async updateEmpresa(empresa_id, empresaData) {

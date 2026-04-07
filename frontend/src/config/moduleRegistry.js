@@ -293,13 +293,19 @@ export default moduleRegistry;
  * @returns {Array} módulos accesibles
  */
 export function getAccessibleModules(featureToggles = {}, userRole = '') {
-  // Garantizar que toggles sea SIEMPRE un objeto, incluso si llega explícitamente null desde la BD
   const toggles = featureToggles || {};
+  
   return moduleRegistry.filter(mod => {
-    // Verificar toggle requerido
-    if (mod.requiredToggle && !toggles[mod.requiredToggle]) return false;
+    // 1. Validación de Planes / Toggles
+    if (!toggles['*']) {
+      const toggleKey = mod.requiredToggle || mod.id;
+      // Los módulos de la sección 'core' (Dashboard, Notificaciones) siempre son visibles
+      if (mod.section !== 'core' && !toggles[toggleKey]) {
+        return false;
+      }
+    }
     
-    // Verificar rol seguro contra undefined
+    // 2. Validación de Roles segura contra undefined
     const roles = mod.requiredRoles || ['*'];
     if (roles.includes('*')) return true;
     return roles.includes(userRole);

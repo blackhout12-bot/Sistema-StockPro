@@ -1,9 +1,10 @@
 // src/middlewares/tenantContext.js
-const { obtenerMembresia } = require('../repositories/auth.repository');
+const { obtenerMembresia, obtenerPlanEmpresa } = require('../repositories/auth.repository');
 
 /**
  * Middleware para asegurar y validar el contexto del tenant (empresa).
  * Evita fugas de datos al validar que el usuario tenga acceso a la empresa solicitada.
+ * Instrumentado v1.28.1: Validación de Activación/Desactivación de Módulos por Plan.
  */
 async function tenantContext(req, res, next) {
     // BYPASS: No validar contexto en health checks
@@ -28,7 +29,6 @@ async function tenantContext(req, res, next) {
         }
 
         // VALIDACIÓN DE SEGURIDAD: ¿Tiene el usuario acceso real a esta empresa?
-        // Esto previene que un usuario con un JWT válido intente acceder a otra empresa cambiando el header.
         const membresia = await obtenerMembresia(req.user.id, selectedId);
 
         if (!membresia || !membresia.activo) {
@@ -43,14 +43,48 @@ async function tenantContext(req, res, next) {
             });
         }
 
+        // ─── VALIDACIÓN DE PLAN (v1.28.1) ───────────────────────────────────
+        const planInfo = await obtenerPlanEmpresa(selectedId);
+        if (planInfo) {
+            const modulos = planInfo.modulos || {};
+            
+            // Si el plan no tiene wildcard total, validamos el recurso solicitado
+            if (!modulos['*']) {
+                // Extraer el módulo del originalUrl (ej: /api/v1/facturacion/... -> facturacion)
+                const pathParts = req.originalUrl.split('/');
+                // Buscamos el segmento después de v1 o v2
+                const vIndex = pathParts.findIndex(p => p === 'v1' || p === 'v2');
+                const requestedModule = vIndex !== -1 ? pathParts[vIndex + 1] : null;
+
+                // Módulos "core" que siempre están permitidos
+                const coreModules = ['auth', 'empresa', 'notificaciones', 'contextos', 'search', 'telemetry', 'ping'];
+
+                if (requestedModule && !coreModules.includes(requestedModule)) {
+                    if (!modulos[requestedModule]) {
+                        req.log.warn({
+                            msg: 'Intento de acceso a módulo no contratado',
+                            userId: req.user.id,
+                            tenantId: selectedId,
+                            module: requestedModule,
+                            plan: planInfo.nombre
+                        });
+                        return res.status(403).json({
+                            error: `El módulo '${requestedModule}' no está incluido en su plan actual (${planInfo.nombre}).`
+                        });
+                    }
+                }
+            }
+        }
+
         // Establecer el contexto seguro para el resto de la ejecución
         req.tenant_id = selectedId;
+        req.plan = planInfo; // Adjuntar info del plan al request
         req.log.info({ userId: req.user.id, tenantId: selectedId, path: req.path }, 'Tenant Context Establecido');
-        req.user.rol = membresia.rol; // Actualizar el rol según la empresa actual por si varía
+        req.user.rol = membresia.rol; 
 
         next();
     } catch (err) {
-        req.log.error({ err, msg: 'Error de validación de contexto de tenant' });
+        req.log.error({ err, msg: 'Error de validación de contexto de tenant/plan' });
         return res.status(500).json({ error: 'Error interno validando contexto de empresa.' });
     }
 }
