@@ -287,19 +287,26 @@ export default moduleRegistry;
  */
 
 /**
- * Filtra el registry según featureToggles y rol del usuario.
- * @param {object} featureToggles
+ * Filtra el registry según featureToggles y rol del usuario. (v1.28.1-fixed)
+ * @param {object} featureToggles - Contiene los módulos habilitados por el Plan
  * @param {string} userRole
  * @returns {Array} módulos accesibles
  */
 export function getAccessibleModules(featureToggles = {}, userRole = '') {
-  // Garantizar que toggles sea SIEMPRE un objeto, incluso si llega explícitamente null desde la BD
   const toggles = featureToggles || {};
+  
   return moduleRegistry.filter(mod => {
-    // Verificar toggle requerido
-    if (mod.requiredToggle && !toggles[mod.requiredToggle]) return false;
+    // 1. Módulos Core/Administración Básica siempre visibles
+    const isCore = mod.section === 'core' || mod.id === 'empresa' || mod.id === 'usuarios';
     
-    // Verificar rol seguro contra undefined
+    // 2. Si no es core, debe estar habilitado en el Plan (toggles)
+    if (!isCore && !toggles[mod.id]) {
+        // Excepción: Si el módulo tiene un toggle específico (ej: mod_marketplace)
+        if (mod.requiredToggle && toggles[mod.requiredToggle]) return true;
+        return false;
+    }
+
+    // 3. Verificar Rol
     const roles = mod.requiredRoles || ['*'];
     if (roles.includes('*')) return true;
     return roles.includes(userRole);

@@ -6,7 +6,12 @@ class EmpresaModel {
     async getEmpresa(pool, empresa_id) {
         const result = await pool.request()
             .input('empresa_id', sql.Int, empresa_id)
-            .query('SELECT * FROM Empresa WHERE id = @empresa_id');
+            .query(`
+                SELECT e.*, p.nombre AS plan_nombre, p.modulos_json AS plan_modulos
+                FROM Empresa e
+                LEFT JOIN Planes p ON e.plan_id = p.id
+                WHERE e.id = @empresa_id
+            `);
         return result.recordset[0] || null;
     }
 

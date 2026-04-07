@@ -106,6 +106,33 @@ async function obtenerMembresia(usuario_id, empresa_id) {
 }
 
 /**
+ * Obtiene el plan y módulos habilitados para una empresa específica.
+ */
+async function obtenerPlanEmpresa(empresa_id) {
+  const pool = await connectDB();
+  const result = await pool.request()
+    .input('eid', sql.Int, empresa_id)
+    .query(`
+      SELECT p.id, p.nombre, p.modulos_json
+      FROM Empresa e
+      JOIN Planes p ON e.plan_id = p.id
+      WHERE e.id = @eid
+    `);
+  
+  if (!result.recordset[0]) return null;
+  
+  try {
+    const plan = result.recordset[0];
+    plan.modulos = typeof plan.modulos_json === 'string' 
+      ? JSON.parse(plan.modulos_json) 
+      : plan.modulos_json;
+    return plan;
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
  * Agrega acceso de un usuario a una empresa con un rol específico.
  * Reactiva si ya tenía acceso pero estaba inactivo.
  */
@@ -260,6 +287,7 @@ module.exports = {
   obtenerUsuariosPorEmpresa,
   obtenerMembresiasPorUsuario,
   obtenerMembresia,
+  obtenerPlanEmpresa,
   agregarOReactivarMembresia,
   actualizarRolEnEmpresa,
   revocarAccesoEmpresa,

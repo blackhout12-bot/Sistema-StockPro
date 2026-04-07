@@ -7,7 +7,50 @@ class EmpresaService {
 
     async getEmpresa(empresa_id) {
         const pool = await connectDB();
-        return await empresaModel.getEmpresa(pool, empresa_id);
+        const empresa = await empresaModel.getEmpresa(pool, empresa_id);
+        
+        if (empresa) {
+            // Fusionar Feature Toggles con el Plan (v1.28.1-fixed)
+            let planModulos = {};
+            try {
+                planModulos = typeof empresa.plan_modulos === 'string' 
+                    ? JSON.parse(empresa.plan_modulos) 
+                    : (empresa.plan_modulos || {});
+            } catch (e) {
+                logger.error({ empresa_id, error: e.message }, 'Error parseando plan_modulos');
+            }
+
+            let currentToggles = {};
+            try {
+                currentToggles = typeof empresa.feature_toggles === 'string'
+                    ? JSON.parse(empresa.feature_toggles)
+                    : (empresa.feature_toggles || {});
+            } catch (e) { }
+
+            // Si es plan Enterprise (*), habilitamos todo lo que el sistema ofrece
+            if (planModulos['*']) {
+                // Mock de todos los módulos del sistema (se puede expandir)
+                const allModules = ['facturacion', 'productos', 'categorias', 'movimientos', 'sucursales', 
+                                    'proveedores', 'auditoria', 'usuarios', 'depositos', 'pos', 'kardex', 
+                                    'produccion', 'calidad', 'ordenes_trabajo', 'contratos', 'agenda', 'tickets', 'sla'];
+                allModules.forEach(m => currentToggles[m] = true);
+            } else {
+                // Filtrar toggles actuales — solo dejamos los que el plan permite
+                const restrictedToggles = {};
+                Object.keys(planModulos).forEach(m => {
+                    if (planModulos[m]) restrictedToggles[m] = true;
+                });
+                
+                // Módulos Core siempre activos en el frontend
+                ['dashboard', 'notificaciones', 'perfil', 'configuracion', 'empresa'].forEach(m => restrictedToggles[m] = true);
+                
+                currentToggles = restrictedToggles;
+            }
+
+            empresa.feature_toggles = currentToggles;
+        }
+
+        return empresa;
     }
 
     async updateEmpresa(empresa_id, empresaData) {

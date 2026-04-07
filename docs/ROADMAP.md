@@ -212,3 +212,11 @@ gantt
 | Documentación DRP | **RESUELTO** - Creado `docs/RESILIENCE.md` con manuales de recuperación. |
 
 **ESTADO GLOBAL**: **SISTEMA PROTEGIDO, RESILIENTE Y CERTIFICADO BAJO PROTOCOLOS DE SEGURIDAD AVANZADA**.
+
+---
+
+### [✔️] v1.28.1-fixed - Rollback y Estabilización Pre-Reimplementación
+- [x] **ROLLBACK**: El sistema fue revertido exitosamente al tag estable `v1.27.9`.
+- [x] **LIMPIEZA**: Se eliminaron artefactos de base de datos de intentos previos.
+- [x] **VALIDACIÓN**: Módulos de Facturación, Auditoría y Movimientos confirmados como operativos y estables.
+- [x] **ESTADO**: Base de código lista para la reimplementación disciplinada de la activación de módulos.
