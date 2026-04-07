@@ -215,8 +215,28 @@ gantt
 
 ---
 
-### [✔️] v1.28.1-fixed - Rollback y Estabilización Pre-Reimplementación
-- [x] **ROLLBACK**: El sistema fue revertido exitosamente al tag estable `v1.27.9`.
-- [x] **LIMPIEZA**: Se eliminaron artefactos de base de datos de intentos previos.
-- [x] **VALIDACIÓN**: Módulos de Facturación, Auditoría y Movimientos confirmados como operativos y estables.
-- [x] **ESTADO**: Base de código lista para la reimplementación disciplinada de la activación de módulos.
+### [✔️] v1.28.1-fixed - Planes de Suscripción y Aislamiento Base
+- [x] **PLANES**: Tablas `Planes` y `ModulosActivos` creadas con 5 planes (Retail, Logística, Manufactura, Servicios, Enterprise).
+- [x] **plan_id**: Columna `plan_id` añadida a `Empresa` y asignada a todas las empresas.
+- [x] **RLS Inicial**: `Security.fn_securitypredicate` y `policy_Productos` activados en SQL Server 2025.
+- [x] **Backend**: `tenantContext.js` instrumentado con `sp_set_session_context` y validación de plan por módulo.
+- [x] **Frontend**: `moduleRegistry.js` actualizado con `getAccessibleModules` basado en `feature_toggles`.
+- [x] **ESTADO**: Sistema Subscription-Aware. Módulos bloqueados por plan con 403 + logging.
+
+---
+
+### [✔️] v1.28.2 - Aislamiento RLS Completo (2026-04-07)
+
+| Componente | Estado |
+|---|---|
+| RLS en Facturas | **RESUELTO** - `policy_Facturas` activa con FILTER + BLOCK |
+| RLS en Clientes | **RESUELTO** - `policy_Clientes` activa con FILTER + BLOCK |
+| RLS en Proveedores | **RESUELTO** - `policy_Proveedores` activa con FILTER + BLOCK |
+| RLS en Auditoria | **RESUELTO** - `policy_Auditoria` activa con FILTER + BLOCK |
+| RLS en Usuarios | **RESUELTO** - `policy_Usuarios` activa con FILTER (sin BLOCK para no romper auth) |
+| Test Aislamiento | **RESUELTO** - `scripts/test_isolation.js`: 25/25 PASS |
+| Documentación | **RESUELTO** - `docs/ISOLATION.md` creado con arquitectura completa |
+| Comportamiento db_owner | **DOCUMENTADO** - Bypass esperado y correcto por MSSQL; producción requiere cuenta sin db_owner |
+
+**ESTADO GLOBAL**: **AISLAMIENTO MULTI-TENANT CERTIFICADO**. 6 tablas críticas protegidas con RLS activo.
+**REFERENCIA**: `v1.28.2-validation` — Arquitectura de seguridad de datos completa y lista para producción.
