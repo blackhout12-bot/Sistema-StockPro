@@ -23,25 +23,17 @@ const securityLogger = (msg) => {
  *   - otros roles → validar empresa + plan + permisos RBAC
  */
 async function tenantContext(req, res, next) {
-    // BYPASS: No validar contexto en health checks
-    if (req.path.endsWith('/health') || req.path.endsWith('/ready') || req.path === '/ping') {
-        return next();
-    }
-
     try {
-        // ─── SUPERADMIN BYPASS ────────────────────────────────────────────
+        // ─── SUPERADMIN BYPASS (Prioridad Alta v1.28.2-final) ──────────────
         if (req.user && req.user.rol === 'superadmin') {
-            const headerEmpresaId = req.headers['x-empresa-id'];
-            const queryEmpresaId = req.query.empresa_id || (req.body && req.body.empresa_id);
-            const contextEmpresaId = headerEmpresaId || queryEmpresaId;
-
-            // Propiedades explícitas requeridas (v1.28.2-fix)
-            req.empresaId = null; 
+            req.empresaId = null;
             req.planId = 'FULL';
             req.featureToggles = ['*'];
 
-            if (contextEmpresaId && !isNaN(parseInt(contextEmpresaId))) {
-                req.tenant_id = parseInt(contextEmpresaId);
+            // Log de contexto para RLS opcional (herramientas de gestión global)
+            const headerEmpresaId = req.headers['x-empresa-id'] || req.query.empresa_id || (req.body && req.body.empresa_id);
+            if (headerEmpresaId && !isNaN(parseInt(headerEmpresaId))) {
+                req.tenant_id = parseInt(headerEmpresaId);
                 const pool = await connectDB();
                 await pool.request()
                     .input('eid', sql.Int, req.tenant_id)
@@ -51,6 +43,12 @@ async function tenantContext(req, res, next) {
             req.is_superadmin = true;
             return next();
         }
+
+        // BYPASS secundarios: health checks
+        if (req.path.endsWith('/health') || req.path.endsWith('/ready') || req.path === '/ping') {
+            return next();
+        }
+
 
 
         // ─── FLUJO NORMAL (admin / operadores) ───────────────────────────

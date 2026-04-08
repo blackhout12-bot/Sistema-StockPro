@@ -1,7 +1,8 @@
 # Política de Administración y Roles — TB Gestión ERP
-**Versión:** v1.28.2-superadmin-plan-sync  
+**Versión:** v1.28.2-superadmin-bypass-final  
 **Fecha:** 2026-04-08  
 **Clasificación:** Confidencial — Solo personal técnico y operativo autorizado
+
 
 ---
 
