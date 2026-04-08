@@ -211,12 +211,37 @@ export function AuthProvider({ children }) {
         }
     }, [user, token, fetchConfiguracionGlobal]);
 
+    const updateFeatureToggles = useCallback((newToggles) => {
+        setFeatureToggles(newToggles);
+        localStorage.setItem('featureToggles', JSON.stringify(newToggles));
+        
+        // También actualizar empresaConfig
+        setEmpresaConfig(prev => {
+            const updated = { ...prev, feature_toggles: newToggles };
+            localStorage.setItem('empresaConfig', JSON.stringify(updated));
+            return updated;
+        });
+    }, []);
+
+    useEffect(() => {
+        const handleSyncRequest = (e) => {
+            if (e.detail?.feature_toggles) {
+                updateFeatureToggles(e.detail.feature_toggles);
+            } else {
+                fetchConfiguracionGlobal();
+            }
+        };
+        window.addEventListener('plan-sync-required', handleSyncRequest);
+        return () => window.removeEventListener('plan-sync-required', handleSyncRequest);
+    }, [fetchConfiguracionGlobal, updateFeatureToggles]);
+
     const value = {
         token,
         user,
         featureToggles,
         empresaConfig,
         fetchConfiguracionGlobal,
+        updateFeatureToggles,
         login,
         logout,
         selectEmpresa,
@@ -226,6 +251,7 @@ export function AuthProvider({ children }) {
         empresaSelector,
         isAuthenticated: !!token,
     };
+
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

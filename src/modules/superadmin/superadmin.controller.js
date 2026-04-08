@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const { connectDB, sql } = require('../../config/db');
+const { deleteCache } = require('../../config/redis');
 
 /**
  * Middleware de guardia para superadmin.
@@ -19,6 +20,53 @@ function requireSuperAdmin(req, res, next) {
 
 // Aplicar guardia a todas las rutas del módulo
 router.use(requireSuperAdmin);
+
+// ── POST /superadmin/changePlan — Cambio de plan con sincronización inmediata ─────
+router.post('/changePlan', async (req, res, next) => {
+    try {
+        const { empresa_id, plan_id } = req.body;
+
+        if (!empresa_id || !plan_id) {
+            return res.status(400).json({ error: 'empresa_id y plan_id son requeridos.' });
+        }
+
+        const pool = await connectDB();
+
+        // 1. Verificar existencia de plan y obtener sus módulos
+        const planRes = await pool.request()
+            .input('pid', sql.Int, plan_id)
+            .query(`SELECT id, nombre, modulos_json FROM Planes WHERE id = @pid`);
+
+        if (!planRes.recordset[0]) {
+            return res.status(404).json({ error: 'El plan especificado no existe.' });
+        }
+
+        const plan = planRes.recordset[0];
+        let modulos = {};
+        try { modulos = JSON.parse(plan.modulos_json); } catch {}
+
+        // 2. Actualizar plan en la tabla Empresa
+        await pool.request()
+            .input('eid', sql.Int, empresa_id)
+            .input('pid', sql.Int, plan_id)
+            .query(`UPDATE Empresa SET plan_id = @pid WHERE id = @eid`);
+
+        // 3. Invalidar cache para que el próximo request del tenant tome el nuevo plan
+        await deleteCache(`empresa:${empresa_id}`);
+        await deleteCache(`empresa:plan:${empresa_id}`);
+
+        // 4. Retornar módulos habilitados como objeto para el frontend
+        res.json({
+            empresa_id: parseInt(empresa_id),
+            plan_id: parseInt(plan_id),
+            plan_nombre: plan.nombre,
+            feature_toggles: modulos
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
 
 // ── GET /superadmin/empresas — Listado completo de empresas + plan ────────────
 router.get('/empresas', async (req, res, next) => {
@@ -94,6 +142,10 @@ router.put('/empresas/:id/plan', async (req, res, next) => {
             .input('pid', sql.Int, plan_id)
             .query(`UPDATE Empresa SET plan_id = @pid WHERE id = @eid`);
 
+        // Invalidar caché
+        await deleteCache(`empresa:${empresa_id}`);
+        await deleteCache(`empresa:plan:${empresa_id}`);
+
         res.json({
             message: `Plan actualizado correctamente`,
             empresa_id,
@@ -104,6 +156,7 @@ router.put('/empresas/:id/plan', async (req, res, next) => {
         next(err);
     }
 });
+
 
 // ── GET /superadmin/stats — Estadísticas globales de la plataforma ────────────
 router.get('/stats', async (req, res, next) => {

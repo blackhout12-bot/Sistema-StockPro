@@ -72,19 +72,32 @@ const SuperAdminPanel = () => {
     const handlePlanChange = async (empresaId, nuevoPlanId) => {
         setChangingPlan(prev => ({ ...prev, [empresaId]: true }));
         try {
-            await api.put(`/superadmin/empresas/${empresaId}/plan`, { plan_id: nuevoPlanId });
-            toast.success('Plan actualizado correctamente');
+            const res = await api.post('/superadmin/changePlan', { 
+                empresa_id: empresaId, 
+                plan_id: nuevoPlanId 
+            });
+            
+            const { plan_nombre, feature_toggles } = res.data;
+            toast.success(`El plan de su empresa fue actualizado a ${plan_nombre}`);
+            
+            // Sincronización inmediata de UI si el superadmin está en contexto de esta empresa
+            window.dispatchEvent(new CustomEvent('plan-sync-required', { 
+                detail: { feature_toggles } 
+            }));
+
             setEmpresas(prev => prev.map(e =>
+
                 e.id === empresaId
-                    ? { ...e, plan_id: nuevoPlanId, plan_nombre: planes.find(p => p.id === nuevoPlanId)?.nombre || '' }
+                    ? { ...e, plan_id: nuevoPlanId, plan_nombre }
                     : e
             ));
-        } catch {
-            toast.error('Error al actualizar el plan');
+        } catch (err) {
+            toast.error(err.response?.data?.error || 'Error al actualizar el plan');
         } finally {
             setChangingPlan(prev => ({ ...prev, [empresaId]: false }));
         }
     };
+
 
     const filtered = empresas.filter(e =>
         !search || e.nombre?.toLowerCase().includes(search.toLowerCase()) ||

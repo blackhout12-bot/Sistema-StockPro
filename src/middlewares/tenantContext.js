@@ -1,5 +1,6 @@
 const { obtenerMembresia, obtenerPlanEmpresa } = require('../repositories/auth.repository');
 const { connectDB, sql } = require('../config/db');
+const { getCache, setCache } = require('../config/redis');
 const fs = require('fs');
 const path = require('path');
 
@@ -16,9 +17,9 @@ const securityLogger = (msg) => {
 /**
  * Middleware para asegurar y validar el contexto del tenant (empresa).
  *
- * Estratificación de acceso (v1.28.2-admin-plan-visibility+superadmin):
+ * Estratificación de acceso (v1.28.2-superadmin-plan-sync):
  *   - superadmin → bypass total (acceso global a toda la plataforma, sin restricciones)
- *   - admin       → validar empresa + plan habilitado
+ *   - admin       → validar empresa + plan habilitado (con caching optimizado)
  *   - otros roles → validar empresa + plan + permisos RBAC
  */
 async function tenantContext(req, res, next) {
@@ -29,8 +30,6 @@ async function tenantContext(req, res, next) {
 
     try {
         // ─── SUPERADMIN BYPASS ────────────────────────────────────────────
-        // El superadmin tiene acceso global a toda la plataforma.
-        // El rol es determinante, no la empresa_id.
         if (req.user && req.user.rol === 'superadmin') {
             const headerEmpresaId = req.headers['x-empresa-id'];
             const queryEmpresaId = req.query.empresa_id || (req.body && req.body.empresa_id);
@@ -38,7 +37,6 @@ async function tenantContext(req, res, next) {
 
             if (contextEmpresaId && !isNaN(parseInt(contextEmpresaId))) {
                 req.tenant_id = parseInt(contextEmpresaId);
-                // Activar RLS para la empresa en contexto si se proporcionó
                 const pool = await connectDB();
                 await pool.request()
                     .input('eid', sql.Int, req.tenant_id)
@@ -60,7 +58,7 @@ async function tenantContext(req, res, next) {
             return res.status(400).json({ error: 'Contexto de empresa (empresa_id) inválido o faltante.' });
         }
 
-        // 1. VALIDACIÓN DE PERTENENCIA: ¿Tiene el usuario acceso real a esta empresa?
+        // 1. VALIDACIÓN DE PERTENENCIA
         const membresia = await obtenerMembresia(req.user.id, selectedId);
 
         if (!membresia || !membresia.activo) {
@@ -68,20 +66,30 @@ async function tenantContext(req, res, next) {
             return res.status(403).json({ error: 'No tienes permiso para acceder a los datos de esta empresa.' });
         }
 
-        // 2. ACTIVACIÓN DE AISLAMIENTO (RLS) - Set Session Context
+        // 2. ACTIVACIÓN DE AISLAMIENTO (RLS)
         const pool = await connectDB();
         await pool.request()
             .input('eid', sql.Int, selectedId)
             .query('EXEC sp_set_session_context @key=N\'empresa_id\', @value=@eid');
 
-        // 3. VALIDACIÓN DE PLAN (v1.28.1-fix-isolation+plans)
+        // 3. VALIDACIÓN DE PLAN (v1.28.2 - Caching optimizado)
         const pathParts = req.path.split('/');
-        const moduleName = pathParts[3]; // [ "", "api", "v1", "modulo" ]
+        const moduleName = pathParts[3];
 
         const coreModules = ['auth', 'empresa', 'dashboard', 'notificaciones', 'perfil', 'configuracion', 'superadmin'];
 
         if (moduleName && !coreModules.includes(moduleName)) {
-            const plan = await obtenerPlanEmpresa(selectedId);
+            // Intentar obtener de cache
+            const cacheKey = `empresa:plan:${selectedId}`;
+            let plan = await getCache(cacheKey);
+            
+            if (!plan) {
+                plan = await obtenerPlanEmpresa(selectedId);
+                if (plan) {
+                    await setCache(cacheKey, plan, 300); // 5 min TTL
+                }
+            }
+
             if (plan && plan.modulos) {
                 const isEnterprise = plan.modulos['*'] === true;
                 const isAllowed = plan.modulos[moduleName] === true;
@@ -101,9 +109,11 @@ async function tenantContext(req, res, next) {
 
         next();
     } catch (err) {
-        req.log.error({ err, msg: 'Error de validación de contexto de tenant' });
+        if (req.log) req.log.error({ err, msg: 'Error de validación de contexto de tenant' });
+        else console.error('Error de validación de contexto:', err);
         return res.status(500).json({ error: 'Error interno validando contexto de empresa.' });
     }
 }
 
 module.exports = tenantContext;
+

@@ -1,6 +1,6 @@
 # Política de Administración y Roles — TB Gestión ERP
-**Versión:** v1.28.2-admin-plan-visibility+superadmin  
-**Fecha:** 2026-04-07  
+**Versión:** v1.28.2-superadmin-plan-sync  
+**Fecha:** 2026-04-08  
 **Clasificación:** Confidencial — Solo personal técnico y operativo autorizado
 
 ---
@@ -22,11 +22,18 @@ El sistema TB Gestión implementa tres niveles de acceso con responsabilidades c
 ### 2.1 Definición
 El SuperAdministrador es una cuenta a nivel **plataforma**, no a nivel empresa. Su función principal es:
 - Gestionar el catálogo de empresas y sus planes
-- Reasignar planes de suscripción
+- Reasignar planes de suscripción con **sincronización inmediata**
 - Acceder a estadísticas globales de la plataforma
 - Operar sobre cualquier empresa sin restricciones
 
-### 2.2 Credenciales Iniciales
+### 2.2 Sincronización Inmediata (v1.28.2)
+Cuando un SuperAdministrador cambia el plan de una empresa:
+1. Se actualiza el `plan_id` en la base de datos inmediatamente.
+2. Se invalida el caché de Redis para esa empresa (`empresa:plan:ID`).
+3. El middleware `tenantContext` detecta la invalidación y recarga el nuevo plan en el siguiente request.
+4. El frontend del SuperAdmin distribuye un evento de sincronización para actualizar menús y toggles dinámicamente si está en ese contexto.
+
+### 2.3 Credenciales Iniciales
 
 > [!CAUTION]
 > Las credenciales iniciales deben cambiarse en el primer login. La cuenta tiene `must_change_password = 1` activado.
@@ -37,7 +44,7 @@ Password: SuperAdmin2026!
 Rol:      superadmin
 ```
 
-### 2.3 Política de Credenciales
+### 2.4 Política de Credenciales
 
 - **Rotación mínima**: Cada 90 días en producción
 - **Complejidad**: Mínimo 16 caracteres, letras, números y símbolos
@@ -45,7 +52,7 @@ Rol:      superadmin
 - **Acceso**: Exclusivamente desde IPs autorizadas (whitelist en firewall/reverse proxy)
 - **Sesión**: No compartir el token JWT con nadie
 
-### 2.4 Restricciones
+### 2.5 Restricciones
 - El superadmin **no debe usarse** para operaciones cotidianas — solo para administración del sistema
 - Cada acción del superadmin queda registrada en `logs/security.log`
 - En producción, el acceso debe protegerse con MFA/TOTP (ver sección 5)
@@ -131,9 +138,11 @@ Para activar MFA: iniciar sesión como superadmin → Perfil → Seguridad → A
 |--------|------|-------------|
 | GET | `/api/v1/superadmin/empresas` | Lista todas las empresas + plan activo |
 | GET | `/api/v1/superadmin/planes` | Lista todos los planes del sistema |
-| PUT | `/api/v1/superadmin/empresas/:id/plan` | Reasigna plan a una empresa |
+| POST | `/api/v1/superadmin/changePlan` | Cambio de plan con invalidación de caché (Sincro Inmediata) |
+| PUT | `/api/v1/superadmin/empresas/:id/plan` | Reasigna plan a una empresa (Legacy) |
 | GET | `/api/v1/superadmin/stats` | Estadísticas globales de la plataforma |
 | GET | `/api/v1/empresa/plan` | Plan del tenant actual (admin + superadmin) |
+
 
 ---
 

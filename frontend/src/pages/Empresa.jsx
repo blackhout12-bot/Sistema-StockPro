@@ -1415,11 +1415,27 @@ const Empresa = () => {
                                                 <p className="text-sm text-gray-500 mt-0.5">{planData.plan_descripcion}</p>
                                             )}
                                         </div>
-                                        <div className="text-right shrink-0">
+                                        <div className="text-right shrink-0 flex flex-col items-end gap-2">
                                             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-green-100 text-green-700">
                                                 <CheckCircle size={13} /> Activo
                                             </span>
+                                            <button 
+                                                onClick={() => {
+                                                    setPlanLoading(true);
+                                                    api.get('/empresa/plan')
+                                                        .then(r => {
+                                                            setPlanData(r.data);
+                                                            toast.success('Información de plan actualizada');
+                                                        })
+                                                        .finally(() => setPlanLoading(false));
+                                                }}
+                                                className="flex items-center gap-1 text-[10px] font-bold text-indigo-600 hover:text-indigo-800 transition-colors uppercase tracking-wider"
+                                            >
+                                                <RefreshCw size={10} className={planLoading ? 'animate-spin' : ''} />
+                                                Actualizar
+                                            </button>
                                         </div>
+
                                     </div>
 
                                     {/* Módulos habilitados */}
