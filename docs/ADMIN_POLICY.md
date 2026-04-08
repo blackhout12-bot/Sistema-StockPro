@@ -173,3 +173,20 @@ El bypass de superadmin es correcto y seguro porque:
 4. **Rotación de contraseñas**: Cada 90 días mínimo.
 5. **Auditoría**: Integrar `logs/security.log` en stack de observabilidad (OpenTelemetry/Grafana).
 6. **Backup**: Hacer backup del secreto TOTP antes de activar MFA.
+
+---
+
+## 9. Registro de Validación (v1.28.2-tests)
+
+A continuación se resume la validación automatizada y técnica del bypass y sincronización:
+
+- [x] **Superadmin login**: Validado mediante `superadmin_sync.test.js` (Status 200, rol: superadmin).
+- [x] **Cambio de plan**: Validado mediante endpoint `/changePlan` con regeneración de toggles.
+- [x] **Cache/session**: Confirmada invalidación de Redis en flujo de actualización.
+- [x] **Frontend Menús**: Validado mediante `SuperAdminSync.test.jsx` usando `moduleRegistry.update()`.
+- [x] **Admin Visibility**: Confirmado reflejo inmediato de módulos sin re-login.
+- [x] **Mensajería**: Confirmada aparición de toast de éxito en SuperAdminPanel.
+- [x] **Estandarización API**: Respuesta en formato camelCase validada para compatibilidad frontend.
+
+---
+

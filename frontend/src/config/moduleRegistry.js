@@ -293,7 +293,22 @@ const moduleRegistry = [
   }
 ];
 
+
+/**
+ * Estado reactivo para tests y sincronización inmediata (v1.28.2)
+ */
+let currentToggles = {};
+
+moduleRegistry.update = (newToggles) => {
+  currentToggles = newToggles;
+};
+
+moduleRegistry.get = () => {
+  return currentToggles;
+};
+
 export default moduleRegistry;
+
 
 /**
  * Helpers de filtrado
