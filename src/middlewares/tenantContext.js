@@ -35,6 +35,11 @@ async function tenantContext(req, res, next) {
             const queryEmpresaId = req.query.empresa_id || (req.body && req.body.empresa_id);
             const contextEmpresaId = headerEmpresaId || queryEmpresaId;
 
+            // Propiedades explícitas requeridas (v1.28.2-fix)
+            req.empresaId = null; 
+            req.planId = 'FULL';
+            req.featureToggles = ['*'];
+
             if (contextEmpresaId && !isNaN(parseInt(contextEmpresaId))) {
                 req.tenant_id = parseInt(contextEmpresaId);
                 const pool = await connectDB();
@@ -46,6 +51,7 @@ async function tenantContext(req, res, next) {
             req.is_superadmin = true;
             return next();
         }
+
 
         // ─── FLUJO NORMAL (admin / operadores) ───────────────────────────
         const headerEmpresaId = req.headers['x-empresa-id'];

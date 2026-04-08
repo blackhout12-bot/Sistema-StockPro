@@ -24,17 +24,17 @@ router.use(requireSuperAdmin);
 // ── POST /superadmin/changePlan — Cambio de plan con sincronización inmediata ─────
 router.post('/changePlan', async (req, res, next) => {
     try {
-        const { empresa_id, plan_id } = req.body;
+        const { empresaId, nuevoPlanId } = req.body;
 
-        if (!empresa_id || !plan_id) {
-            return res.status(400).json({ error: 'empresa_id y plan_id son requeridos.' });
+        if (!empresaId || !nuevoPlanId) {
+            return res.status(400).json({ error: 'empresaId y nuevoPlanId son requeridos.' });
         }
 
         const pool = await connectDB();
 
         // 1. Verificar existencia de plan y obtener sus módulos
         const planRes = await pool.request()
-            .input('pid', sql.Int, plan_id)
+            .input('pid', sql.Int, nuevoPlanId)
             .query(`SELECT id, nombre, modulos_json FROM Planes WHERE id = @pid`);
 
         if (!planRes.recordset[0]) {
@@ -47,25 +47,26 @@ router.post('/changePlan', async (req, res, next) => {
 
         // 2. Actualizar plan en la tabla Empresa
         await pool.request()
-            .input('eid', sql.Int, empresa_id)
-            .input('pid', sql.Int, plan_id)
+            .input('eid', sql.Int, empresaId)
+            .input('pid', sql.Int, nuevoPlanId)
             .query(`UPDATE Empresa SET plan_id = @pid WHERE id = @eid`);
 
         // 3. Invalidar cache para que el próximo request del tenant tome el nuevo plan
-        await deleteCache(`empresa:${empresa_id}`);
-        await deleteCache(`empresa:plan:${empresa_id}`);
+        await deleteCache(`empresa:${empresaId}`);
+        await deleteCache(`empresa:plan:${empresaId}`);
 
         // 4. Retornar módulos habilitados como objeto para el frontend
         res.json({
-            empresa_id: parseInt(empresa_id),
-            plan_id: parseInt(plan_id),
-            plan_nombre: plan.nombre,
+            empresaId: parseInt(empresaId),
+            planId: parseInt(nuevoPlanId),
+            planNombre: plan.nombre,
             feature_toggles: modulos
         });
     } catch (err) {
         next(err);
     }
 });
+
 
 
 // ── GET /superadmin/empresas — Listado completo de empresas + plan ────────────

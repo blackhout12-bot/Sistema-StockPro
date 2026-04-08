@@ -26,14 +26,15 @@ El SuperAdministrador es una cuenta a nivel **plataforma**, no a nivel empresa. 
 - Acceder a estadísticas globales de la plataforma
 - Operar sobre cualquier empresa sin restricciones
 
-### 2.2 Sincronización Inmediata (v1.28.2)
+### 2.2 Sincronización Inmediata (v1.28.2-fix)
 Cuando un SuperAdministrador cambia el plan de una empresa:
-1. Se actualiza el `plan_id` en la base de datos inmediatamente.
+1. Se actualiza el `plan_id` en la base de datos inmediatamente. El cambio de plan invalida cache y regenera toggles.
 2. Se invalida el caché de Redis para esa empresa (`empresa:plan:ID`).
-3. El middleware `tenantContext` detecta la invalidación y recarga el nuevo plan en el siguiente request.
-4. El frontend del SuperAdmin distribuye un evento de sincronización para actualizar menús y toggles dinámicamente si está en ese contexto.
+3. El middleware `tenantContext` detecta la invalidación y recarga el nuevo plan en el siguiente request. El admin verá reflejado el nuevo plan en su panel inmediatamente.
+4. El superadmin bypasséa validaciones de empresa y plan. El frontend del SuperAdmin distribuye un evento de sincronización para actualizar menús y toggles dinámicamente si está en ese contexto.
 
 ### 2.3 Credenciales Iniciales
+
 
 > [!CAUTION]
 > Las credenciales iniciales deben cambiarse en el primer login. La cuenta tiene `must_change_password = 1` activado.
