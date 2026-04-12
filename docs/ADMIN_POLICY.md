@@ -22,3 +22,10 @@ Se han implementado y ejecutado exitosamente los siguientes conjuntos de pruebas
 4.  **Experiencia sin Fricción**: Los administradores de las empresas afectadas heredarán el nuevo plan en su próxima petición o refresco visual, sin requerir re-autenticación.
 
 *Documentación final aplicada para la fase v1.28.2-superadmin-panel-restore-final.*
+
+---
+## Conexión Extendida Backend-Frontend (v1.28.2-connect-frontend)
+
+*   "El login del superadmin devuelve flag `panel: global`."
+*   "El frontend usa ese flag para renderizar el panel `SuperAdmin.jsx`."
+*   "El cambio de plan invalida cache y regenera toggles, reflejándose en frontend sin logout forzado."

@@ -291,13 +291,25 @@ const moduleRegistry = [
   }
 ];
 
+let currentToggles = {};
+
+function refreshMenus() {
+  if (typeof window !== 'undefined') {
+    // Diparar un evento global permite a los menús, si lo escuchan, re-hacer pull de su estado.
+    // AuthContext ya re-renderiza y actualiza los accesos nativamente, pero emitirlo amplía la reactividad.
+    window.dispatchEvent(new Event('moduleRegistryUpdated'));
+  }
+}
+
 // Extensión v1.28.2 para soporte de propagación dinámica
-moduleRegistry.update = (featureToggles) => {
-  console.log('[ModuleRegistry] Toggles actualizados dinámicamente:', featureToggles);
+moduleRegistry.update = (toggles) => {
+  currentToggles = toggles;
+  console.log('[ModuleRegistry] Toggles actualizados dinámicamente:', toggles);
   // Esta función es un hook para que el frontend pueda reaccionar al cambio plan sin relogin.
   if (typeof window !== 'undefined') {
-    localStorage.setItem('featureToggles', JSON.stringify(featureToggles));
+    localStorage.setItem('featureToggles', JSON.stringify(toggles));
   }
+  refreshMenus();
 };
 
 export default moduleRegistry;

@@ -17,7 +17,7 @@ import {
  * Implementación Fase v1.28.2-superadmin-panel-restore
  */
 const SuperAdmin = () => {
-  const { updateFeatureToggles, isSuperAdmin } = useAuth();
+  const { updateFeatureToggles, isSuperAdmin, setPlan } = useAuth();
   const [empresas, setEmpresas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -64,8 +64,9 @@ const SuperAdmin = () => {
       // Propagación inmediata mediante registry y context (v1.28.2)
       moduleRegistry.update(res.data.feature_toggles);
       updateFeatureToggles(res.data.feature_toggles);
+      if (setPlan) setPlan(res.data.planNombre);
       
-      toast.success(`Plan empresarial actualizado: ${res.data.planNombre}`);
+      toast.success(`El plan de la empresa fue actualizado a ${res.data.planNombre}`);
       
       // Actualizar estado local
       setEmpresas(prev => prev.map(e => 

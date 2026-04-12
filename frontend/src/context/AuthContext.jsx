@@ -31,6 +31,10 @@ export function AuthProvider({ children }) {
         try { return JSON.parse(localStorage.getItem('empresaConfig')) || {}; } catch { return {}; }
     });
 
+    const [plan, setPlan] = useState(() => {
+        try { return localStorage.getItem('plan') || 'FULL'; } catch { return 'FULL'; }
+    });
+
     // Estado para el flujo de selección de empresa (multi-empresa)
     const [empresaSelector, setEmpresaSelector] = useState(null);
     const [misEmpresas, setMisEmpresas] = useState(() => {
@@ -50,7 +54,14 @@ export function AuthProvider({ children }) {
         const userInfo = userData || jwtDecode(jwtToken);
         setToken(jwtToken);
         setUser(userInfo);
-        setIsSuperAdmin(userInfo.panel === 'global' || userInfo.rol === 'superadmin');
+        const superFlag = userInfo.panel === 'global' || userInfo.rol === 'superadmin';
+        setIsSuperAdmin(superFlag);
+        
+        if (superFlag) {
+            setPlan('FULL');
+            localStorage.setItem('plan', 'FULL');
+        }
+
         localStorage.setItem('token', jwtToken);
         localStorage.setItem('user', JSON.stringify(userInfo));
     }, []);
@@ -168,11 +179,13 @@ export function AuthProvider({ children }) {
         setMisEmpresas([]);
         setFeatureToggles({});
         setEmpresaConfig({});
+        setPlan('FULL');
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         localStorage.removeItem('misEmpresas');
         localStorage.removeItem('featureToggles');
         localStorage.removeItem('empresaConfig');
+        localStorage.removeItem('plan');
         localStorage.removeItem('selectedEmpresa'); // Security patch: Evitar leak de empresa ID anterior
         localStorage.removeItem('sucursal_activa'); // Security patch: Limpiar sucursal
         localStorage.removeItem('deposito_activo'); // Security patch: Limpiar depósito
@@ -225,6 +238,8 @@ export function AuthProvider({ children }) {
         token,
         user,
         isSuperAdmin,
+        plan,
+        setPlan,
         featureToggles,
         empresaConfig,
         fetchConfiguracionGlobal,

@@ -30,7 +30,7 @@ const PageLoader = () => (
 
 // ── Rutas protegidas ────────────────────────────────────────────
 function AppRoutes() {
-  const { isAuthenticated, user, logout, empresaSelector, featureToggles } = useAuth();
+  const { isAuthenticated, user, logout, empresaSelector, featureToggles, isSuperAdmin } = useAuth();
 
   if (empresaSelector) return <EmpresaSelector />;
 
@@ -64,13 +64,16 @@ function AppRoutes() {
           const LazyPage = lazyComponentsCache[mod.id];
 
           if (mod.index) {
+            // Render index override for SuperAdmin
+            const SuperAdminLazy = lazyComponentsCache['superadmin'];
+            
             return (
               <Route
                 key={mod.id}
                 index
                 element={
                   <Suspense fallback={<PageLoader />}>
-                    <LazyPage />
+                    {isSuperAdmin && SuperAdminLazy ? <SuperAdminLazy /> : <LazyPage />}
                   </Suspense>
                 }
               />
