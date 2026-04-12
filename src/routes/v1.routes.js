@@ -107,6 +107,7 @@ router.use('/delegaciones', sessionBypass, tenantContext, require('../modules/de
 router.use('/kardex', sessionBypass, tenantContext, require('../modules/kardex/kardex.controller'));
 router.use('/cuentas-cobrar', sessionBypass, tenantContext, require('../modules/cuentas_cobrar/cuentas_cobrar.controller'));
 router.use('/cuentas-pagar', sessionBypass, tenantContext, require('../modules/cuentas_pagar/cuentas_pagar.controller'));
+router.use('/superadmin', sessionBypass, tenantContext, require('../modules/superadmin/superadmin.controller'));
 
 // Analítica y Business Intelligence (Fase 14)
 router.use('/bi', sessionBypass, tenantContext, require('./bi.routes'));

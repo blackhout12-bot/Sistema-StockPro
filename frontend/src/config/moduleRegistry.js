@@ -277,8 +277,28 @@ const moduleRegistry = [
     requiredRoles: ['admin', 'gerente', 'supervisor'],
     lazy: () => import('../pages/Clientes'), // reusa Clientes con contexto VIP
     breadcrumb: 'Programa de Fidelización'
+  },
+  {
+    id: 'superadmin',
+    label: 'Panel SuperAdmin',
+    path: '/superadmin',
+    icon: 'ShieldCheck',
+    section: 'administracion',
+    requiredToggle: null,
+    requiredRoles: ['superadmin'],
+    lazy: () => import('../pages/SuperAdmin'),
+    breadcrumb: 'Administración Global'
   }
 ];
+
+// Extensión v1.28.2 para soporte de propagación dinámica
+moduleRegistry.update = (featureToggles) => {
+  console.log('[ModuleRegistry] Toggles actualizados dinámicamente:', featureToggles);
+  // Esta función es un hook para que el frontend pueda reaccionar al cambio plan sin relogin.
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('featureToggles', JSON.stringify(featureToggles));
+  }
+};
 
 export default moduleRegistry;
 

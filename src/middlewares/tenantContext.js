@@ -12,6 +12,18 @@ async function tenantContext(req, res, next) {
         return next();
     }
 
+    const { user } = req;
+
+    // Bypass inmediato para superadmin (Fase v1.28.2)
+    if (user && (user.rol === 'superadmin' || user.role === 'superadmin')) {
+        req.tenant_id = null;
+        req.empresaId = null;
+        req.planId = 'FULL';
+        req.featureToggles = { '*': true }; // acceso total en objeto para compatibilidad
+        req.panel = 'global'; // habilitar panel global
+        return next();
+    }
+
     try {
         // PRIORIDAD 1: Header explícito (usado por el frontend para cambiar de empresa)
         const headerEmpresaId = req.headers['x-empresa-id'];

@@ -280,6 +280,69 @@ async function verificarPermisoRol(empresa_id, rol_codigo, recurso, accion) {
   }
 }
 
+/**
+ * Listar todas las empresas con su plan actual (SuperAdmin).
+ */
+async function obtenerTodasLasEmpresas() {
+  const pool = await connectDB();
+  const result = await pool.request()
+    .query(`
+      SELECT 
+        e.id, 
+        e.nombre, 
+        e.documento_identidad, 
+        p.nombre as plan_nombre, 
+        p.id as plan_id
+      FROM Empresa e
+      LEFT JOIN Planes p ON e.plan_id = p.id
+      ORDER BY e.nombre ASC
+    `);
+  return result.recordset;
+}
+
+/**
+ * Actualiza el plan de una empresa.
+ */
+async function actualizarPlanEmpresa(empresa_id, plan_id) {
+  const pool = await connectDB();
+  await pool.request()
+    .input('eid', sql.Int, empresa_id)
+    .input('pid', sql.Int, plan_id)
+    .query('UPDATE Empresa SET plan_id = @pid WHERE id = @eid');
+  return true;
+}
+
+/**
+ * Obtiene el nombre de un plan por su ID.
+ */
+async function obtenerNombrePlan(plan_id) {
+  const pool = await connectDB();
+  const result = await pool.request()
+    .input('pid', sql.Int, plan_id)
+    .query('SELECT nombre FROM Planes WHERE id = @pid');
+  return result.recordset[0]?.nombre || 'Desconocido';
+}
+
+/**
+ * Genera el objeto de feature toggles basado en el plan_id.
+ */
+async function generarFeatureToggles(plan_id) {
+  const pool = await connectDB();
+  const result = await pool.request()
+    .input('pid', sql.Int, plan_id)
+    .query('SELECT modulos_json FROM Planes WHERE id = @pid');
+  
+  if (!result.recordset[0]) return {};
+
+  try {
+    const modulos = JSON.parse(result.recordset[0].modulos_json);
+    // Convertir { mod: true } o similar a toggles
+    return modulos;
+  } catch (e) {
+    return { error: 'Invalid plan config' };
+  }
+}
+
 module.exports = {
   obtenerUsuarioPorEmail,
   crearUsuario,
@@ -293,4 +356,8 @@ module.exports = {
   revocarAccesoEmpresa,
   obtenerUsuariosGlobal,
   verificarPermisoRol,
+  obtenerTodasLasEmpresas,
+  actualizarPlanEmpresa,
+  obtenerNombrePlan,
+  generarFeatureToggles
 };
