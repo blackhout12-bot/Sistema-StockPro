@@ -57,6 +57,16 @@ router.get('/empresas', async (req, res, next) => {
     }
 });
 
+// GET /stats - Métricas globales para el Dashboard (v1.29.2)
+router.get('/stats', async (req, res) => {
+    try {
+        const stats = await authRepository.obtenerMetricasGlobales();
+        res.json(stats);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // GET /usuarios - Listado global de usuarios (v1.28.9)
 router.get('/usuarios', async (req, res) => {
     try {
@@ -77,14 +87,19 @@ router.post('/changePlan', async (req, res) => {
         }
 
         await authRepository.actualizarPlanEmpresa(empresaId, nuevoPlanId);
-
-        // invalidar cache/session (Propagación inmediata)
-        await deleteCache(`empresa:${empresaId}`);
-
-        // regenerar toggles (Garantiza consulta directa en la próxima request)
+        
         const toggles = await authRepository.generarFeatureToggles(nuevoPlanId);
         const planNombre = await authRepository.obtenerNombrePlan(nuevoPlanId);
         const planDescripcion = await authRepository.obtenerDescripcionPlan(nuevoPlanId);
+
+        await auditRepository.logAction({
+            usuario_id: req.user.id,
+            accion: 'changePlan',
+            entidad: 'Empresa',
+            entidad_id: empresaId,
+            payload: { nuevoPlanId, planNombre },
+            ip: req.ip
+        });
 
         let modulos_activos = [];
         if (toggles && typeof toggles === 'object') {
@@ -138,6 +153,7 @@ router.post('/deleteEmpresas', async (req, res) => {
 router.post('/rollbackEmpresas', async (req, res) => {
     try {
         const { backupId } = req.body;
+        if (!backupId) return res.status(400).json({ error: 'BackupId requerido' });
         await authRepository.restaurarEmpresas(backupId);
         
         await auditRepository.logAction({
@@ -145,7 +161,7 @@ router.post('/rollbackEmpresas', async (req, res) => {
             accion: 'rollbackEmpresa',
             entidad: 'Empresa',
             entidad_id: null,
-            payload: { backupId },
+            payload: { backupId, msg: `Rollback aplicado desde backup ${backupId}` },
             ip: req.ip
         });
 

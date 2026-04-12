@@ -290,15 +290,19 @@ const moduleRegistry = [
     breadcrumb: 'Historial de Acciones Globales'
   },
   {
-    id: 'superadmin',
-    label: 'Panel SuperAdmin',
-    path: '/superadmin',
-    icon: 'ShieldCheck',
+    lazy: () => import('../pages/SuperAdmin'),
+    breadcrumb: 'Administración Global'
+  },
+  {
+    id: 'superadmin-gestion',
+    label: 'Gestión Global',
+    path: '/superadmin/gestion',
+    icon: 'Settings',
     section: 'administracion',
     requiredToggle: null,
     requiredRoles: ['superadmin'],
-    lazy: () => import('../pages/SuperAdmin'),
-    breadcrumb: 'Administración Global'
+    lazy: () => import('../pages/SuperAdminGestion'),
+    breadcrumb: 'Gestión Operativa de Plataforma'
   }
 ];
 

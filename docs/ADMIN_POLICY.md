@@ -38,10 +38,10 @@ Se han implementado y ejecutado exitosamente los siguientes conjuntos de pruebas
 *   "Los cambios se propagan en tiempo real a admins y usuarios de la empresa."
 
 ---
-## Administración Total y Corrección de Selección (v1.28.9-superadmin-delete-fix)
+## Dashboard vs Gestión Operativa (v1.29.2-superadmin-total-fix)
 
-*   "El superadmin puede eliminar empresas y usuarios de forma masiva o individual mediante selección en tablas modulares."
-*   "Cada acción queda registrada en Auditoría para trazabilidad."
-*   "Rollback restaura datos desde tabla Backup_Eliminaciones."
-*   "El dashboard de auditoría permite visualizar acciones en tiempo real con filtros y gráficos."
-*   "El sistema debe permanecer estable y funcional en todo momento."
+*   "El superadmin utiliza el Dashboard principal para visualizar métricas, gráficos de planes y acciones recientes (solo lectura)."
+*   "La gestión operativa (CRUD, Cambios de Plan, Rollback) se realiza exclusivamente desde el Panel de Gestión."
+*   "Cada acción administrativa queda registrada en Auditoría con detalle del payload original."
+*   "El rollback restaura datos desde la tabla Backup_Eliminaciones de forma atómica."
+*   "Cada plan muestra explícitamente su nombre, descripción y lista de módulos activos para transparencia del administrador."

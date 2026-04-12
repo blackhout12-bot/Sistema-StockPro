@@ -502,6 +502,41 @@ async function obtenerLogsAuditoria({ tipo, fechaDesde, fechaHasta }) {
     return result.recordset;
 }
 
+/**
+ * Obtiene métricas agregadas para el Dashboard de SuperAdmin (v1.29.2)
+ */
+async function obtenerMetricasGlobales() {
+    const pool = await connectDB();
+    
+    // 1. Conteo total
+    const totals = await pool.request().query(`
+        SELECT 
+            (SELECT COUNT(*) FROM Empresa) as totalEmpresas,
+            (SELECT COUNT(*) FROM Usuarios) as totalUsuarios
+    `);
+    
+    // 2. Distribución por planes
+    const planDist = await pool.request().query(`
+        SELECT p.nombre, COUNT(e.id) as count 
+        FROM Planes p
+        LEFT JOIN Empresa e ON e.plan_id = p.id
+        GROUP BY p.nombre, p.id
+    `);
+    
+    // 3. Últimas acciones de auditoría
+    const recentLogs = await pool.request().query(`
+        SELECT TOP 10 timestamp, accion, usuario_id, entidad_id 
+        FROM Auditoria 
+        ORDER BY timestamp DESC
+    `);
+    
+    return {
+        ...totals.recordset[0],
+        distribucionPlanes: planDist.recordset,
+        ultimasAcciones: recentLogs.recordset
+    };
+}
+
 module.exports = {
   obtenerUsuarioPorEmail,
   crearUsuario,
@@ -526,5 +561,6 @@ module.exports = {
   backupUsuarios,
   eliminarUsuarios,
   restaurarUsuarios,
-  obtenerLogsAuditoria
+  obtenerLogsAuditoria,
+  obtenerMetricasGlobales
 };

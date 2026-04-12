@@ -55,6 +55,17 @@ describe('SuperAdmin Total Administration E2E Tests', () => {
         const types = logsRes.body.map(l => l.accion);
         expect(types).toContain('deleteEmpresa');
         expect(types).toContain('rollbackEmpresa');
+
+        // 5. Verificar endpoint de Estadísticas Dashboard (v1.29.2)
+        const statsRes = await request(app)
+            .get('/api/v1/superadmin/stats')
+            .set('Authorization', `Bearer ${token}`);
+        
+        expect(statsRes.status).toBe(200);
+        expect(statsRes.body.totalEmpresas).toBeDefined();
+        expect(statsRes.body.totalUsuarios).toBeDefined();
+        expect(Array.isArray(statsRes.body.distribucionPlanes)).toBe(true);
+        expect(Array.isArray(statsRes.body.ultimasAcciones)).toBe(true);
     });
 
     test('Acceso denegado a Auditoría para usuarios no SuperAdmin', async () => {
