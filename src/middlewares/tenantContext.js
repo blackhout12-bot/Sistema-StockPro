@@ -24,24 +24,24 @@ const securityLogger = (msg) => {
  */
 async function tenantContext(req, res, next) {
     try {
-        // ─── SUPERADMIN BYPASS (Prioridad Alta v1.28.2-final) ──────────────
-        if (req.user && req.user.rol === 'superadmin') {
-            req.empresaId = null;
+        const user = req.user;
+
+        // ─── BYPASS EXPLÍCITO PARA SUPERADMIN (v1.28.2) ─────────────────────
+        if (user && user.rol === 'superadmin') {
+            req.empresa_id = null;
+            req.tenant_id = null;
             req.planId = 'FULL';
-            req.featureToggles = ['*'];
-
-            // Log de contexto para RLS opcional (herramientas de gestión global)
-            const headerEmpresaId = req.headers['x-empresa-id'] || req.query.empresa_id || (req.body && req.body.empresa_id);
-            if (headerEmpresaId && !isNaN(parseInt(headerEmpresaId))) {
-                req.tenant_id = parseInt(headerEmpresaId);
-                const pool = await connectDB();
-                await pool.request()
-                    .input('eid', sql.Int, req.tenant_id)
-                    .query('EXEC sp_set_session_context @key=N\'empresa_id\', @value=@eid');
-            }
-
+            req.featureToggles = ['*']; // Acceso total
             req.is_superadmin = true;
             return next();
+        }
+
+        // Validaciones para admin y user
+        if (!user || !user.empresa_id) {
+            return res.status(403).json({ 
+                error: 'No tenés permisos para realizar esta acción.',
+                message: 'No se detectó un contexto de empresa válido.' 
+            });
         }
 
         // BYPASS secundarios: health checks
@@ -49,26 +49,19 @@ async function tenantContext(req, res, next) {
             return next();
         }
 
+        // ─── CONSULTA DIRECTA DEL PLAN (Sin cache persistente) ──────────────
+        const selectedId = user.empresa_id;
+        const plan = await obtenerPlanEmpresa(selectedId);
 
-
-        // ─── FLUJO NORMAL (admin / operadores) ───────────────────────────
-        const headerEmpresaId = req.headers['x-empresa-id'];
-        const queryEmpresaId = req.query.empresa_id || (req.body && req.body.empresa_id);
-        const jwtEmpresaId = req.user.empresa_id;
-
-        let selectedId = headerEmpresaId ? parseInt(headerEmpresaId) : (queryEmpresaId ? parseInt(queryEmpresaId) : jwtEmpresaId);
-
-        if (!selectedId || isNaN(selectedId)) {
-            return res.status(400).json({ error: 'Contexto de empresa (empresa_id) inválido o faltante.' });
+        if (!plan) {
+            return res.status(403).json({ error: 'La empresa no tiene un plan activo asignado.' });
         }
 
-        // 1. VALIDACIÓN DE PERTENENCIA
-        const membresia = await obtenerMembresia(req.user.id, selectedId);
-
-        if (!membresia || !membresia.activo) {
-            securityLogger(`INTENTO DE ACCESO CRUZADO: Usuario ${req.user.id} intentó acceder a Empresa ${selectedId} desde IP ${req.ip}`);
-            return res.status(403).json({ error: 'No tienes permiso para acceder a los datos de esta empresa.' });
-        }
+        // Establecer contexto en el request
+        req.tenant_id = selectedId;
+        req.empresa_id = selectedId; // Alias para compatibilidad
+        req.planId = plan.id;
+        req.featureToggles = plan.modulos || {};
 
         // 2. ACTIVACIÓN DE AISLAMIENTO (RLS)
         const pool = await connectDB();
@@ -76,40 +69,23 @@ async function tenantContext(req, res, next) {
             .input('eid', sql.Int, selectedId)
             .query('EXEC sp_set_session_context @key=N\'empresa_id\', @value=@eid');
 
-        // 3. VALIDACIÓN DE PLAN (v1.28.2 - Caching optimizado)
+        // 3. VALIDACIÓN DE PERMISOS DE MÓDULO (RBAC granular)
         const pathParts = req.path.split('/');
-        const moduleName = pathParts[3];
-
+        const moduleName = pathParts[3]; // ej: /api/v1/productos -> productos
+        
         const coreModules = ['auth', 'empresa', 'dashboard', 'notificaciones', 'perfil', 'configuracion', 'superadmin'];
 
-        if (moduleName && !coreModules.includes(moduleName)) {
-            // Intentar obtener de cache
-            const cacheKey = `empresa:plan:${selectedId}`;
-            let plan = await getCache(cacheKey);
-            
-            if (!plan) {
-                plan = await obtenerPlanEmpresa(selectedId);
-                if (plan) {
-                    await setCache(cacheKey, plan, 300); // 5 min TTL
-                }
-            }
+        if (moduleName && !coreModules.includes(moduleName) && plan.modulos) {
+            const isEnterprise = plan.modulos['*'] === true;
+            const isAllowed = plan.modulos[moduleName] === true;
 
-            if (plan && plan.modulos) {
-                const isEnterprise = plan.modulos['*'] === true;
-                const isAllowed = plan.modulos[moduleName] === true;
-
-                if (!isEnterprise && !isAllowed) {
-                    securityLogger(`ACCESO DENEGADO PLAN: Usuario ${req.user.id} intentó acceder a Módulo ${moduleName} (No incluido en plan ${plan.nombre})`);
-                    return res.status(403).json({
-                        error: `El módulo '${moduleName}' no está incluido en su plan actual (${plan.nombre}). Contacte a soporte para actualizar su plan.`
-                    });
-                }
+            if (!isEnterprise && !isAllowed) {
+                securityLogger(`ACCESO DENEGADO PLAN: Usuario ${user.id} intentó acceder a Módulo ${moduleName} (No incluido en plan ${plan.nombre})`);
+                return res.status(403).json({
+                    error: `El módulo '${moduleName}' no está incluido en su plan actual (${plan.nombre}). Contacte a soporte para actualizar su plan.`
+                });
             }
         }
-
-        // Establecer el contexto seguro
-        req.tenant_id = selectedId;
-        req.user.rol = membresia.rol;
 
         next();
     } catch (err) {

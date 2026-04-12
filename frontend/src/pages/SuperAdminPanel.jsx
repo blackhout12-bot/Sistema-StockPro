@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../utils/axiosConfig';
 import { useAuth } from '../context/AuthContext';
+import { moduleRegistry } from '../utils/moduleRegistry';
 import {
     Shield, Building2, Users, Crown, CreditCard, RefreshCw,
     ChevronDown, Check, AlertTriangle, Globe, BarChart3, Package
@@ -78,12 +79,10 @@ const SuperAdminPanel = () => {
             });
             
             const { planNombre, feature_toggles } = res.data;
-            toast.success(`El plan de su empresa fue actualizado a ${planNombre}`);
+            toast.success(`El plan de la empresa fue actualizado a ${planNombre}`);
             
-            // Sincronización inmediata de UI si el superadmin está en contexto de esta empresa
-            window.dispatchEvent(new CustomEvent('plan-sync-required', { 
-                detail: { feature_toggles } 
-            }));
+            // Sincronización dinámica v1.28.2
+            moduleRegistry.update(feature_toggles);
 
             setEmpresas(prev => prev.map(e =>
                 e.id === empresaId
