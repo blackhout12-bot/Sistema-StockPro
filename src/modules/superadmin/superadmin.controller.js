@@ -26,8 +26,8 @@ router.get('/empresas', async (req, res, next) => {
     }
 });
 
-// POST /changePlan - Cambio dinámico de plan y propagación
-router.post('/changePlan', async (req, res, next) => {
+// POST /changePlan - Cambio dinámico de plan y propagación (v1.28.2-apply)
+router.post('/changePlan', async (req, res) => {
     try {
         const { empresaId, nuevoPlanId } = req.body;
         
@@ -37,10 +37,10 @@ router.post('/changePlan', async (req, res, next) => {
 
         await authRepository.actualizarPlanEmpresa(empresaId, nuevoPlanId);
 
-        // Invalidación de cache para propagación inmediata
+        // invalidar cache/session (Propagación inmediata)
         await deleteCache(`empresa:${empresaId}`);
 
-        // Regeneración de feature_toggles para respuesta inmediata al frontend
+        // regenerar toggles (Garantiza consulta directa en la próxima request)
         const toggles = await authRepository.generarFeatureToggles(nuevoPlanId);
         const planNombre = await authRepository.obtenerNombrePlan(nuevoPlanId);
 
@@ -51,7 +51,7 @@ router.post('/changePlan', async (req, res, next) => {
             feature_toggles: toggles
         });
     } catch (error) {
-        next(error);
+        res.status(500).json({ error: error.message });
     }
 });
 

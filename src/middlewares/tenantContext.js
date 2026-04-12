@@ -14,12 +14,12 @@ async function tenantContext(req, res, next) {
 
     const { user } = req;
 
-    // Bypass inmediato para superadmin (Fase v1.28.2)
-    if (user && (user.rol === 'superadmin' || user.role === 'superadmin')) {
-        req.tenant_id = null;
+    // Bypass inmediato para superadmin (v1.28.2-superadmin-panel-restore-apply)
+    if (user && user.role === 'superadmin') {
+        req.tenant_id = null; // Mantenemos para compatibilidad con el resto del archivo
         req.empresaId = null;
         req.planId = 'FULL';
-        req.featureToggles = { '*': true }; // acceso total en objeto para compatibilidad
+        req.featureToggles = ['*'];
         req.panel = 'global'; // habilitar panel global
         return next();
     }

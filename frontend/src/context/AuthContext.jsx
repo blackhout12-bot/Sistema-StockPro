@@ -207,6 +207,11 @@ export function AuthProvider({ children }) {
         }
     }, [user, token, fetchConfiguracionGlobal]);
 
+    const updateFeatureToggles = useCallback((newToggles) => {
+        setFeatureToggles(newToggles);
+        localStorage.setItem('featureToggles', JSON.stringify(newToggles));
+    }, []);
+
     const value = {
         token,
         user,
@@ -218,6 +223,7 @@ export function AuthProvider({ children }) {
         selectEmpresa,
         switchEmpresa,
         refreshUser,
+        updateFeatureToggles,
         misEmpresas,
         empresaSelector,
         isAuthenticated: !!token,

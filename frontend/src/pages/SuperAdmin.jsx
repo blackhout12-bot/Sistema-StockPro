@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import api from '../utils/axiosConfig'; // El archivo es .jsx pero el import puede omitir extensión o usarla
+import api from '../utils/axiosConfig';
 import moduleRegistry from '../config/moduleRegistry';
+import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import { 
   Building2, 
@@ -16,6 +17,7 @@ import {
  * Implementación Fase v1.28.2-superadmin-panel-restore
  */
 const SuperAdmin = () => {
+  const { updateFeatureToggles } = useAuth();
   const [empresas, setEmpresas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -53,10 +55,11 @@ const SuperAdmin = () => {
       setUpdating(true);
       const res = await api.post('/superadmin/changePlan', { empresaId, nuevoPlanId });
       
-      // Propagación inmediata según v1.28.2 (Refresco dinámico de toggles)
+      // Propagación inmediata mediante registry y context (v1.28.2)
       moduleRegistry.update(res.data.feature_toggles);
+      updateFeatureToggles(res.data.feature_toggles);
       
-      toast.success(`Plan actualizado a ${res.data.planNombre}`);
+      toast.success(`Plan empresarial actualizado: ${res.data.planNombre}`);
       
       // Actualizar estado local
       setEmpresas(prev => prev.map(e => 
