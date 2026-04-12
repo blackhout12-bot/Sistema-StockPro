@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Package, ArrowRightLeft, LogOut, FileText,
   UsersRound, Building2, Users, ShoppingCart, History, Zap, Bell,
   Store, ChevronRight, ChevronDown, Menu, X, Star, Hammer,
-  BarChart2, Settings, List, Receipt
+  BarChart2, Settings, List, Receipt, Activity, PieChart, Undo2, ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useBranch } from '../context/BranchContext';
@@ -34,7 +34,11 @@ const ICON_MAP = {
   BarChart2:       <BarChart2 size={16} />,
   Settings:        <Settings size={16} />,
   List:            <List size={16} />,
-  Receipt:         <Receipt size={16} />
+  Receipt:         <Receipt size={16} />,
+  Activity:        <Activity size={16} />,
+  PieChart:        <PieChart size={16} />,
+  Undo2:           <Undo2 size={16} />,
+  ShieldCheck:     <ShieldCheck size={16} />
 };
 
 // ── Componente de item de nav ──────────────────────────────────
