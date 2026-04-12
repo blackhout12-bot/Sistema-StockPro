@@ -38,15 +38,11 @@ Se han implementado y ejecutado exitosamente los siguientes conjuntos de pruebas
 *   "Los cambios se propagan en tiempo real a admins y usuarios de la empresa."
 
 ---
-## Pureza del Rol SuperAdmin (v1.29.3-superadmin-role-fix)
+## Control Granular y Roles Globales (v1.29.5-superadmin-global-permissions-fix)
 
-*   "El superadmin no pertenece a ninguna empresa (empresa_id = NULL/Global)."
-*   "El superadmin tiene acceso global a todas las empresas, usuarios, planes y auditoría sin restricciones de tenant."
-*   "El dashboard del superadmin muestra exclusivamente métricas globales de plataforma, nunca métricas de una sola empresa."
-*   "El panel de gestión del superadmin permite eliminar empresas y usuarios, cambiar planes y ejecutar rollback de forma centralizada."
-
----
-## Dashboard vs Gestión Operativa (v1.29.2)
-
-*   "El superadmin utiliza el Dashboard Global para visualizar métricas agregadas."
-*   "La gestión operativa se realiza exclusivamente desde el Panel de Gestión Operativa."
+*   "El superadmin no pertenece a ninguna empresa."
+*   "El superadmin tiene acceso global a empresas, usuarios, planes y auditoría."
+*   "El dashboard del superadmin muestra métricas globales, no métricas de empresa."
+*   "El panel de gestión del superadmin permite eliminar empresas y usuarios, cambiar planes y ejecutar rollback."
+*   "El admin de empresa solo gestiona su empresa."
+*   "El usuario tiene acceso limitado según plan."

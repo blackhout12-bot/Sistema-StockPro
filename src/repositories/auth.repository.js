@@ -22,6 +22,11 @@ async function obtenerUsuarioPorEmail(email) {
  * Backward compatible: también actualiza empresa_id y rol en Usuarios.
  */
 async function crearUsuario(nombre, email, passwordHash, rol, empresa_id) {
+  // v1.29.5 - Purificación del rol SuperAdmin
+  if (rol === 'superadmin') {
+    empresa_id = null;
+  }
+
   const pool = await connectDB();
   const tx = new sql.Transaction(pool);
   await tx.begin();
@@ -42,8 +47,10 @@ async function crearUsuario(nombre, email, passwordHash, rol, empresa_id) {
             `);
     const usuario_id = res.recordset[0].id;
 
-    // 2. Crear membresía en UsuarioEmpresas
-    await _insertarMembresia(tx, usuario_id, empresa_id, rol);
+    // 2. Crear membresía en UsuarioEmpresas (Saltado para contexto global)
+    if (rol !== 'superadmin') {
+      await _insertarMembresia(tx, usuario_id, empresa_id, rol);
+    }
 
     await tx.commit();
     return { id: usuario_id, nombre, email, rol, empresa_id };
