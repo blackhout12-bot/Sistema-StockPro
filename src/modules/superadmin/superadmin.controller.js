@@ -57,6 +57,16 @@ router.get('/empresas', async (req, res, next) => {
     }
 });
 
+// GET /usuarios - Listado global de usuarios (v1.28.9)
+router.get('/usuarios', async (req, res) => {
+    try {
+        const usuarios = await authRepository.obtenerUsuariosGlobal();
+        res.json(usuarios);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // POST /changePlan - Cambio dinámico de plan y propagación (v1.28.2-apply)
 router.post('/changePlan', async (req, res) => {
     try {
@@ -103,8 +113,8 @@ router.post('/changePlan', async (req, res) => {
 router.post('/deleteEmpresas', async (req, res) => {
     try {
         const { empresaIds } = req.body;
-        if (!empresaIds || !Array.isArray(empresaIds)) {
-            return res.status(400).json({ error: 'Se requiere un array de empresaIds' });
+        if (!empresaIds || !Array.isArray(empresaIds) || empresaIds.length === 0) {
+            return res.status(400).json({ error: 'No se enviaron IDs válidos' });
         }
 
         const backupId = await authRepository.backupEmpresas(empresaIds, req.user.email);
@@ -148,8 +158,8 @@ router.post('/rollbackEmpresas', async (req, res) => {
 router.post('/deleteUsuarios', async (req, res) => {
     try {
         const { usuarioIds } = req.body;
-        if (!usuarioIds || !Array.isArray(usuarioIds)) {
-            return res.status(400).json({ error: 'Se requiere un array de usuarioIds' });
+        if (!usuarioIds || !Array.isArray(usuarioIds) || usuarioIds.length === 0) {
+            return res.status(400).json({ error: 'No se enviaron IDs válidos' });
         }
 
         const backupId = await authRepository.backupUsuarios(usuarioIds, req.user.email);

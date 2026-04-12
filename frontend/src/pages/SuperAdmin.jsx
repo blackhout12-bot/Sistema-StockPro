@@ -17,6 +17,8 @@ import {
   Square
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import EmpresaTable from './EmpresaTable';
+import UsuarioTable from './UsuarioTable';
 
 /**
  * SuperAdmin Global Panel
@@ -30,9 +32,12 @@ const SuperAdmin = () => {
   const [error, setError] = useState(null);
   const [updating, setUpdating] = useState(false);
   
-  // v1.28.7 - Estados de selección y rollback
-  const [selectedIds, setSelectedIds] = useState([]);
+   // v1.28.7 - Estados de selección y rollback
+  const [empresasSeleccionadas, setEmpresasSeleccionadas] = useState([]);
+  const [usuariosSeleccionadas, setUsuariosSeleccionadas] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
   const [lastBackupId, setLastBackupId] = useState(null);
+  const [view, setView] = useState('empresas'); // 'empresas' | 'usuarios'
 
   useEffect(() => {
     if (!isSuperAdmin && !loading) {
@@ -63,8 +68,18 @@ const SuperAdmin = () => {
     }
   };
 
+  const fetchUsuarios = async () => {
+    try {
+      const res = await api.get('/superadmin/usuarios'); // Asumiendo este endpoint existe o se debe crear
+      setUsuarios(res.data);
+    } catch (err) {
+      console.error('Error fetching global users:', err);
+    }
+  };
+
   useEffect(() => {
     fetchEmpresas();
+    fetchUsuarios();
   }, []);
 
   const handleChangePlan = async (empresaId, nuevoPlanId) => {
@@ -111,19 +126,41 @@ const SuperAdmin = () => {
     }
   };
 
-  const handleDeleteBulk = async () => {
-    if (selectedIds.length === 0) return;
-    if (!window.confirm(`¿Estás seguro de eliminar ${selectedIds.length} empresas? Se realizará un backup automático.`)) return;
+  const handleDeleteSelectedEmpresas = async (ids) => {
+    if (!ids || ids.length === 0) {
+      toast.error('No seleccionaste ninguna empresa');
+      return;
+    }
+    if (!window.confirm(`¿Estás seguro de eliminar ${ids.length} empresas? Se realizará un backup automático.`)) return;
 
     try {
       setUpdating(true);
-      const res = await api.post('/superadmin/deleteEmpresas', { empresaIds: selectedIds });
-      toast.success(`${selectedIds.length} empresas eliminadas correctamente.`);
+      const res = await api.post('/superadmin/deleteEmpresas', { empresaIds: ids });
+      toast.success(`Empresas eliminadas: ${res.data.deleted.join(', ')}`);
       setLastBackupId(res.data.backupId);
-      setSelectedIds([]);
       fetchEmpresas();
     } catch (err) {
       toast.error('Error al realizar la eliminación masiva.');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleDeleteSelectedUsuarios = async (ids) => {
+    if (!ids || ids.length === 0) {
+      toast.error('No seleccionaste ningún usuario');
+      return;
+    }
+    if (!window.confirm(`¿Estás seguro de eliminar ${ids.length} usuarios? Se realizará un backup automático.`)) return;
+
+    try {
+      setUpdating(true);
+      const res = await api.post('/superadmin/deleteUsuarios', { usuarioIds: ids });
+      toast.success(`Usuarios eliminados: ${res.data.deleted.join(', ')}`);
+      setLastBackupId(res.data.backupId);
+      fetchUsuarios();
+    } catch (err) {
+      toast.error('Error al realizar la eliminación de usuarios.');
     } finally {
       setUpdating(false);
     }
@@ -192,33 +229,6 @@ const SuperAdmin = () => {
         </div>
       </div>
 
-      {/* Action Bar para Selección Masiva */}
-      {selectedIds.length > 0 && (
-        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-8 py-4 rounded-[2.5rem] shadow-2xl flex items-center gap-8 animate-in slide-in-from-bottom-10 duration-300 border border-slate-700/50 backdrop-blur-xl">
-           <div className="flex items-center gap-3">
-             <div className="bg-indigo-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">{selectedIds.length}</div>
-             <p className="text-sm font-bold text-slate-300">Empresas seleccionadas</p>
-           </div>
-           <div className="h-4 w-[1px] bg-slate-700" />
-           <div className="flex items-center gap-4">
-              <button 
-                onClick={handleSelectAll}
-                className="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors"
-              >
-                {selectedIds.length === empresas.length ? 'Deseleccionar todo' : 'Seleccionar todo'}
-              </button>
-              <button 
-                onClick={handleDeleteBulk}
-                disabled={updating}
-                className="flex items-center gap-2 bg-red-500 hover:bg-red-600 px-6 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-red-900/20 active:scale-95"
-              >
-                <Trash2 className="w-4 h-4" />
-                Eliminar Permanente
-              </button>
-           </div>
-        </div>
-      )}
-
       {error ? (
         <div className="bg-red-50 border-2 border-red-100 p-6 rounded-3xl flex items-center gap-4 text-red-800 shadow-sm">
           <div className="p-3 bg-red-100 rounded-2xl">
@@ -230,80 +240,35 @@ const SuperAdmin = () => {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {empresas.map(empresa => (
-            <div key={empresa.id} className="bg-white rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden group">
-              <div className="p-6 border-b border-slate-100 bg-slate-50/30 group-hover:bg-indigo-50/20 transition-colors">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center gap-4">
-                    <button 
-                      onClick={() => toggleSelection(empresa.id)}
-                      className={`p-2.5 rounded-2xl border-2 transition-all ${selectedIds.includes(empresa.id) ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white border-slate-100 text-slate-300 hover:border-indigo-200'}`}
-                    >
-                      {selectedIds.includes(empresa.id) ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
-                    </button>
-                    <div className="p-3 bg-white rounded-2xl border border-slate-100 shadow-sm group-hover:scale-110 transition-transform">
-                      <Building2 className="w-6 h-6 text-slate-700" />
-                    </div>
-                    <div>
-                      <h3 className="font-extrabold text-slate-800 leading-tight text-lg">{empresa.nombre}</h3>
-                      <p className="text-[11px] text-slate-400 font-black uppercase tracking-widest">{empresa.documento_identidad}</p>
-                    </div>
-                  </div>
-                  <div className="bg-green-50 text-green-600 text-[9px] px-2.5 py-1 rounded-full font-black uppercase tracking-widest border border-green-100 ring-2 ring-white">
-                    Activo
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-7">
-                <div className="mb-5">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3 ml-1">Plan de Suscripción</span>
-                  <div className="flex items-center gap-3 text-indigo-700 font-bold bg-indigo-50/50 px-4 py-3 rounded-2xl border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 group-hover:shadow-lg group-hover:shadow-indigo-100 mb-4">
-                    <CheckCircle2 className="w-5 h-5" />
-                    <span className="text-base">{empresa.plan_nombre}</span>
-                  </div>
-
-                  {empresa.planDescripcion && (
-                    <p className="text-sm text-slate-600 mb-4 px-2 italic border-l-2 border-indigo-200">
-                      {empresa.planDescripcion}
-                    </p>
-                  )}
-                  
-                  {empresa.feature_toggles && (
-                    <div className="mb-4 pt-2 border-t border-slate-100">
-                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3 pl-1">Módulos Habilitados</span>
-                       <ul className="text-xs text-slate-600 font-medium flex flex-wrap gap-2">
-                         {Array.isArray(empresa.feature_toggles) ? empresa.feature_toggles.map((mod, idx) => (
-                           <li key={idx} className="bg-slate-100 px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-sm flex items-center gap-2 transition-transform hover:scale-105">
-                             <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full shadow-sm"></span>
-                             {mod}
-                           </li>
-                         )) : null}
-                       </ul>
-                    </div>
-                  )}
-                </div>
-
-                <div className="relative">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3 ml-1">Asignar Nuevo Nivel</span>
-                  <select 
-                    className="w-full bg-slate-50 border-2 border-slate-100 p-4 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-indigo-100 focus:border-indigo-300 transition-all outline-none appearance-none cursor-pointer pr-10 hover:bg-white"
-                    value={empresa.plan_id}
-                    onChange={(e) => handleChangePlan(empresa.id, parseInt(e.target.value))}
-                    disabled={updating}
-                  >
-                    {planesDisponibles.map(plan => (
-                      <option key={plan.id} value={plan.id}>{plan.nombre}</option>
-                    ))}
-                  </select>
-                  <div className="absolute right-4 bottom-4 pointer-events-none text-slate-400">
-                    <LayoutGrid className="w-4 h-4" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="space-y-8">
+           <div className="flex items-center gap-4 mb-2">
+              <button 
+                onClick={() => setView('empresas')}
+                className={`px-6 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${view === 'empresas' ? 'bg-indigo-600 text-white shadow-lg' : 'bg-white text-slate-400 hover:text-indigo-600 border border-slate-200'}`}
+              >
+                Empresas
+              </button>
+              <button 
+                onClick={() => setView('usuarios')}
+                className={`px-6 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${view === 'usuarios' ? 'bg-indigo-600 text-white shadow-lg' : 'bg-white text-slate-400 hover:text-indigo-600 border border-slate-200'}`}
+              >
+                Usuarios Globales
+              </button>
+           </div>
+           
+           {view === 'empresas' ? (
+             <EmpresaTable 
+                empresas={empresas} 
+                onDeleteSelected={handleDeleteSelectedEmpresas} 
+                updating={updating}
+             />
+           ) : (
+             <UsuarioTable 
+                usuarios={usuarios} 
+                onDeleteSelected={handleDeleteSelectedUsuarios} 
+                updating={updating}
+             />
+           )}
         </div>
       )}
     </div>
