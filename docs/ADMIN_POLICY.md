@@ -5,4 +5,10 @@
 *   **Propagación en Frontend**: Los usuarios de empresa verán el nuevo plan en su próxima request (o tras refrescar voluntariamente la vista), sin necesidad de logout forzado, gracias a la invalidación de la sesión en caché y al refresco dinámico de `featureToggles`.
 
 ---
-*Documentación aplicada para la fase v1.28.2-superadmin-panel-restore-apply.*
+## Evidencia de Validación (v1.28.2-tests)
+
+Se han implementado y ejecutado exitosamente los siguientes conjuntos de pruebas:
+*   **E2E Backend**: Validación de login superadmin, bypass de seguridad en middleware `tenantContext` y `RBAC`, y propagación de cambios de plan en BD.
+*   **UI Frontend**: Validación de la reactividad del componente `SuperAdmin`, asegurando que `moduleRegistry` y `AuthContext` se actualicen instantáneamente al modificar una licencia.
+
+*Documentación aplicada para la fase v1.28.2-superadmin-panel-restore-tests.*

@@ -22,6 +22,12 @@ const checkPermiso = (recurso, accion) => {
             }
 
             const rolUsuario = req.user.rol; // 'admin' o 'vendedor'
+            
+            // BYPASS INMEDIATO: SuperAdmin tiene acceso total (v1.28.2)
+            if (rolUsuario === 'superadmin' || req.user.role === 'superadmin') {
+                return next();
+            }
+
             const empresa_id = req.tenant_id || req.user.empresa_id;
 
             // 2. Consultar la Base de Datos para verificar acceso real en la tabla Roles

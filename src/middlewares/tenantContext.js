@@ -15,7 +15,7 @@ async function tenantContext(req, res, next) {
     const { user } = req;
 
     // Bypass inmediato para superadmin (v1.28.2-superadmin-panel-restore-apply)
-    if (user && user.role === 'superadmin') {
+    if (user && (user.role === 'superadmin' || user.rol === 'superadmin')) {
         req.tenant_id = null; // Mantenemos para compatibilidad con el resto del archivo
         req.empresaId = null;
         req.planId = 'FULL';
