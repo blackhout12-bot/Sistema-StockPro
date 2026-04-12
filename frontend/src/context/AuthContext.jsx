@@ -14,7 +14,8 @@ export function AuthProvider({ children }) {
         try {
             const u = JSON.parse(localStorage.getItem('user'));
             // Anti-Corrupción: Forzar re-login si el usuario en caché corresponde a la versión pre Multi-Tenant
-            if (u && (!u.empresa_id || !u.rol)) {
+            // v1.29.3 - Permitir que superadmin no tenga empresa_id (contexto global)
+            if (u && (!u.empresa_id && u.rol !== 'superadmin')) {
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
                 return null;

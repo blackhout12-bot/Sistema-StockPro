@@ -8,7 +8,13 @@ async function obtenerUsuarioPorEmail(email) {
   const result = await pool.request()
     .input('email', sql.VarChar, email)
     .query('SELECT * FROM Usuarios WHERE email = @email');
-  return result.recordset[0] || null;
+  
+  const user = result.recordset[0] || null;
+  if (user && (user.rol === 'superadmin' || user.role === 'superadmin')) {
+      user.empresa_id = null; // Purificación v1.29.3
+      user.panel = 'global';
+  }
+  return user;
 }
 
 /**

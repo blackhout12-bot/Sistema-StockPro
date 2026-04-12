@@ -290,19 +290,26 @@ const moduleRegistry = [
     breadcrumb: 'Historial de Acciones Globales'
   },
   {
-    lazy: () => import('../pages/SuperAdmin'),
-    breadcrumb: 'Administración Global'
+    id: 'superadmin-dashboard',
+    label: 'Dashboard Global',
+    path: '/superadmin',
+    icon: 'LayoutDashboard',
+    section: 'administracion',
+    requiredToggle: null,
+    requiredRoles: ['superadmin'],
+    lazy: () => import('../pages/SuperAdminDashboard'),
+    breadcrumb: 'Métricas Globales de Plataforma'
   },
   {
     id: 'superadmin-gestion',
-    label: 'Gestión Global',
+    label: 'Gestión Operativa',
     path: '/superadmin/gestion',
     icon: 'Settings',
     section: 'administracion',
     requiredToggle: null,
     requiredRoles: ['superadmin'],
     lazy: () => import('../pages/SuperAdminGestion'),
-    breadcrumb: 'Gestión Operativa de Plataforma'
+    breadcrumb: 'Gestión de Entidades y Licencias'
   }
 ];
 

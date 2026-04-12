@@ -98,7 +98,7 @@ function NavSection({ sectionKey, mods, currentPath, defaultOpen = true, isMobil
 
 // ── Layout Principal ───────────────────────────────────────────
 const MainLayout = () => {
-  const { user, logout, misEmpresas, switchEmpresa, featureToggles, empresaConfig } = useAuth();
+  const { user, isSuperAdmin, logout, misEmpresas, switchEmpresa, featureToggles, empresaConfig } = useAuth();
   const { sucursalActiva, sucursales, selectSucursal } = useBranch();
   const [isMobileOpen, setMobileOpen] = useState(false);
   const [isMfaModalOpen, setIsMfaModalOpen] = useState(false);
@@ -251,7 +251,8 @@ const MainLayout = () => {
             
             <div className="h-4 w-px bg-slate-200 mx-2" />
 
-            {misEmpresas?.length > 1 && (
+            {/* Selectores de Contexto - Ocultos para SuperAdmin v1.29.3 */}
+            {!isSuperAdmin && misEmpresas?.length > 1 && (
               <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md border border-slate-100 hover:border-brand-300 transition-colors">
                 <Building2 size={12} className="text-brand-base" />
                 <select
@@ -266,7 +267,7 @@ const MainLayout = () => {
               </div>
             )}
 
-            {sucursales.length > 1 && (
+            {!isSuperAdmin && sucursales.length > 1 && (
               <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md border border-slate-100 hover:border-brand-300 transition-colors">
                 <Store size={12} className="text-brand-base" />
                 <select
@@ -287,7 +288,7 @@ const MainLayout = () => {
 
           {/* Right side */}
           <div className="ml-auto flex items-center gap-1">
-            <ContextSelector />
+            {!isSuperAdmin && <ContextSelector />}
             <div className="h-6 w-px bg-slate-200 mx-2 hidden sm:block"></div>
             <OmniSearch />
             <TopBarNotifications />

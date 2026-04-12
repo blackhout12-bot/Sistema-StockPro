@@ -38,10 +38,15 @@ Se han implementado y ejecutado exitosamente los siguientes conjuntos de pruebas
 *   "Los cambios se propagan en tiempo real a admins y usuarios de la empresa."
 
 ---
-## Dashboard vs Gestión Operativa (v1.29.2-superadmin-total-fix)
+## Pureza del Rol SuperAdmin (v1.29.3-superadmin-role-fix)
 
-*   "El superadmin utiliza el Dashboard principal para visualizar métricas, gráficos de planes y acciones recientes (solo lectura)."
-*   "La gestión operativa (CRUD, Cambios de Plan, Rollback) se realiza exclusivamente desde el Panel de Gestión."
-*   "Cada acción administrativa queda registrada en Auditoría con detalle del payload original."
-*   "El rollback restaura datos desde la tabla Backup_Eliminaciones de forma atómica."
-*   "Cada plan muestra explícitamente su nombre, descripción y lista de módulos activos para transparencia del administrador."
+*   "El superadmin no pertenece a ninguna empresa (empresa_id = NULL/Global)."
+*   "El superadmin tiene acceso global a todas las empresas, usuarios, planes y auditoría sin restricciones de tenant."
+*   "El dashboard del superadmin muestra exclusivamente métricas globales de plataforma, nunca métricas de una sola empresa."
+*   "El panel de gestión del superadmin permite eliminar empresas y usuarios, cambiar planes y ejecutar rollback de forma centralizada."
+
+---
+## Dashboard vs Gestión Operativa (v1.29.2)
+
+*   "El superadmin utiliza el Dashboard Global para visualizar métricas agregadas."
+*   "La gestión operativa se realiza exclusivamente desde el Panel de Gestión Operativa."

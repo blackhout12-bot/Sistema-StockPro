@@ -72,6 +72,16 @@ async function login(email, password) {
   }
 
   console.log('[DEBUG_LOGIN] Membresias found:', JSON.stringify(membresias));
+
+  // v1.29.3 - PUREZA DEL ROL SUPERADMIN
+  if (usuario.rol === 'superadmin') {
+      membresias = [{ 
+          empresa_id: null, 
+          rol: 'superadmin', 
+          empresa_nombre: 'SISTEMA GLOBAL' 
+      }];
+  }
+
   // Si no hay membresías en la tabla relacional, usamos el fallback clásico (empleado normal)
   if (!membresias || membresias.length === 0) {
     if (usuario.empresa_id) {
