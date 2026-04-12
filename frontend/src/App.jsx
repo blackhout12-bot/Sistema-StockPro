@@ -9,6 +9,7 @@ import EmpresaSelector from './components/EmpresaSelector';
 import LoginForm from './LoginForm';
 import MainLayout from './layouts/MainLayout';
 import ResetPassword from './pages/ResetPassword';
+import AuditoriaDashboard from './pages/AuditoriaDashboard';
 
 import moduleRegistry, { getAccessibleModules } from './config/moduleRegistry';
 

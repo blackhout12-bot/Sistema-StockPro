@@ -279,6 +279,17 @@ const moduleRegistry = [
     breadcrumb: 'Programa de Fidelización'
   },
   {
+    id: 'auditoria-global',
+    label: 'Auditoría Global',
+    path: '/superadmin/auditoria',
+    icon: 'Activity',
+    section: 'administracion',
+    requiredToggle: null,
+    requiredRoles: ['superadmin'],
+    lazy: () => import('../pages/AuditoriaDashboard'),
+    breadcrumb: 'Historial de Acciones Globales'
+  },
+  {
     id: 'superadmin',
     label: 'Panel SuperAdmin',
     path: '/superadmin',

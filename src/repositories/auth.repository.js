@@ -359,6 +359,149 @@ async function generarFeatureToggles(plan_id) {
   }
 }
 
+// ─── SuperAdmin Enhancements v1.28.7 ────────────────────────────────────────
+
+async function backupEmpresas(empresaIds, usuario_ejecutor) {
+    const pool = await connectDB();
+    const result = await pool.request()
+        .query(`SELECT * FROM Empresa WHERE id IN (${empresaIds.join(',')})`);
+    
+    const backupResult = await pool.request()
+        .input('tipo', 'empresa')
+        .input('data_json', JSON.stringify(result.recordset))
+        .input('usuario', usuario_ejecutor)
+        .query(`
+            INSERT INTO Backup_Eliminaciones (tipo, data_json, usuario_ejecutor)
+            OUTPUT INSERTED.id
+            VALUES (@tipo, @data_json, @usuario)
+        `);
+    return backupResult.recordset[0].id;
+}
+
+async function eliminarEmpresas(empresaIds) {
+    const pool = await connectDB();
+    const tx = new sql.Transaction(pool);
+    await tx.begin();
+    try {
+        const ids = empresaIds.join(',');
+        // 1. Limpiar dependencias críticas (ej. UsuarioEmpresas)
+        await new sql.Request(tx).query(`DELETE FROM UsuarioEmpresas WHERE empresa_id IN (${ids})`);
+        // 2. Eliminar empresa
+        await new sql.Request(tx).query(`DELETE FROM Empresa WHERE id IN (${ids})`);
+        await tx.commit();
+        return true;
+    } catch (err) {
+        await tx.rollback();
+        throw err;
+    }
+}
+
+async function restaurarEmpresas(backupId) {
+    const pool = await connectDB();
+    const backup = await pool.request()
+        .input('id', backupId)
+        .query('SELECT data_json FROM Backup_Eliminaciones WHERE id = @id');
+    
+    if (!backup.recordset[0]) throw new Error('Backup no encontrado');
+    
+    const empresas = JSON.parse(backup.recordset[0].data_json);
+    for (const e of empresas) {
+        await pool.request()
+            .input('id', e.id)
+            .input('nombre', e.nombre)
+            .input('doc', e.documento_identidad)
+            .input('plan', e.plan_id)
+            .query(`
+                SET IDENTITY_INSERT Empresa ON;
+                INSERT INTO Empresa (id, nombre, documento_identidad, plan_id)
+                VALUES (@id, @nombre, @doc, @plan);
+                SET IDENTITY_INSERT Empresa OFF;
+            `);
+    }
+}
+
+async function backupUsuarios(usuarioIds, usuario_ejecutor) {
+    const pool = await connectDB();
+    const result = await pool.request()
+        .query(`SELECT * FROM Usuarios WHERE id IN (${usuarioIds.join(',')})`);
+    
+    const backupResult = await pool.request()
+        .input('tipo', 'usuario')
+        .input('data_json', JSON.stringify(result.recordset))
+        .input('usuario', usuario_ejecutor)
+        .query(`
+            INSERT INTO Backup_Eliminaciones (tipo, data_json, usuario_ejecutor)
+            OUTPUT INSERTED.id
+            VALUES (@tipo, @data_json, @usuario)
+        `);
+    return backupResult.recordset[0].id;
+}
+
+async function eliminarUsuarios(usuarioIds) {
+    const pool = await connectDB();
+    const tx = new sql.Transaction(pool);
+    await tx.begin();
+    try {
+        const ids = usuarioIds.join(',');
+        await new sql.Request(tx).query(`DELETE FROM UsuarioEmpresas WHERE usuario_id IN (${ids})`);
+        await new sql.Request(tx).query(`DELETE FROM Usuarios WHERE id IN (${ids})`);
+        await tx.commit();
+        return true;
+    } catch (err) {
+        await tx.rollback();
+        throw err;
+    }
+}
+
+async function restaurarUsuarios(backupId) {
+    const pool = await connectDB();
+    const backup = await pool.request()
+        .input('id', backupId)
+        .query('SELECT data_json FROM Backup_Eliminaciones WHERE id = @id');
+    
+    if (!backup.recordset[0]) throw new Error('Backup no encontrado');
+    
+    const usuarios = JSON.parse(backup.recordset[0].data_json);
+    for (const u of usuarios) {
+        await pool.request()
+            .input('id', u.id)
+            .input('nombre', u.nombre)
+            .input('email', u.email)
+            .input('pass', u.password_hash)
+            .input('rol', u.rol)
+            .input('eid', u.empresa_id)
+            .query(`
+                SET IDENTITY_INSERT Usuarios ON;
+                INSERT INTO Usuarios (id, nombre, email, password_hash, rol, empresa_id)
+                VALUES (@id, @nombre, @email, @pass, @rol, @eid);
+                SET IDENTITY_INSERT Usuarios OFF;
+            `);
+    }
+}
+
+async function obtenerLogsAuditoria({ tipo, fechaDesde, fechaHasta }) {
+    const pool = await connectDB();
+    let query = 'SELECT * FROM Auditoria WHERE 1=1';
+    const request = pool.request();
+
+    if (tipo) {
+        query += ' AND accion LIKE @tipo';
+        request.input('tipo', `%${tipo}%`);
+    }
+    if (fechaDesde) {
+        query += ' AND timestamp >= @desde';
+        request.input('desde', fechaDesde);
+    }
+    if (fechaHasta) {
+        query += ' AND timestamp <= @hasta';
+        request.input('hasta', fechaHasta);
+    }
+
+    query += ' ORDER BY timestamp DESC';
+    const result = await request.query(query);
+    return result.recordset;
+}
+
 module.exports = {
   obtenerUsuarioPorEmail,
   crearUsuario,
@@ -376,5 +519,12 @@ module.exports = {
   actualizarPlanEmpresa,
   obtenerNombrePlan,
   obtenerDescripcionPlan,
-  generarFeatureToggles
+  generarFeatureToggles,
+  backupEmpresas,
+  eliminarEmpresas,
+  restaurarEmpresas,
+  backupUsuarios,
+  eliminarUsuarios,
+  restaurarUsuarios,
+  obtenerLogsAuditoria
 };

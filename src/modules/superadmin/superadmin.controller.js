@@ -1,11 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const authRepository = require('../../repositories/auth.repository');
+const auditRepository = require('../../repositories/audit.repository');
 const { deleteCache } = require('../../config/redis');
 
 /**
  * SuperAdmin Controller
  * Restauración del panel global v1.28.2
+ * Ampliación v1.28.7 - Administración Total
  */
 
 // Middleware de seguridad local (Fuerza bypass solo para este rol)
@@ -91,6 +93,108 @@ router.post('/changePlan', async (req, res) => {
             feature_toggles: modulos_activos.length > 0 ? modulos_activos : Object.keys(toggles),
             _raw_toggles: toggles
         });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// v1.28.7 - Administración Total
+
+router.post('/deleteEmpresas', async (req, res) => {
+    try {
+        const { empresaIds } = req.body;
+        if (!empresaIds || !Array.isArray(empresaIds)) {
+            return res.status(400).json({ error: 'Se requiere un array de empresaIds' });
+        }
+
+        const backupId = await authRepository.backupEmpresas(empresaIds, req.user.email);
+        await authRepository.eliminarEmpresas(empresaIds);
+        
+        await auditRepository.logAction({
+            usuario_id: req.user.id,
+            accion: 'deleteEmpresa',
+            entidad: 'Empresa',
+            entidad_id: null,
+            payload: { empresaIds, backupId },
+            ip: req.ip
+        });
+
+        res.json({ success: true, deleted: empresaIds, backupId });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.post('/rollbackEmpresas', async (req, res) => {
+    try {
+        const { backupId } = req.body;
+        await authRepository.restaurarEmpresas(backupId);
+        
+        await auditRepository.logAction({
+            usuario_id: req.user.id,
+            accion: 'rollbackEmpresa',
+            entidad: 'Empresa',
+            entidad_id: null,
+            payload: { backupId },
+            ip: req.ip
+        });
+
+        res.json({ success: true, restored: backupId });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.post('/deleteUsuarios', async (req, res) => {
+    try {
+        const { usuarioIds } = req.body;
+        if (!usuarioIds || !Array.isArray(usuarioIds)) {
+            return res.status(400).json({ error: 'Se requiere un array de usuarioIds' });
+        }
+
+        const backupId = await authRepository.backupUsuarios(usuarioIds, req.user.email);
+        await authRepository.eliminarUsuarios(usuarioIds);
+        
+        await auditRepository.logAction({
+            usuario_id: req.user.id,
+            accion: 'deleteUsuario',
+            entidad: 'Usuarios',
+            entidad_id: null,
+            payload: { usuarioIds, backupId },
+            ip: req.ip
+        });
+
+        res.json({ success: true, deleted: usuarioIds, backupId });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.post('/rollbackUsuarios', async (req, res) => {
+    try {
+        const { backupId } = req.body;
+        await authRepository.restaurarUsuarios(backupId);
+        
+        await auditRepository.logAction({
+            usuario_id: req.user.id,
+            accion: 'rollbackUsuario',
+            entidad: 'Usuarios',
+            entidad_id: null,
+            payload: { backupId },
+            ip: req.ip
+        });
+
+        res.json({ success: true, restored: backupId });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.get('/auditoria/logs', async (req, res) => {
+    try {
+        const { tipo, fechaDesde, fechaHasta } = req.query;
+        const logs = await authRepository.obtenerLogsAuditoria({ tipo, fechaDesde, fechaHasta });
+        res.json(logs);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

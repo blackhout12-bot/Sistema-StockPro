@@ -36,3 +36,11 @@ Se han implementado y ejecutado exitosamente los siguientes conjuntos de pruebas
 *   "Cada plan tiene nombre, descripción y módulos asociados."
 *   "El superadmin puede ver y modificar planes desde su panel global."
 *   "Los cambios se propagan en tiempo real a admins y usuarios de la empresa."
+
+---
+## Administración Total y Rollback (v1.28.7-superadmin-panel-total)
+
+*   "El superadmin puede eliminar empresas y usuarios de forma masiva o individual."
+*   "Cada acción queda registrada en Auditoría para trazabilidad."
+*   "Rollback restaura datos desde tabla Backup_Eliminaciones."
+*   "El dashboard de auditoría permite visualizar acciones en tiempo real con filtros y gráficos."

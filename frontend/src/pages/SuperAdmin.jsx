@@ -9,19 +9,30 @@ import {
   ShieldCheck, 
   CheckCircle2,
   AlertCircle,
-  LayoutGrid
+  LayoutGrid,
+  Trash2,
+  Undo2,
+  History,
+  CheckSquare,
+  Square
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * SuperAdmin Global Panel
  * Implementación Fase v1.28.2-superadmin-panel-restore
  */
 const SuperAdmin = () => {
+  const navigate = useNavigate();
   const { updateFeatureToggles, isSuperAdmin, setPlan, setPlanDescripcion } = useAuth();
   const [empresas, setEmpresas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [updating, setUpdating] = useState(false);
+  
+  // v1.28.7 - Estados de selección y rollback
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [lastBackupId, setLastBackupId] = useState(null);
 
   useEffect(() => {
     if (!isSuperAdmin && !loading) {
@@ -86,6 +97,53 @@ const SuperAdmin = () => {
     }
   };
 
+  const toggleSelection = (id) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedIds.length === empresas.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(empresas.map(e => e.id));
+    }
+  };
+
+  const handleDeleteBulk = async () => {
+    if (selectedIds.length === 0) return;
+    if (!window.confirm(`¿Estás seguro de eliminar ${selectedIds.length} empresas? Se realizará un backup automático.`)) return;
+
+    try {
+      setUpdating(true);
+      const res = await api.post('/superadmin/deleteEmpresas', { empresaIds: selectedIds });
+      toast.success(`${selectedIds.length} empresas eliminadas correctamente.`);
+      setLastBackupId(res.data.backupId);
+      setSelectedIds([]);
+      fetchEmpresas();
+    } catch (err) {
+      toast.error('Error al realizar la eliminación masiva.');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleRollback = async () => {
+    if (!lastBackupId) return;
+    try {
+      setUpdating(true);
+      await api.post('/superadmin/rollbackEmpresas', { backupId: lastBackupId });
+      toast.success('¡Rollback exitoso! Las empresas han sido restauradas.');
+      setLastBackupId(null);
+      fetchEmpresas();
+    } catch (err) {
+      toast.error('Error al restaurar el backup.');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[400px] animate-pulse">
       <RefreshCw className="w-12 h-12 animate-spin text-indigo-500 mb-4" />
@@ -109,6 +167,22 @@ const SuperAdmin = () => {
           </div>
         </div>
         <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
+           {lastBackupId && (
+             <button 
+               onClick={handleRollback}
+               className="flex items-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl shadow-lg shadow-amber-200 transition-all font-bold text-xs"
+             >
+               <Undo2 className="w-4 h-4" />
+               DESHACER ÚLTIMO CAMBIO
+             </button>
+           )}
+           <button 
+              onClick={() => navigate('/superadmin/auditoria')}
+              className="p-2.5 bg-white rounded-xl shadow-sm text-slate-600 hover:text-indigo-600 border border-slate-200 transition-all"
+              title="Dashboard de Auditoría"
+           >
+              <History className="w-5 h-5" />
+           </button>
            <button className="p-2.5 bg-white rounded-xl shadow-sm text-indigo-600">
               <LayoutGrid className="w-5 h-5" />
            </button>
@@ -117,6 +191,33 @@ const SuperAdmin = () => {
            </button>
         </div>
       </div>
+
+      {/* Action Bar para Selección Masiva */}
+      {selectedIds.length > 0 && (
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-8 py-4 rounded-[2.5rem] shadow-2xl flex items-center gap-8 animate-in slide-in-from-bottom-10 duration-300 border border-slate-700/50 backdrop-blur-xl">
+           <div className="flex items-center gap-3">
+             <div className="bg-indigo-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">{selectedIds.length}</div>
+             <p className="text-sm font-bold text-slate-300">Empresas seleccionadas</p>
+           </div>
+           <div className="h-4 w-[1px] bg-slate-700" />
+           <div className="flex items-center gap-4">
+              <button 
+                onClick={handleSelectAll}
+                className="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors"
+              >
+                {selectedIds.length === empresas.length ? 'Deseleccionar todo' : 'Seleccionar todo'}
+              </button>
+              <button 
+                onClick={handleDeleteBulk}
+                disabled={updating}
+                className="flex items-center gap-2 bg-red-500 hover:bg-red-600 px-6 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-red-900/20 active:scale-95"
+              >
+                <Trash2 className="w-4 h-4" />
+                Eliminar Permanente
+              </button>
+           </div>
+        </div>
+      )}
 
       {error ? (
         <div className="bg-red-50 border-2 border-red-100 p-6 rounded-3xl flex items-center gap-4 text-red-800 shadow-sm">
@@ -135,6 +236,12 @@ const SuperAdmin = () => {
               <div className="p-6 border-b border-slate-100 bg-slate-50/30 group-hover:bg-indigo-50/20 transition-colors">
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-4">
+                    <button 
+                      onClick={() => toggleSelection(empresa.id)}
+                      className={`p-2.5 rounded-2xl border-2 transition-all ${selectedIds.includes(empresa.id) ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white border-slate-100 text-slate-300 hover:border-indigo-200'}`}
+                    >
+                      {selectedIds.includes(empresa.id) ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
+                    </button>
                     <div className="p-3 bg-white rounded-2xl border border-slate-100 shadow-sm group-hover:scale-110 transition-transform">
                       <Building2 className="w-6 h-6 text-slate-700" />
                     </div>

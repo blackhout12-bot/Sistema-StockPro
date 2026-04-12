@@ -7,10 +7,13 @@ class AuditRepository {
         const trace_id = span ? span.spanContext().traceId : null;
         
         const vNuevo = valor_nuevo || payload;
+        // Fallback for global actions (SuperAdmin) where empresa_id might be missing
+        const eid = empresa_id || 1; 
+
         try {
             const pool = await connectDB();
             await pool.request()
-                .input('empresa_id', empresa_id)
+                .input('empresa_id', eid)
                 .input('usuario_id', usuario_id)
                 .input('accion', accion)
                 .input('entidad', entidad)
