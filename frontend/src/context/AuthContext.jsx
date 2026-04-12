@@ -37,12 +37,20 @@ export function AuthProvider({ children }) {
         try { return JSON.parse(localStorage.getItem('misEmpresas')) || []; } catch { return []; }
     });
     // { usuario_id, empresas[] } — cuando el login devuelve requires_empresa_select
+    
+    const [isSuperAdmin, setIsSuperAdmin] = useState(() => {
+        try {
+            const u = JSON.parse(localStorage.getItem('user'));
+            return u?.panel === 'global' || u?.rol === 'superadmin';
+        } catch { return false; }
+    });
 
     // ── Acciones ──────────────────────────────────────────────────
     const _setSession = useCallback((jwtToken, userData) => {
         const userInfo = userData || jwtDecode(jwtToken);
         setToken(jwtToken);
         setUser(userInfo);
+        setIsSuperAdmin(userInfo.panel === 'global' || userInfo.rol === 'superadmin');
         localStorage.setItem('token', jwtToken);
         localStorage.setItem('user', JSON.stringify(userInfo));
     }, []);
@@ -155,6 +163,7 @@ export function AuthProvider({ children }) {
     const logout = useCallback(() => {
         setToken(null);
         setUser(null);
+        setIsSuperAdmin(false);
         setEmpresaSelector(null);
         setMisEmpresas([]);
         setFeatureToggles({});
@@ -215,6 +224,7 @@ export function AuthProvider({ children }) {
     const value = {
         token,
         user,
+        isSuperAdmin,
         featureToggles,
         empresaConfig,
         fetchConfiguracionGlobal,

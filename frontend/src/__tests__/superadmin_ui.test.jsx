@@ -30,9 +30,12 @@ vi.mock('react-hot-toast', () => ({
 
 const mockUpdateFeatureToggles = vi.fn();
 
-const renderComponent = () => {
+const renderComponent = (isSuperAdminValue = true) => {
   return render(
-    <AuthContext.Provider value={{ updateFeatureToggles: mockUpdateFeatureToggles }}>
+    <AuthContext.Provider value={{ 
+        updateFeatureToggles: mockUpdateFeatureToggles,
+        isSuperAdmin: isSuperAdminValue 
+    }}>
       <BrowserRouter>
         <SuperAdmin />
       </BrowserRouter>
@@ -101,13 +104,12 @@ describe('SuperAdmin UI Tests', () => {
     });
   });
 
-  it('debe mostrar un mensaje de error si el backend falla al cargar las empresas', async () => {
-    api.get.mockRejectedValue(new Error('Auth failed'));
-    
-    renderComponent();
+  it('debe mostrar un mensaje de error si el usuario no es superadmin', async () => {
+    // Rendereamos con isSuperAdmin = false
+    renderComponent(false);
 
     await waitFor(() => {
-      expect(screen.getByText(/Error al cargar la plataforma global/i)).toBeInTheDocument();
+      expect(screen.getByText(/Acceso denegado/i)).toBeInTheDocument();
     });
   });
 });

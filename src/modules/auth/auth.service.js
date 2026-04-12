@@ -103,11 +103,21 @@ async function login(email, password) {
   // Una sola empresa → token directo
   if (membresias.length === 1) {
     const { empresa_id, rol } = membresias[0];
+    const isSuperAdmin = rol === 'superadmin';
     const token = generarToken(buildTokenPayload(usuario, empresa_id, rol));
     logger.info({ userId: usuario.id, empresa_id, rol }, 'Login exitoso (empresa única)');
     return {
       token,
-      user: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, empresa_id, rol, onboarding_completed: !!usuario.onboarding_completed },
+      user: { 
+        id: usuario.id, 
+        nombre: usuario.nombre, 
+        email: usuario.email, 
+        empresa_id, 
+        rol, 
+        onboarding_completed: !!usuario.onboarding_completed,
+        panel: isSuperAdmin ? 'global' : null,
+        feature_toggles: isSuperAdmin ? ['*'] : null
+      },
     };
   }
 
@@ -567,10 +577,20 @@ async function loginMfa(usuario_id, tokenPin) {
 
   if (membresias.length === 1) {
     const { empresa_id, rol } = membresias[0];
+    const isSuperAdmin = rol === 'superadmin';
     const token = generarToken(buildTokenPayload(usuario, empresa_id, rol));
     return {
       token,
-      user: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, empresa_id, rol, onboarding_completed: !!usuario.onboarding_completed },
+      user: { 
+        id: usuario.id, 
+        nombre: usuario.nombre, 
+        email: usuario.email, 
+        empresa_id, 
+        rol, 
+        onboarding_completed: !!usuario.onboarding_completed,
+        panel: isSuperAdmin ? 'global' : null,
+        feature_toggles: isSuperAdmin ? ['*'] : null
+      },
     };
   }
 

@@ -12,3 +12,13 @@ Se han implementado y ejecutado exitosamente los siguientes conjuntos de pruebas
 *   **UI Frontend**: Validación de la reactividad del componente `SuperAdmin`, asegurando que `moduleRegistry` y `AuthContext` se actualicen instantáneamente al modificar una licencia.
 
 *Documentación aplicada para la fase v1.28.2-superadmin-panel-restore-tests.*
+
+---
+## Premisas Finales de Operación (v1.28.2-final)
+
+1.  **Bypass Estricto**: El superadmin bypasséa todas las validaciones de empresa y plan en el middleware `tenantContext.js`.
+2.  **Señalización Global**: El login del superadmin devuelve explícitamente el flag `panel: global`, activando el estado `isSuperAdmin` en el frontend.
+3.  **Propagación de Plan**: Cualquier cambio de plan realizado desde el panel global invalida la cache en Redis y regenera los `feature_toggles` inmediatamente.
+4.  **Experiencia sin Fricción**: Los administradores de las empresas afectadas heredarán el nuevo plan en su próxima petición o refresco visual, sin requerir re-autenticación.
+
+*Documentación final aplicada para la fase v1.28.2-superadmin-panel-restore-final.*

@@ -2,21 +2,22 @@ const request = require('supertest');
 const app = require('../../src/server');
 
 /**
- * v1.28.2-superadmin-panel-restore-tests
- * Validación E2E del bypass y propagación de planes.
+ * v1.28.2-superadmin-panel-restore-final
+ * Validación E2E del bypass, propagación de planes y flag global.
  */
 
 describe('SuperAdmin Panel Restore E2E Tests', () => {
 
-    test('Superadmin puede logearse y el sistema reconoce su rol global', async () => {
+    test('Superadmin puede logearse y el sistema reconoce su flag global', async () => {
         const res = await request(app)
             .post('/api/v1/auth/login')
             .send({ email: 'superadmin@tbgestion.local', password: 'SuperAdmin2026!' });
 
         expect(res.status).toBe(200);
-        // El login puede devolver token directamente o requerir selección si tiene varias empresas.
-        // Pero el superadmin suele logearse directo o al menos devolver el objeto user con rol.
+        expect(res.body.token).toBeDefined();
         expect(res.body.user.rol).toBe('superadmin');
+        expect(res.body.user.panel).toBe('global');
+        expect(res.body.user.feature_toggles).toContain('*');
     });
 
     test('Superadmin puede cambiar el plan de una empresa y regenerar toggles', async () => {

@@ -17,11 +17,17 @@ import {
  * Implementación Fase v1.28.2-superadmin-panel-restore
  */
 const SuperAdmin = () => {
-  const { updateFeatureToggles } = useAuth();
+  const { updateFeatureToggles, isSuperAdmin } = useAuth();
   const [empresas, setEmpresas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [updating, setUpdating] = useState(false);
+
+  useEffect(() => {
+    if (!isSuperAdmin && !loading) {
+       setError('Acceso denegado: Se requieren privilegios de administrador global.');
+    }
+  }, [isSuperAdmin, loading]);
 
   // Lista de planes disponibles (Sincronizada con la BD)
   const planesDisponibles = [
