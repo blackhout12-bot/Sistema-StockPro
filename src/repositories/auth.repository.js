@@ -426,8 +426,14 @@ async function restaurarEmpresas(backupId) {
             .input('plan', e.plan_id)
             .query(`
                 SET IDENTITY_INSERT Empresa ON;
-                INSERT INTO Empresa (id, nombre, documento_identidad, plan_id)
-                VALUES (@id, @nombre, @doc, @plan);
+                MERGE Empresa AS target
+                USING (VALUES (@id, @nombre, @doc, @plan)) AS source (id, nombre, documento_identidad, plan_id)
+                ON target.id = source.id
+                WHEN MATCHED THEN
+                    UPDATE SET nombre = source.nombre, documento_identidad = source.documento_identidad, plan_id = source.plan_id
+                WHEN NOT MATCHED THEN
+                    INSERT (id, nombre, documento_identidad, plan_id)
+                    VALUES (source.id, source.nombre, source.documento_identidad, source.plan_id);
                 SET IDENTITY_INSERT Empresa OFF;
             `);
     }
@@ -485,8 +491,14 @@ async function restaurarUsuarios(backupId) {
             .input('eid', u.empresa_id)
             .query(`
                 SET IDENTITY_INSERT Usuarios ON;
-                INSERT INTO Usuarios (id, nombre, email, password_hash, rol, empresa_id)
-                VALUES (@id, @nombre, @email, @pass, @rol, @eid);
+                MERGE Usuarios AS target
+                USING (VALUES (@id, @nombre, @email, @pass, @rol, @eid)) AS source (id, nombre, email, password_hash, rol, empresa_id)
+                ON target.id = source.id
+                WHEN MATCHED THEN
+                    UPDATE SET nombre = source.nombre, email = source.email, rol = source.rol, empresa_id = source.empresa_id
+                WHEN NOT MATCHED THEN
+                    INSERT (id, nombre, email, password_hash, rol, empresa_id)
+                    VALUES (source.id, source.nombre, source.email, source.password_hash, source.rol, source.empresa_id);
                 SET IDENTITY_INSERT Usuarios OFF;
             `);
     }
@@ -602,5 +614,7 @@ module.exports = {
   eliminarUsuarios,
   restaurarUsuarios,
   obtenerLogsAuditoria,
-  obtenerMetricasGlobales
+  obtenerMetricasGlobales,
+  obtenerBackups,
+  restaurarBackup
 };

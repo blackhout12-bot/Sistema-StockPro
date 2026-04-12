@@ -35,11 +35,15 @@ describe('SuperAdmin Total Administration E2E Tests', () => {
 
         const backupId = resEmp.body.backupId;
 
-        // 3. Rollback de la operación
+        // 3. Rollback de la operación unificada
         const rollbackRes = await request(app)
-            .post('/api/v1/superadmin/rollbackEmpresas')
+            .post('/api/v1/superadmin/rollback')
             .set('Authorization', `Bearer ${token}`)
             .send({ backupId });
+        
+        if (rollbackRes.status !== 200) {
+            console.error('Rollback falló:', rollbackRes.body);
+        }
         
         expect(rollbackRes.status).toBe(200);
         expect(rollbackRes.body.success).toBe(true);
