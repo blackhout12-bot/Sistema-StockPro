@@ -492,6 +492,33 @@ async function restaurarUsuarios(backupId) {
     }
 }
 
+async function obtenerBackups() {
+    const pool = await connectDB();
+    const result = await pool.request()
+        .query('SELECT top 50 id, tipo, usuario_ejecutor, fecha_eliminacion FROM Backup_Eliminaciones ORDER BY fecha_eliminacion DESC');
+    return result.recordset;
+}
+
+async function restaurarBackup(backupId) {
+    const pool = await connectDB();
+    const backup = await pool.request()
+        .input('id', backupId)
+        .query('SELECT tipo FROM Backup_Eliminaciones WHERE id = @id');
+    
+    if (!backup.recordset[0]) throw new Error('Backup no encontrado');
+    
+    const { tipo } = backup.recordset[0];
+    if (tipo === 'empresa') {
+        await restaurarEmpresas(backupId);
+    } else if (tipo === 'usuario') {
+        await restaurarUsuarios(backupId);
+    } else {
+        throw new Error('Tipo de backup desconocido');
+    }
+    
+    // Opcional: Eliminar o marcar como restaurado
+    return tipo;
+}
 async function obtenerLogsAuditoria({ tipo, fechaDesde, fechaHasta }) {
     const pool = await connectDB();
     let query = 'SELECT * FROM Auditoria WHERE 1=1';

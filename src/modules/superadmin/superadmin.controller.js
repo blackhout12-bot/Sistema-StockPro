@@ -150,27 +150,6 @@ router.post('/deleteEmpresas', async (req, res) => {
     }
 });
 
-router.post('/rollbackEmpresas', async (req, res) => {
-    try {
-        const { backupId } = req.body;
-        if (!backupId) return res.status(400).json({ error: 'BackupId requerido' });
-        await authRepository.restaurarEmpresas(backupId);
-        
-        await auditRepository.logAction({
-            usuario_id: req.user.id,
-            accion: 'rollbackEmpresa',
-            entidad: 'Empresa',
-            entidad_id: null,
-            payload: { backupId, msg: `Rollback aplicado desde backup ${backupId}` },
-            ip: req.ip
-        });
-
-        res.json({ success: true, restored: backupId });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
 router.post('/deleteUsuarios', async (req, res) => {
     try {
         const { usuarioIds } = req.body;
@@ -196,21 +175,32 @@ router.post('/deleteUsuarios', async (req, res) => {
     }
 });
 
-router.post('/rollbackUsuarios', async (req, res) => {
+router.get('/backups', async (req, res) => {
+    try {
+        const backups = await authRepository.obtenerBackups();
+        res.json(backups);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.post('/rollback', async (req, res) => {
     try {
         const { backupId } = req.body;
-        await authRepository.restaurarUsuarios(backupId);
+        if (!backupId) return res.status(400).json({ error: 'BackupId requerido' });
+        
+        const tipo = await authRepository.restaurarBackup(backupId);
         
         await auditRepository.logAction({
             usuario_id: req.user.id,
-            accion: 'rollbackUsuario',
-            entidad: 'Usuarios',
+            accion: `rollback${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`,
+            entidad: tipo === 'empresa' ? 'Empresa' : 'Usuarios',
             entidad_id: null,
-            payload: { backupId },
+            payload: { backupId, msg: `Rollback aplicado al backup ${backupId} de tipo ${tipo}` },
             ip: req.ip
         });
 
-        res.json({ success: true, restored: backupId });
+        res.json({ success: true, restored: backupId, tipo });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
