@@ -350,7 +350,15 @@ export function getAccessibleModules(featureToggles = {}, userRole = '') {
   const toggles = featureToggles || {};
   
   return moduleRegistry.filter(mod => {
-    // 1. Validación de Planes / Toggles
+    // 0. Validación de Roles (primero, para el bypass del superadmin)
+    const roles = mod.requiredRoles || ['*'];
+    const roleAllowed = roles.includes('*') || roles.includes(userRole);
+    if (!roleAllowed) return false;
+
+    // SuperAdmin: bypass total de feature toggles — tiene acceso global
+    if (userRole === 'superadmin') return true;
+
+    // 1. Validación de Planes / Toggles para roles no-superadmin
     if (!toggles['*']) {
       const toggleKey = mod.requiredToggle || mod.id;
       // Los módulos de la sección 'core' (Dashboard, Notificaciones) siempre son visibles
@@ -359,10 +367,7 @@ export function getAccessibleModules(featureToggles = {}, userRole = '') {
       }
     }
     
-    // 2. Validación de Roles segura contra undefined
-    const roles = mod.requiredRoles || ['*'];
-    if (roles.includes('*')) return true;
-    return roles.includes(userRole);
+    return true;
   });
 }
 
