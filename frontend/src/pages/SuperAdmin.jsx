@@ -17,7 +17,7 @@ import {
  * Implementación Fase v1.28.2-superadmin-panel-restore
  */
 const SuperAdmin = () => {
-  const { updateFeatureToggles, isSuperAdmin, setPlan } = useAuth();
+  const { updateFeatureToggles, isSuperAdmin, setPlan, setPlanDescripcion } = useAuth();
   const [empresas, setEmpresas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -65,12 +65,19 @@ const SuperAdmin = () => {
       moduleRegistry.update(res.data.feature_toggles);
       updateFeatureToggles(res.data.feature_toggles);
       if (setPlan) setPlan(res.data.planNombre);
+      if (setPlanDescripcion) setPlanDescripcion(res.data.planDescripcion);
       
       toast.success(`El plan de la empresa fue actualizado a ${res.data.planNombre}`);
       
       // Actualizar estado local
       setEmpresas(prev => prev.map(e => 
-        e.id === empresaId ? { ...e, plan_id: nuevoPlanId, plan_nombre: res.data.planNombre } : e
+        e.id === empresaId ? { 
+            ...e, 
+            plan_id: nuevoPlanId, 
+            plan_nombre: res.data.planNombre,
+            planDescripcion: res.data.planDescripcion,
+            feature_toggles: res.data.feature_toggles
+        } : e
       ));
     } catch (err) {
       toast.error('Error al actualizar el plan empresarial');
@@ -143,12 +150,32 @@ const SuperAdmin = () => {
               </div>
 
               <div className="p-7">
-                <div className="mb-6">
+                <div className="mb-5">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3 ml-1">Plan de Suscripción</span>
-                  <div className="flex items-center gap-3 text-indigo-700 font-bold bg-indigo-50/50 px-4 py-3 rounded-2xl border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 group-hover:shadow-lg group-hover:shadow-indigo-100">
+                  <div className="flex items-center gap-3 text-indigo-700 font-bold bg-indigo-50/50 px-4 py-3 rounded-2xl border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 group-hover:shadow-lg group-hover:shadow-indigo-100 mb-4">
                     <CheckCircle2 className="w-5 h-5" />
                     <span className="text-base">{empresa.plan_nombre}</span>
                   </div>
+
+                  {empresa.planDescripcion && (
+                    <p className="text-sm text-slate-600 mb-4 px-2 italic border-l-2 border-indigo-200">
+                      {empresa.planDescripcion}
+                    </p>
+                  )}
+                  
+                  {empresa.feature_toggles && (
+                    <div className="mb-4 pt-2 border-t border-slate-100">
+                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3 pl-1">Módulos Habilitados</span>
+                       <ul className="text-xs text-slate-600 font-medium flex flex-wrap gap-2">
+                         {Array.isArray(empresa.feature_toggles) ? empresa.feature_toggles.map((mod, idx) => (
+                           <li key={idx} className="bg-slate-100 px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-sm flex items-center gap-2 transition-transform hover:scale-105">
+                             <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full shadow-sm"></span>
+                             {mod}
+                           </li>
+                         )) : null}
+                       </ul>
+                    </div>
+                  )}
                 </div>
 
                 <div className="relative">

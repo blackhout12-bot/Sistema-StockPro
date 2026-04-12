@@ -324,6 +324,22 @@ async function obtenerNombrePlan(plan_id) {
 }
 
 /**
+ * Obtiene la descripción de un plan por su ID.
+ */
+async function obtenerDescripcionPlan(plan_id) {
+  const pool = await connectDB();
+  try {
+    const result = await pool.request()
+      .input('pid', sql.Int, plan_id)
+      .query('SELECT descripcion FROM Planes WHERE id = @pid');
+    return result.recordset[0]?.descripcion || 'Sin descripción detallada';
+  } catch (e) {
+    // Fallback si la columna no existe en la BD actual.
+    return 'Características activas para la organización.';
+  }
+}
+
+/**
  * Genera el objeto de feature toggles basado en el plan_id.
  */
 async function generarFeatureToggles(plan_id) {
@@ -359,5 +375,6 @@ module.exports = {
   obtenerTodasLasEmpresas,
   actualizarPlanEmpresa,
   obtenerNombrePlan,
+  obtenerDescripcionPlan,
   generarFeatureToggles
 };

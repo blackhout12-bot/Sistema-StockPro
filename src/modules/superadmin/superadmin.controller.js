@@ -20,7 +20,36 @@ router.use((req, res, next) => {
 router.get('/empresas', async (req, res, next) => {
     try {
         const empresas = await authRepository.obtenerTodasLasEmpresas();
-        res.json(empresas);
+
+        const enriched = await Promise.all(empresas.map(async e => {
+            const planId = e.plan_id;
+            if (!planId) return e;
+
+            const planNombre = await authRepository.obtenerNombrePlan(planId);
+            const planDescripcion = await authRepository.obtenerDescripcionPlan(planId);
+            const featureToggles = await authRepository.generarFeatureToggles(planId);
+
+            // Convertimos el JSON dictionary de featureToggles a un array amigable para SuperAdminUI si se requiere, pero lo exponemos en bruto:
+            // Opcional: si la BD tiene `mod_facturacion: true`, iteramos:
+            let modulos_activos = [];
+            if (featureToggles && typeof featureToggles === 'object') {
+                if (featureToggles['*']) {
+                    modulos_activos = ['Acceso Total (*)'];
+                } else {
+                    modulos_activos = Object.keys(featureToggles).filter(k => featureToggles[k]);
+                }
+            }
+
+            return {
+                ...e,
+                planId,
+                planNombre,
+                planDescripcion,
+                feature_toggles: modulos_activos.length > 0 ? modulos_activos : Object.keys(featureToggles)
+            };
+        }));
+
+        res.json(enriched);
     } catch (error) {
         next(error);
     }
@@ -43,12 +72,24 @@ router.post('/changePlan', async (req, res) => {
         // regenerar toggles (Garantiza consulta directa en la próxima request)
         const toggles = await authRepository.generarFeatureToggles(nuevoPlanId);
         const planNombre = await authRepository.obtenerNombrePlan(nuevoPlanId);
+        const planDescripcion = await authRepository.obtenerDescripcionPlan(nuevoPlanId);
+
+        let modulos_activos = [];
+        if (toggles && typeof toggles === 'object') {
+            if (toggles['*']) {
+                modulos_activos = ['Acceso Total (*)'];
+            } else {
+                modulos_activos = Object.keys(toggles).filter(k => toggles[k]);
+            }
+        }
 
         return res.json({
             empresaId,
             planId: nuevoPlanId,
             planNombre,
-            feature_toggles: toggles
+            planDescripcion,
+            feature_toggles: modulos_activos.length > 0 ? modulos_activos : Object.keys(toggles),
+            _raw_toggles: toggles
         });
     } catch (error) {
         res.status(500).json({ error: error.message });

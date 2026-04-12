@@ -29,3 +29,10 @@ Se han implementado y ejecutado exitosamente los siguientes conjuntos de pruebas
 *   "El login del superadmin devuelve flag `panel: global`."
 *   "El frontend usa ese flag para renderizar el panel `SuperAdmin.jsx`."
 *   "El cambio de plan invalida cache y regenera toggles, reflejándose en frontend sin logout forzado."
+
+---
+## Descripciones de Módulos Dinámicos (v1.28.3-superadmin-panel-descriptions-modules)
+
+*   "Cada plan tiene nombre, descripción y módulos asociados."
+*   "El superadmin puede ver y modificar planes desde su panel global."
+*   "Los cambios se propagan en tiempo real a admins y usuarios de la empresa."
