@@ -38,9 +38,10 @@ Se han implementado y ejecutado exitosamente los siguientes conjuntos de pruebas
 *   "Los cambios se propagan en tiempo real a admins y usuarios de la empresa."
 
 ---
-## Administración Total y Rollback (v1.28.7-superadmin-panel-total)
+## Restauración Total y Estabilidad (v1.28.8-superadmin-panel-restore-total)
 
 *   "El superadmin puede eliminar empresas y usuarios de forma masiva o individual."
 *   "Cada acción queda registrada en Auditoría para trazabilidad."
 *   "Rollback restaura datos desde tabla Backup_Eliminaciones."
 *   "El dashboard de auditoría permite visualizar acciones en tiempo real con filtros y gráficos."
+*   "El sistema debe permanecer estable y funcional en todo momento."

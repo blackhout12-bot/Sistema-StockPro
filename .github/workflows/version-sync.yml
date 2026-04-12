@@ -16,10 +16,8 @@ jobs:
 
       - name: Validate tags exist
         run: |
-          TAGS=$(git tag -l)
-          echo "Tags locales: $TAGS"
           git fetch --tags
-          for tag in $TAGS; do
+          for tag in $(git tag -l); do
             if git ls-remote --tags origin | grep -q "$tag"; then
               echo "✅ Tag $tag está en remoto."
             else

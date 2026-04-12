@@ -187,10 +187,10 @@ const AuditoriaDashboard = () => {
           <table className="w-full">
             <thead className="bg-slate-50">
               <tr>
-                <th className="px-8 py-5 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Fecha & Hora</th>
+                <th className="px-8 py-5 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Fecha</th>
                 <th className="px-8 py-5 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Acción</th>
-                <th className="px-8 py-5 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Usuario ID</th>
-                <th className="px-8 py-5 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Detalle / IDs</th>
+                <th className="px-8 py-5 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Usuario</th>
+                <th className="px-8 py-5 text-left text-xs font-black text-slate-400 uppercase tracking-widest">IDs afectados</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -208,11 +208,11 @@ const AuditoriaDashboard = () => {
                       {log.accion}
                     </span>
                   </td>
-                  <td className="px-8 py-5 text-sm text-slate-600 font-medium">
-                    # {log.usuario_id}
+                  <td className="px-8 py-5 text-sm text-slate-600 font-bold">
+                    Admin #{log.usuario_id}
                   </td>
-                  <td className="px-8 py-5 text-sm text-slate-500 italic max-w-xs truncate">
-                    {log.valor_nuevo || JSON.stringify(log.valor_nuevo)}
+                  <td className="px-8 py-5 text-sm text-slate-500 font-medium max-w-xs truncate">
+                    {log.entidad_id || log.valor_nuevo || 'N/A'}
                   </td>
                 </tr>
               ))}
