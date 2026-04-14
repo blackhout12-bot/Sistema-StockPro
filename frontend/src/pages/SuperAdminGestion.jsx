@@ -89,7 +89,7 @@ const SuperAdminGestion = () => {
   };
 
   const handleDeleteEmpresas = async (ids) => {
-    if (!window.confirm(`¿Eliminar ${ids.length} empresas y todos sus datos asociados (usuarios, sucursales, depósitos)?`)) return;
+    toast(`Iniciando borrado maestro de ${ids.length} empresa(s)...`, { icon: '🧹' });
     try {
       setUpdating(true);
       const res = await api.post('/superadmin/deleteEmpresas', { empresaIds: ids });
