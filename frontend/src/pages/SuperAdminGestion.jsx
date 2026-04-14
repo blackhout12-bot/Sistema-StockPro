@@ -54,14 +54,14 @@ const SuperAdminGestion = () => {
 
   const fetchEmpresas = async () => {
     try {
-      const res = await api.get('/superadmin/empresas');
+      const res = await api.get(`/superadmin/empresas?_t=${Date.now()}`);
       setEmpresas(res.data);
     } catch (err) { toast.error('Error al cargar empresas'); }
   };
 
   const fetchUsuarios = async () => {
     try {
-      const res = await api.get('/superadmin/usuarios');
+      const res = await api.get(`/superadmin/usuarios?_t=${Date.now()}`);
       setUsuarios(res.data);
     } catch (err) {}
   };

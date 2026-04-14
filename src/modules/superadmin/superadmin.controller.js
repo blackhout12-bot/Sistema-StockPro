@@ -15,6 +15,13 @@ router.use((req, res, next) => {
     if (req.user?.rol !== 'superadmin' && req.user?.role !== 'superadmin') {
         return res.status(403).json({ error: 'Acceso denegado: Requieres privilegios de SuperAdmin.' });
     }
+    
+    // Deshabilitar caché del navegador explícitamente para todo SuperAdmin
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Surrogate-Control', 'no-store');
+    
     next();
 });
 

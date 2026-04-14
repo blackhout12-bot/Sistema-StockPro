@@ -462,9 +462,9 @@ async function eliminarMaestrosPorEmpresa(empresaIds, tx) {
     const ids = empresaIds.join(',');
     const req = tx ? new sql.Request(tx) : (await connectDB()).request();
     
-    await req.query(`DELETE FROM Lotes WHERE empresa_id IN (${ids})`);
-    await req.query(`DELETE FROM ProductoDepositos WHERE empresa_id IN (${ids})`);
-    await req.query(`DELETE FROM PreciosSucursal WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM Lotes WHERE empresa_id IN (${ids}) OR producto_id IN (SELECT id FROM Productos WHERE empresa_id IN (${ids}))`);
+    await req.query(`DELETE FROM ProductoDepositos WHERE empresa_id IN (${ids}) OR deposito_id IN (SELECT id FROM Depositos WHERE empresa_id IN (${ids}))`);
+    await req.query(`DELETE FROM PreciosSucursal WHERE empresa_id IN (${ids}) OR sucursal_id IN (SELECT id FROM Sucursales WHERE empresa_id IN (${ids}))`);
     await req.query(`DELETE FROM Productos WHERE empresa_id IN (${ids})`);
     
     await req.query(`DELETE FROM Clientes WHERE empresa_id IN (${ids})`);
