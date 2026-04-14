@@ -350,10 +350,13 @@ export function getAccessibleModules(featureToggles = {}, userRole = '') {
   const toggles = featureToggles || {};
   
   return moduleRegistry.filter(mod => {
-    // 0. Validación de Roles (primero, para el bypass del superadmin)
+    // 0. Validación de Roles
     const roles = mod.requiredRoles || ['*'];
     const roleAllowed = roles.includes('*') || roles.includes(userRole);
     if (!roleAllowed) return false;
+
+    // SuperAdmin: bypass de feature toggles (ya pasó validación de rol arriba)
+    if (userRole === 'superadmin') return true;
 
     // 1. Validación de Planes / Toggles para roles no-superadmin
     if (!toggles['*']) {
