@@ -526,7 +526,8 @@ async function eliminarEmpresas(empresaIds) {
         return true;
     } catch (err) {
         await tx.rollback();
-        console.error('ERROR EN DEEP CASCADE DELETE:', err.message);
+        console.error('ERROR CRÍTICO EN DEEP CASCADE DELETE (v1.29.12):', err.message);
+        console.error('STACK:', err.stack);
         throw err;
     }
 }

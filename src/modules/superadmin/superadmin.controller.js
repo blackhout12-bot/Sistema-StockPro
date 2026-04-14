@@ -155,7 +155,11 @@ router.post('/deleteEmpresas', async (req, res) => {
         res.json({ success: true, deleted: empresaIds, backupId });
     } catch (error) {
         console.error('[SuperAdmin] ERROR CRÍTICO EN ELIMINACIÓN:', error);
-        res.status(500).json({ error: 'Error al eliminar empresas y sus datos transaccionales', details: error.message });
+        res.status(500).json({ 
+            error: 'Error al eliminar empresas y sus datos transaccionales', 
+            details: error.message,
+            sqlError: error.originalError?.message || error.message
+        });
     }
 });
 
