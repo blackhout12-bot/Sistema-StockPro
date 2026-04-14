@@ -9,7 +9,7 @@ import {
   Filter
 } from 'lucide-react';
 
-const EmpresaTable = ({ empresas, onDeleteSelected, updating }) => {
+const EmpresaTable = ({ empresas, onDeleteSelected, updating, onChangePlan }) => {
   const [selectedIds, setSelectedIds] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -120,18 +120,27 @@ const EmpresaTable = ({ empresas, onDeleteSelected, updating }) => {
                 </td>
                 <td className="px-6 py-5">
                    <div className="flex flex-col gap-1">
-                     <span className="text-sm font-bold text-indigo-600">{empresa.plan_nombre}</span>
+                     <select 
+                       value={empresa.plan_id || ''} 
+                       onChange={(e) => {
+                         if(onChangePlan) onChangePlan(empresa.id, parseInt(e.target.value));
+                       }}
+                       disabled={updating}
+                       className="text-sm font-bold text-indigo-600 bg-indigo-50/50 border border-indigo-100 rounded-lg py-1 px-2 outline-none cursor-pointer hover:border-indigo-300 transition-colors disabled:opacity-50 appearance-none"
+                     >
+                       <option value="1">Retail Básico</option>
+                       <option value="2">Estándar Pro</option>
+                       <option value="3">Full Enterprise</option>
+                     </select>
                      {empresa.planDescripcion && <span className="text-[10px] text-slate-400 italic max-w-xs truncate">{empresa.planDescripcion}</span>}
                    </div>
                 </td>
                 <td className="px-6 py-5 text-right">
                   <div className="flex items-center justify-end gap-2">
-                    <button className="p-2.5 bg-white rounded-xl shadow-sm text-slate-600 hover:text-indigo-600 border border-slate-200 transition-all opacity-0 group-hover:opacity-100">
-                      <LayoutGrid className="w-4 h-4" />
-                    </button>
                     <button 
                       onClick={() => onDeleteSelected([empresa.id])}
-                      className="p-2.5 bg-white rounded-xl shadow-sm text-slate-400 hover:text-red-600 border border-slate-200 transition-all opacity-0 group-hover:opacity-100"
+                      title="Eliminar empresa"
+                      className="p-2.5 bg-white rounded-xl shadow-sm text-slate-400 hover:text-red-600 border border-slate-200 transition-all group-hover:bg-red-50"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

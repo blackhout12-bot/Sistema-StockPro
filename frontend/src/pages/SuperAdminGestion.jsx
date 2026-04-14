@@ -95,11 +95,11 @@ const SuperAdminGestion = () => {
       const res = await api.post('/superadmin/deleteEmpresas', { empresaIds: ids });
       toast.success(`Empresas eliminadas correctamente (ID: ${res.data.deleted.join(', ')}). Datos respaldados en Backup #${res.data.backupId}`);
       
-      // Refrescar paneles afectados
       await Promise.all([fetchEmpresas(), fetchUsuarios()]);
     } catch (err) { 
-      toast.error('Error al eliminar empresas y sus datos dependientes');
       console.error(err);
+      const msg = err.response?.data?.sqlError || err.response?.data?.details || err.response?.data?.error || err.message;
+      toast.error(`Error al eliminar: ${msg}`);
     } 
     finally { setUpdating(false); }
   };
