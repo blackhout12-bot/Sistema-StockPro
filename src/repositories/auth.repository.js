@@ -502,12 +502,13 @@ async function eliminarEmpresas(empresaIds) {
         // 2. Transaccionales (Ventas, Compras, Finanzas, Stock)
         await eliminarTransaccionalesPorEmpresa(empresaIds, tx);
         
-        // 3. Infraestructura (Depósitos, Sucursales, Cajas)
+        // 3. Maestros (Productos, Clientes, Proveedores, Categorías)
+        // Se borran ANTES que infraestructura porque ProductoDepositos/PreciosSucursal dependen de Depositos/Sucursales
+        await eliminarMaestrosPorEmpresa(empresaIds, tx);
+        
+        // 4. Infraestructura (Depósitos, Sucursales, Cajas)
         await eliminarDepositosPorEmpresa(empresaIds, tx);
         await eliminarSucursalesPorEmpresa(empresaIds, tx);
-        
-        // 4. Maestros (Productos, Clientes, Proveedores, Categorías)
-        await eliminarMaestrosPorEmpresa(empresaIds, tx);
         
         // 5. Usuarios y Roles
         await eliminarUsuariosPorEmpresa(empresaIds, tx);
