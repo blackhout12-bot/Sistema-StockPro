@@ -495,6 +495,9 @@ async function eliminarEmpresas(empresaIds) {
     try {
         const ids = empresaIds.join(',');
         
+        // 0. Romper dependencia circular de Monedas (FK_Empresa_Moneda)
+        await new sql.Request(tx).query(`UPDATE Empresa SET moneda_base_id = NULL WHERE id IN (${ids})`);
+        
         // ORDEN JERÁRQUICO TOTAL v1.29.10
         // 1. Logs y Auditoría
         await eliminarLogsPorEmpresa(empresaIds, tx);

@@ -9,13 +9,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 
-const planesDisponibles = [
-  { id: 1, nombre: 'Retail Básico' },
-  { id: 2, nombre: 'Estándar Pro' },
-  { id: 3, nombre: 'Full Enterprise' }
-];
-
-const EmpresaCards = ({ empresas, onDeleteSelected, updating, onChangePlan }) => {
+const EmpresaCards = ({ empresas, planesList = [], onDeleteSelected, updating, onChangePlan }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredEmpresas = useMemo(() => {
@@ -107,7 +101,7 @@ const EmpresaCards = ({ empresas, onDeleteSelected, updating, onChangePlan }) =>
                   }}
                   disabled={updating}
                 >
-                  {planesDisponibles.map(plan => (
+                  {planesList.map(plan => (
                     <option key={plan.id} value={plan.id}>{plan.nombre}</option>
                   ))}
                 </select>

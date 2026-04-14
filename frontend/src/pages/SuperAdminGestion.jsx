@@ -48,6 +48,7 @@ const SuperAdminGestion = () => {
   
   const [empresas, setEmpresas] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
+  const [planes, setPlanes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [activeTab, setActiveTab] = useState('Empresas');
@@ -66,9 +67,16 @@ const SuperAdminGestion = () => {
     } catch (err) {}
   };
 
+  const fetchPlanes = async () => {
+    try {
+      const res = await api.get(`/superadmin/planes?_t=${Date.now()}`);
+      setPlanes(res.data);
+    } catch (err) {}
+  };
+
   const loadData = async () => {
     setLoading(true);
-    await Promise.all([fetchEmpresas(), fetchUsuarios()]);
+    await Promise.all([fetchEmpresas(), fetchUsuarios(), fetchPlanes()]);
     setLoading(false);
   };
 
@@ -147,7 +155,7 @@ const SuperAdminGestion = () => {
       <Tabs activeTab={activeTab} onTabChange={setActiveTab}>
         <Tab label="Empresas" icon={<Building2 className="w-4 h-4" />}>
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-             <EmpresaTable empresas={empresas} onDeleteSelected={handleDeleteEmpresas} updating={updating} onChangePlan={handleChangePlan} />
+             <EmpresaTable empresas={empresas} planesList={planes} onDeleteSelected={handleDeleteEmpresas} updating={updating} onChangePlan={handleChangePlan} />
           </div>
         </Tab>
         <Tab label="Usuarios" icon={<UsersIcon className="w-4 h-4" />}>

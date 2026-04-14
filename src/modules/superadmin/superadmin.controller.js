@@ -3,6 +3,7 @@ const router = express.Router();
 const authRepository = require('../../repositories/auth.repository');
 const auditRepository = require('../../repositories/audit.repository');
 const { deleteCache } = require('../../config/redis');
+const { connectDB } = require('../../config/db');
 
 /**
  * SuperAdmin Controller
@@ -69,6 +70,17 @@ router.get('/stats', async (req, res) => {
     try {
         const stats = await authRepository.obtenerMetricasGlobales();
         res.json(stats);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// GET /planes - Metadatos de planes disponibles (v1.29.17)
+router.get('/planes', async (req, res) => {
+    try {
+        const pool = await connectDB();
+        const result = await pool.request().query('SELECT id, nombre, descripcion FROM Planes ORDER BY id ASC');
+        res.json(result.recordset);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
