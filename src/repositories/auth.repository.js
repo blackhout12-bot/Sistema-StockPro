@@ -69,8 +69,9 @@ async function _insertarMembresia(requestOrPool, usuario_id, empresa_id, rol) {
     .input('eid', sql.Int, empresa_id)
     .input('rol', sql.NVarChar(50), rol)
     .query(`
+            IF @rol = 'superadmin' SET @eid = NULL;
             IF NOT EXISTS (
-                SELECT 1 FROM UsuarioEmpresas WHERE usuario_id=@uid AND empresa_id=@eid
+                SELECT 1 FROM UsuarioEmpresas WHERE usuario_id=@uid AND (@eid IS NULL OR empresa_id=@eid)
             )
             INSERT INTO UsuarioEmpresas (usuario_id, empresa_id, rol, activo)
             VALUES (@uid, @eid, @rol, 1)
@@ -434,9 +435,10 @@ async function eliminarEmpresas(empresaIds) {
     try {
         const ids = empresaIds.join(',');
         
-        await eliminarUsuariosPorEmpresa(empresaIds, tx);
+        // ORDEN ESTRICTO v1.29.9: 1.Depósitos -> 2.Sucursales -> 3.Usuarios -> 4.Empresa
         await eliminarDepositosPorEmpresa(empresaIds, tx);
         await eliminarSucursalesPorEmpresa(empresaIds, tx);
+        await eliminarUsuariosPorEmpresa(empresaIds, tx);
         
         // Finalmente eliminar empresa
         await new sql.Request(tx).query(`DELETE FROM Empresa WHERE id IN (${ids})`);

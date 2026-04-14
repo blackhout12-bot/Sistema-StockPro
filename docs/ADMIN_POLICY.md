@@ -47,11 +47,11 @@ Se han implementado y ejecutado exitosamente los siguientes conjuntos de pruebas
 *   **Trazabilidad**: Todas las acciones de eliminación y restauración quedan registradas en la Auditoría Global con el detalle de las sub-entidades afectadas y el `backupId` asociado.
 
 ---
-## Panel de Gestión Global y Roles (v1.29.6-superadmin-management-panel)
+## Reglas de Rol y Permisos (v1.29.9-superadmin-permissions-delete-fix)
 
-*   "El superadmin no pertenece a ninguna empresa."
-*   "El superadmin tiene acceso global a empresas, usuarios, planes y auditoría."
-*   "El dashboard del superadmin muestra métricas globales."
-*   "El panel de gestión del superadmin permite eliminar empresas y usuarios, cambiar planes y ejecutar rollback."
-*   "El admin de empresa solo gestiona su empresa."
-*   "El usuario tiene acceso limitado según plan."
+1. **SuperAdmin Global**: El superadmin no pertenece a ninguna empresa (`empresa_id = NULL`).
+2. **Acceso Total**: El superadmin tiene acceso global exclusivo a empresas, usuarios, planes y auditoría de todo el sistema.
+3. **Observabilidad Maestral**: El dashboard del superadmin muestra métricas agregadas de todo el ecosistema.
+4. **Control de Ciclo de Vida**: El panel de gestión del superadmin permite la eliminación en cascada de entidades, cambios de plan y ejecución de rollbacks de integridad.
+5. **Aislamiento Administrativo**: El administrador de empresa solo puede gestionar y visualizar datos pertenecientes a su `empresa_id`.
+6. **Restricción de Operador**: El usuario regular tiene acceso limitado a las funcionalidades habilitadas por el plan de suscripción de su empresa.
