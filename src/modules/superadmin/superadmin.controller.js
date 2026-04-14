@@ -128,14 +128,18 @@ router.post('/changePlan', async (req, res) => {
 router.post('/deleteEmpresas', async (req, res) => {
     try {
         const { empresaIds } = req.body;
+        console.log(`[SuperAdmin] Intento de eliminación en cascada para empresas: ${empresaIds?.join(', ')}`);
+        
         if (!empresaIds || !Array.isArray(empresaIds) || empresaIds.length === 0) {
             return res.status(400).json({ error: 'No se enviaron IDs válidos' });
         }
 
-        // 1. Backup holistic (Empresa, Usuarios, Sucursales, Depositos)
+        // 1. Backup holistic
+        console.log('[SuperAdmin] Generando backup previo...');
         const backupId = await authRepository.backupEmpresas(empresaIds, req.user.email);
         
-        // 2. Eliminación en cascada manual (Garantiza estabilidad ante restricciones de SQL)
+        // 2. Eliminación en cascada manual profunda v1.29.10
+        console.log('[SuperAdmin] Ejecutando Deep Cascade Delete...');
         await authRepository.eliminarEmpresas(empresaIds);
         
         await auditRepository.logAction({
@@ -143,13 +147,15 @@ router.post('/deleteEmpresas', async (req, res) => {
             accion: 'deleteEmpresa',
             entidad: 'Empresa',
             entidad_id: null,
-            payload: { empresaIds, msg: `Empresas eliminadas con cascada: ${empresaIds.join(',')}`, backupId },
+            payload: { empresaIds, msg: `Empresas eliminadas con cascada profunda: ${empresaIds.join(',')}`, backupId },
             ip: req.ip
         });
 
+        console.log('[SuperAdmin] Eliminación exitosa.');
         res.json({ success: true, deleted: empresaIds, backupId });
     } catch (error) {
-        res.status(500).json({ error: 'Error al eliminar empresas', details: error.message });
+        console.error('[SuperAdmin] ERROR CRÍTICO EN ELIMINACIÓN:', error);
+        res.status(500).json({ error: 'Error al eliminar empresas y sus datos transaccionales', details: error.message });
     }
 });
 

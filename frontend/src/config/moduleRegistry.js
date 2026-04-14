@@ -355,9 +355,6 @@ export function getAccessibleModules(featureToggles = {}, userRole = '') {
     const roleAllowed = roles.includes('*') || roles.includes(userRole);
     if (!roleAllowed) return false;
 
-    // SuperAdmin: bypass total de feature toggles — tiene acceso global
-    if (userRole === 'superadmin') return true;
-
     // 1. Validación de Planes / Toggles para roles no-superadmin
     if (!toggles['*']) {
       const toggleKey = mod.requiredToggle || mod.id;

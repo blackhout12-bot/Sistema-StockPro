@@ -32,12 +32,17 @@ async function crearUsuario(nombre, email, passwordHash, rol, empresa_id) {
   await tx.begin();
   try {
     // 1. Insertar usuario
+    let db_empresa_id = empresa_id;
+    if (rol === 'superadmin' && db_empresa_id === null) {
+        db_empresa_id = 1; // Guardian internal ID for non-nullable DB
+    }
+
     const res = await new sql.Request(tx)
       .input('nombre', sql.NVarChar(255), nombre)
       .input('email', sql.NVarChar(255), email)
       .input('password_hash', sql.VarChar(255), passwordHash)
       .input('rol', sql.NVarChar(50), rol)
-      .input('empresa_id', sql.Int, empresa_id)
+      .input('empresa_id', sql.Int, db_empresa_id)
       .query(`
             DECLARE @InsertedRows TABLE (id INT);
             INSERT INTO Usuarios (nombre, email, password_hash, rol, empresa_id)
@@ -53,7 +58,7 @@ async function crearUsuario(nombre, email, passwordHash, rol, empresa_id) {
     }
 
     await tx.commit();
-    return { id: usuario_id, nombre, email, rol, empresa_id };
+    return { id: usuario_id, nombre, email, rol, empresa_id: (rol === 'superadmin' ? null : empresa_id) };
   } catch (err) {
     await tx.rollback();
     throw err;
@@ -425,7 +430,62 @@ async function eliminarSucursalesPorEmpresa(empresaIds, tx) {
     const req = tx ? new sql.Request(tx) : (await connectDB()).request();
     // Borrar cajas primero
     await req.query(`DELETE FROM POS_Cajas WHERE empresa_id IN (${ids})`);
+    // Borrar sesiones POS
+    await req.query(`DELETE FROM POS_Sesiones WHERE empresa_id IN (${ids})`);
     await req.query(`DELETE FROM Sucursales WHERE empresa_id IN (${ids})`);
+}
+
+async function eliminarTransaccionalesPorEmpresa(empresaIds, tx) {
+    const ids = empresaIds.join(',');
+    const req = tx ? new sql.Request(tx) : (await connectDB()).request();
+    
+    // El orden importa: Detalles -> Cabeceras
+    await req.query(`DELETE FROM Detalle_Facturas WHERE factura_id IN (SELECT id FROM Facturas WHERE empresa_id IN (${ids}))`);
+    await req.query(`DELETE FROM Facturas WHERE empresa_id IN (${ids})`);
+    
+    await req.query(`DELETE FROM Cobros WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM Pagos WHERE empresa_id IN (${ids})`);
+    
+    await req.query(`DELETE FROM Compras_Detalle WHERE compra_id IN (SELECT id FROM Compras WHERE empresa_id IN (${ids}))`);
+    await req.query(`DELETE FROM Compras WHERE empresa_id IN (${ids})`);
+    
+    await req.query(`DELETE FROM Cuentas_Cobrar WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM Cuentas_Pagar WHERE empresa_id IN (${ids})`);
+    
+    await req.query(`DELETE FROM MovimientosStock WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM Movimientos WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM Kardex WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM TransferenciasStock WHERE empresa_id IN (${ids})`);
+}
+
+async function eliminarMaestrosPorEmpresa(empresaIds, tx) {
+    const ids = empresaIds.join(',');
+    const req = tx ? new sql.Request(tx) : (await connectDB()).request();
+    
+    await req.query(`DELETE FROM Lotes WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM ProductoDepositos WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM PreciosSucursal WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM Productos WHERE empresa_id IN (${ids})`);
+    
+    await req.query(`DELETE FROM Clientes WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM Proveedores WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM Categorias_Esquemas WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM Categorias WHERE empresa_id IN (${ids})`);
+    
+    await req.query(`DELETE FROM Contextos WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM Monedas WHERE empresa_id IN (${ids})`);
+}
+
+async function eliminarLogsPorEmpresa(empresaIds, tx) {
+    const ids = empresaIds.join(',');
+    const req = tx ? new sql.Request(tx) : (await connectDB()).request();
+    
+    await req.query(`DELETE FROM AuditoriaMoneda WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM Auditoria WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM Logs WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM SSOLog WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM OLAPLog WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM Notificaciones WHERE empresa_id IN (${ids})`);
 }
 
 async function eliminarEmpresas(empresaIds) {
@@ -435,10 +495,29 @@ async function eliminarEmpresas(empresaIds) {
     try {
         const ids = empresaIds.join(',');
         
-        // ORDEN ESTRICTO v1.29.9: 1.Depósitos -> 2.Sucursales -> 3.Usuarios -> 4.Empresa
+        // ORDEN JERÁRQUICO TOTAL v1.29.10
+        // 1. Logs y Auditoría
+        await eliminarLogsPorEmpresa(empresaIds, tx);
+        
+        // 2. Transaccionales (Ventas, Compras, Finanzas, Stock)
+        await eliminarTransaccionalesPorEmpresa(empresaIds, tx);
+        
+        // 3. Infraestructura (Depósitos, Sucursales, Cajas)
         await eliminarDepositosPorEmpresa(empresaIds, tx);
         await eliminarSucursalesPorEmpresa(empresaIds, tx);
+        
+        // 4. Maestros (Productos, Clientes, Proveedores, Categorías)
+        await eliminarMaestrosPorEmpresa(empresaIds, tx);
+        
+        // 5. Usuarios y Roles
         await eliminarUsuariosPorEmpresa(empresaIds, tx);
+        await new sql.Request(tx).query(`DELETE FROM Roles WHERE empresa_id IN (${ids})`);
+        
+        // 6. Configuración Final
+        await new sql.Request(tx).query(`DELETE FROM ConfigComprobantes WHERE empresa_id IN (${ids})`);
+        await new sql.Request(tx).query(`DELETE FROM Comprobantes WHERE empresa_id IN (${ids})`);
+        await new sql.Request(tx).query(`DELETE FROM ModulosActivos WHERE empresa_id IN (${ids})`);
+        await new sql.Request(tx).query(`DELETE FROM EmpresaModulos WHERE empresa_id IN (${ids})`);
         
         // Finalmente eliminar empresa
         await new sql.Request(tx).query(`DELETE FROM Empresa WHERE id IN (${ids})`);
@@ -447,6 +526,7 @@ async function eliminarEmpresas(empresaIds) {
         return true;
     } catch (err) {
         await tx.rollback();
+        console.error('ERROR EN DEEP CASCADE DELETE:', err.message);
         throw err;
     }
 }
