@@ -376,12 +376,27 @@ async function generarFeatureToggles(plan_id) {
 
 async function backupEmpresas(empresaIds, usuario_ejecutor) {
     const pool = await connectDB();
-    const result = await pool.request()
-        .query(`SELECT * FROM Empresa WHERE id IN (${empresaIds.join(',')})`);
+    const ids = empresaIds.join(',');
     
+    // Backup Empresa
+    const empresaRes = await pool.request().query(`SELECT * FROM Empresa WHERE id IN (${ids})`);
+    // Backup Sucursales
+    const sucursalesRes = await pool.request().query(`SELECT * FROM Sucursales WHERE empresa_id IN (${ids})`);
+    // Backup Depositos
+    const depositosRes = await pool.request().query(`SELECT * FROM Depositos WHERE empresa_id IN (${ids})`);
+    // Backup Usuarios
+    const usuariosRes = await pool.request().query(`SELECT * FROM Usuarios WHERE empresa_id IN (${ids})`);
+    
+    const fullData = {
+        empresas: empresaRes.recordset,
+        sucursales: sucursalesRes.recordset,
+        depositos: depositosRes.recordset,
+        usuarios: usuariosRes.recordset
+    };
+
     const backupResult = await pool.request()
         .input('tipo', 'empresa')
-        .input('data_json', JSON.stringify(result.recordset))
+        .input('data_json', JSON.stringify(fullData))
         .input('usuario', usuario_ejecutor)
         .query(`
             INSERT INTO Backup_Eliminaciones (tipo, data_json, usuario_ejecutor)
@@ -391,16 +406,41 @@ async function backupEmpresas(empresaIds, usuario_ejecutor) {
     return backupResult.recordset[0].id;
 }
 
+async function eliminarUsuariosPorEmpresa(empresaIds, tx) {
+    const ids = empresaIds.join(',');
+    const req = tx ? new sql.Request(tx) : (await connectDB()).request();
+    await req.query(`DELETE FROM UsuarioEmpresas WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM Usuarios WHERE empresa_id IN (${ids})`);
+}
+
+async function eliminarDepositosPorEmpresa(empresaIds, tx) {
+    const ids = empresaIds.join(',');
+    const req = tx ? new sql.Request(tx) : (await connectDB()).request();
+    await req.query(`DELETE FROM Depositos WHERE empresa_id IN (${ids})`);
+}
+
+async function eliminarSucursalesPorEmpresa(empresaIds, tx) {
+    const ids = empresaIds.join(',');
+    const req = tx ? new sql.Request(tx) : (await connectDB()).request();
+    // Borrar cajas primero
+    await req.query(`DELETE FROM POS_Cajas WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM Sucursales WHERE empresa_id IN (${ids})`);
+}
+
 async function eliminarEmpresas(empresaIds) {
     const pool = await connectDB();
     const tx = new sql.Transaction(pool);
     await tx.begin();
     try {
         const ids = empresaIds.join(',');
-        // 1. Limpiar dependencias críticas (ej. UsuarioEmpresas)
-        await new sql.Request(tx).query(`DELETE FROM UsuarioEmpresas WHERE empresa_id IN (${ids})`);
-        // 2. Eliminar empresa
+        
+        await eliminarUsuariosPorEmpresa(empresaIds, tx);
+        await eliminarDepositosPorEmpresa(empresaIds, tx);
+        await eliminarSucursalesPorEmpresa(empresaIds, tx);
+        
+        // Finalmente eliminar empresa
         await new sql.Request(tx).query(`DELETE FROM Empresa WHERE id IN (${ids})`);
+        
         await tx.commit();
         return true;
     } catch (err) {
@@ -417,25 +457,68 @@ async function restaurarEmpresas(backupId) {
     
     if (!backup.recordset[0]) throw new Error('Backup no encontrado');
     
-    const empresas = JSON.parse(backup.recordset[0].data_json);
-    for (const e of empresas) {
-        await pool.request()
-            .input('id', e.id)
-            .input('nombre', e.nombre)
-            .input('doc', e.documento_identidad)
-            .input('plan', e.plan_id)
-            .query(`
-                SET IDENTITY_INSERT Empresa ON;
-                MERGE Empresa AS target
-                USING (VALUES (@id, @nombre, @doc, @plan)) AS source (id, nombre, documento_identidad, plan_id)
-                ON target.id = source.id
-                WHEN MATCHED THEN
-                    UPDATE SET nombre = source.nombre, documento_identidad = source.documento_identidad, plan_id = source.plan_id
-                WHEN NOT MATCHED THEN
-                    INSERT (id, nombre, documento_identidad, plan_id)
-                    VALUES (source.id, source.nombre, source.documento_identidad, source.plan_id);
-                SET IDENTITY_INSERT Empresa OFF;
-            `);
+    const data = JSON.parse(backup.recordset[0].data_json);
+    const { empresas, sucursales, depositos, usuarios } = data;
+
+    // Restaurar el árbol jerárquicamente
+    
+    // 1. Empresas
+    if (empresas) {
+        for (const e of empresas) {
+            await pool.request()
+                .input('id', e.id).input('nombre', e.nombre).input('doc', e.documento_identidad).input('plan', e.plan_id)
+                .query(`
+                    SET IDENTITY_INSERT Empresa ON;
+                    MERGE Empresa AS target USING (VALUES (@id, @nombre, @doc, @plan)) AS source (id, nombre, documento_identidad, plan_id) ON target.id = source.id
+                    WHEN MATCHED THEN UPDATE SET nombre = source.nombre, documento_identidad = source.documento_identidad, plan_id = source.plan_id
+                    WHEN NOT MATCHED THEN INSERT (id, nombre, documento_identidad, plan_id) VALUES (source.id, source.nombre, source.documento_identidad, source.plan_id);
+                    SET IDENTITY_INSERT Empresa OFF;
+                `);
+        }
+    }
+
+    // 2. Sucursales
+    if (sucursales) {
+        for (const s of sucursales) {
+            await pool.request()
+                .input('id', s.id).input('eid', s.empresa_id).input('nom', s.nombre).input('dir', s.direccion).input('tel', s.telefono).input('act', s.activa)
+                .query(`
+                    SET IDENTITY_INSERT Sucursales ON;
+                    MERGE Sucursales AS target USING (VALUES (@id, @eid, @nom, @dir, @tel, @act)) AS source (id, eid, nombre, direccion, telefono, activa) ON target.id = source.id
+                    WHEN MATCHED THEN UPDATE SET nombre = source.nombre, direccion = source.direccion, telefono = source.telefono, activa = source.activa
+                    WHEN NOT MATCHED THEN INSERT (id, empresa_id, nombre, direccion, telefono, activa) VALUES (source.id, source.eid, source.nombre, source.direccion, source.telefono, source.activa);
+                    SET IDENTITY_INSERT Sucursales OFF;
+                `);
+        }
+    }
+
+    // 3. Depositos
+    if (depositos) {
+        for (const d of depositos) {
+            await pool.request()
+                .input('id', d.id).input('eid', d.empresa_id).input('sid', d.sucursal_id).input('nom', d.nombre).input('p', d.es_principal).input('a', d.activo)
+                .query(`
+                    SET IDENTITY_INSERT Depositos ON;
+                    MERGE Depositos AS target USING (VALUES (@id, @eid, @sid, @nom, @p, @a)) AS source (id, eid, sid, nombre, es_principal, activo) ON target.id = source.id
+                    WHEN NOT MATCHED THEN INSERT (id, empresa_id, sucursal_id, nombre, es_principal, activo) VALUES (source.id, source.eid, source.sid, source.nombre, source.es_principal, source.activo);
+                    SET IDENTITY_INSERT Depositos OFF;
+                `);
+        }
+    }
+
+    // 4. Usuarios
+    if (usuarios) {
+        for (const u of usuarios) {
+            await pool.request()
+                .input('id', u.id).input('nom', u.nombre).input('em', u.email).input('pass', u.password_hash).input('rol', u.rol).input('eid', u.empresa_id)
+                .query(`
+                    SET IDENTITY_INSERT Usuarios ON;
+                    MERGE Usuarios AS target USING (VALUES (@id, @nom, @em, @pass, @rol, @eid)) AS source (id, nombre, email, password_hash, rol, eid) ON target.id = source.id
+                    WHEN MATCHED THEN UPDATE SET nombre = source.nombre, email = source.email, rol = source.rol, empresa_id = source.eid
+                    WHEN NOT MATCHED THEN INSERT (id, nombre, email, password_hash, rol, empresa_id) VALUES (source.id, source.nombre, source.email, source.password_hash, source.rol, source.eid);
+                    SET IDENTITY_INSERT Usuarios OFF;
+                `);
+        }
     }
 }
 
@@ -613,6 +696,9 @@ module.exports = {
   backupUsuarios,
   eliminarUsuarios,
   restaurarUsuarios,
+  eliminarUsuariosPorEmpresa,
+  eliminarSucursalesPorEmpresa,
+  eliminarDepositosPorEmpresa,
   obtenerLogsAuditoria,
   obtenerMetricasGlobales,
   obtenerBackups,

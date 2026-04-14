@@ -38,6 +38,15 @@ Se han implementado y ejecutado exitosamente los siguientes conjuntos de pruebas
 *   "Los cambios se propagan en tiempo real a admins y usuarios de la empresa."
 
 ---
+## Gestión Maestra de Datos y Eliminación en Cascada (v1.29.7-superadmin-delete-cascade-fix)
+
+*   **Eliminación Atómica**: El superadmin puede eliminar empresas junto con todos sus datos asociados (usuarios, sucursales, depósitos y cajas). La eliminación es atómica y se realiza en una sola transacción para asegurar la integridad.
+*   **Integridad Referencial**: Se ha instrumentado `ON DELETE CASCADE` en la relación `Sucursal -> Depositos` para garantizar la limpieza automática de la infraestructura local al eliminar un nodo superior.
+*   **Backup Holístico**: Cada eliminación de empresa genera un snapshot completo en `Backup_Eliminaciones` que incluye no solo la entidad empresa, sino también sus usuarios, sucursales y depósitos.
+*   **Rollback Jerárquico**: El sistema de rollback ha sido mejorado para restaurar el árbol completo de dependencias en el orden correcto, manteniendo los IDs originales mediante `IDENTITY_INSERT`.
+*   **Trazabilidad**: Todas las acciones de eliminación y restauración quedan registradas en la Auditoría Global con el detalle de las sub-entidades afectadas y el `backupId` asociado.
+
+---
 ## Panel de Gestión Global y Roles (v1.29.6-superadmin-management-panel)
 
 *   "El superadmin no pertenece a ninguna empresa."

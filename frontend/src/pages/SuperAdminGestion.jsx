@@ -89,13 +89,18 @@ const SuperAdminGestion = () => {
   };
 
   const handleDeleteEmpresas = async (ids) => {
-    if (!window.confirm(`¿Eliminar ${ids.length} empresas?`)) return;
+    if (!window.confirm(`¿Eliminar ${ids.length} empresas y todos sus datos asociados (usuarios, sucursales, depósitos)?`)) return;
     try {
       setUpdating(true);
-      await api.post('/superadmin/deleteEmpresas', { empresaIds: ids });
-      toast.success('Empresas eliminadas');
-      fetchEmpresas();
-    } catch (err) { toast.error('Error al eliminar'); } 
+      const res = await api.post('/superadmin/deleteEmpresas', { empresaIds: ids });
+      toast.success(`Empresas eliminadas correctamente (ID: ${res.data.deleted.join(', ')}). Datos respaldados en Backup #${res.data.backupId}`);
+      
+      // Refrescar paneles afectados
+      await Promise.all([fetchEmpresas(), fetchUsuarios()]);
+    } catch (err) { 
+      toast.error('Error al eliminar empresas y sus datos dependientes');
+      console.error(err);
+    } 
     finally { setUpdating(false); }
   };
 

@@ -132,7 +132,10 @@ router.post('/deleteEmpresas', async (req, res) => {
             return res.status(400).json({ error: 'No se enviaron IDs válidos' });
         }
 
+        // 1. Backup holistic (Empresa, Usuarios, Sucursales, Depositos)
         const backupId = await authRepository.backupEmpresas(empresaIds, req.user.email);
+        
+        // 2. Eliminación en cascada manual (Garantiza estabilidad ante restricciones de SQL)
         await authRepository.eliminarEmpresas(empresaIds);
         
         await auditRepository.logAction({
@@ -140,13 +143,13 @@ router.post('/deleteEmpresas', async (req, res) => {
             accion: 'deleteEmpresa',
             entidad: 'Empresa',
             entidad_id: null,
-            payload: { empresaIds, backupId },
+            payload: { empresaIds, msg: `Empresas eliminadas con cascada: ${empresaIds.join(',')}`, backupId },
             ip: req.ip
         });
 
         res.json({ success: true, deleted: empresaIds, backupId });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Error al eliminar empresas', details: error.message });
     }
 });
 
@@ -171,7 +174,7 @@ router.post('/deleteUsuarios', async (req, res) => {
 
         res.json({ success: true, deleted: usuarioIds, backupId });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Error al eliminar usuarios', details: error.message });
     }
 });
 
