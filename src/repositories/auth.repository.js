@@ -415,6 +415,7 @@ async function backupEmpresas(empresaIds, usuario_ejecutor) {
 async function eliminarUsuariosPorEmpresa(empresaIds, tx) {
     const ids = empresaIds.join(',');
     const req = tx ? new sql.Request(tx) : (await connectDB()).request();
+    await req.query(`DELETE FROM Delegaciones WHERE delegante_id IN (SELECT id FROM Usuarios WHERE empresa_id IN (${ids})) OR delegado_id IN (SELECT id FROM Usuarios WHERE empresa_id IN (${ids}))`);
     await req.query(`DELETE FROM UsuarioEmpresas WHERE empresa_id IN (${ids})`);
     await req.query(`DELETE FROM Usuarios WHERE empresa_id IN (${ids})`);
 }
@@ -428,10 +429,7 @@ async function eliminarDepositosPorEmpresa(empresaIds, tx) {
 async function eliminarSucursalesPorEmpresa(empresaIds, tx) {
     const ids = empresaIds.join(',');
     const req = tx ? new sql.Request(tx) : (await connectDB()).request();
-    // Borrar cajas primero
-    await req.query(`DELETE FROM POS_Cajas WHERE empresa_id IN (${ids})`);
-    // Borrar sesiones POS
-    await req.query(`DELETE FROM POS_Sesiones WHERE empresa_id IN (${ids})`);
+    // Las cajas y sesiones se borran en eliminarTransaccionalesPorEmpresa
     await req.query(`DELETE FROM Sucursales WHERE empresa_id IN (${ids})`);
 }
 
@@ -439,23 +437,31 @@ async function eliminarTransaccionalesPorEmpresa(empresaIds, tx) {
     const ids = empresaIds.join(',');
     const req = tx ? new sql.Request(tx) : (await connectDB()).request();
     
-    // El orden importa: Detalles -> Cabeceras
-    await req.query(`DELETE FROM Detalle_Facturas WHERE factura_id IN (SELECT id FROM Facturas WHERE empresa_id IN (${ids}))`);
-    await req.query(`DELETE FROM Facturas WHERE empresa_id IN (${ids})`);
-    
+    // 1. POS (Dependen de Usuarios y Cajas/Sucursales)
+    await req.query(`DELETE FROM POS_Sesiones WHERE empresa_id IN (${ids}) OR usuario_id IN (SELECT id FROM Usuarios WHERE empresa_id IN (${ids})) OR caja_id IN (SELECT id FROM POS_Cajas WHERE sucursal_id IN (SELECT id FROM Sucursales WHERE empresa_id IN (${ids})))`);
+    await req.query(`DELETE FROM POS_Cajas WHERE empresa_id IN (${ids}) OR sucursal_id IN (SELECT id FROM Sucursales WHERE empresa_id IN (${ids}))`);
+
+    // 2. Cobros y Pagos (Dependen de Facturas y Compras, o independientes)
     await req.query(`DELETE FROM Cobros WHERE empresa_id IN (${ids})`);
     await req.query(`DELETE FROM Pagos WHERE empresa_id IN (${ids})`);
     
+    // 3. Cuentas Cobrar y Pagar (Dependen de Facturas y Compras)
+    await req.query(`DELETE FROM Cuentas_Cobrar WHERE empresa_id IN (${ids}) OR factura_id IN (SELECT id FROM Facturas WHERE empresa_id IN (${ids}))`);
+    await req.query(`DELETE FROM Cuentas_Pagar WHERE empresa_id IN (${ids}) OR compra_id IN (SELECT id FROM Compras WHERE empresa_id IN (${ids}))`);
+    
+    // 4. Detalles de Facturas y Compras
+    await req.query(`DELETE FROM Detalle_Facturas WHERE factura_id IN (SELECT id FROM Facturas WHERE empresa_id IN (${ids}) OR usuario_id IN (SELECT id FROM Usuarios WHERE empresa_id IN (${ids})))`);
     await req.query(`DELETE FROM Compras_Detalle WHERE compra_id IN (SELECT id FROM Compras WHERE empresa_id IN (${ids}))`);
+    
+    // 5. Cabeceras
+    await req.query(`DELETE FROM Facturas WHERE empresa_id IN (${ids}) OR usuario_id IN (SELECT id FROM Usuarios WHERE empresa_id IN (${ids}))`);
     await req.query(`DELETE FROM Compras WHERE empresa_id IN (${ids})`);
     
-    await req.query(`DELETE FROM Cuentas_Cobrar WHERE empresa_id IN (${ids})`);
-    await req.query(`DELETE FROM Cuentas_Pagar WHERE empresa_id IN (${ids})`);
-    
+    // 6. Inventario
     await req.query(`DELETE FROM MovimientosStock WHERE empresa_id IN (${ids})`);
-    await req.query(`DELETE FROM Movimientos WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM Movimientos WHERE empresa_id IN (${ids}) OR usuarioId IN (SELECT id FROM Usuarios WHERE empresa_id IN (${ids})) OR productoId IN (SELECT id FROM Productos WHERE empresa_id IN (${ids}))`);
     await req.query(`DELETE FROM Kardex WHERE empresa_id IN (${ids})`);
-    await req.query(`DELETE FROM TransferenciasStock WHERE empresa_id IN (${ids})`);
+    await req.query(`DELETE FROM TransferenciasStock WHERE empresa_id IN (${ids}) OR usuario_id IN (SELECT id FROM Usuarios WHERE empresa_id IN (${ids}))`);
 }
 
 async function eliminarMaestrosPorEmpresa(empresaIds, tx) {
@@ -463,8 +469,8 @@ async function eliminarMaestrosPorEmpresa(empresaIds, tx) {
     const req = tx ? new sql.Request(tx) : (await connectDB()).request();
     
     await req.query(`DELETE FROM Lotes WHERE empresa_id IN (${ids}) OR producto_id IN (SELECT id FROM Productos WHERE empresa_id IN (${ids}))`);
-    await req.query(`DELETE FROM ProductoDepositos WHERE empresa_id IN (${ids}) OR deposito_id IN (SELECT id FROM Depositos WHERE empresa_id IN (${ids}))`);
-    await req.query(`DELETE FROM PreciosSucursal WHERE empresa_id IN (${ids}) OR sucursal_id IN (SELECT id FROM Sucursales WHERE empresa_id IN (${ids}))`);
+    await req.query(`DELETE FROM ProductoDepositos WHERE empresa_id IN (${ids}) OR producto_id IN (SELECT id FROM Productos WHERE empresa_id IN (${ids})) OR deposito_id IN (SELECT id FROM Depositos WHERE empresa_id IN (${ids}))`);
+    await req.query(`DELETE FROM PreciosSucursal WHERE empresa_id IN (${ids}) OR producto_id IN (SELECT id FROM Productos WHERE empresa_id IN (${ids})) OR sucursal_id IN (SELECT id FROM Sucursales WHERE empresa_id IN (${ids}))`);
     await req.query(`DELETE FROM Productos WHERE empresa_id IN (${ids})`);
     
     await req.query(`DELETE FROM Clientes WHERE empresa_id IN (${ids})`);
@@ -495,8 +501,9 @@ async function eliminarEmpresas(empresaIds) {
     try {
         const ids = empresaIds.join(',');
         
-        // 0. Romper dependencia circular de Monedas (FK_Empresa_Moneda)
-        await new sql.Request(tx).query(`UPDATE Empresa SET moneda_base_id = NULL WHERE id IN (${ids})`);
+        // 0. Romper dependencia circular de Monedas (FK_Empresa_Moneda y FK_Producto_Moneda)
+        await new sql.Request(tx).query(`UPDATE Empresa SET moneda_base_id = NULL WHERE id IN (${ids}) OR moneda_base_id IN (SELECT id FROM Monedas WHERE empresa_id IN (${ids}))`);
+        await new sql.Request(tx).query(`UPDATE Productos SET moneda_id = NULL WHERE moneda_id IN (SELECT id FROM Monedas WHERE empresa_id IN (${ids}))`);
         
         // ORDEN JERÁRQUICO TOTAL v1.29.10
         // 1. Logs y Auditoría
@@ -786,6 +793,9 @@ module.exports = {
   eliminarUsuariosPorEmpresa,
   eliminarSucursalesPorEmpresa,
   eliminarDepositosPorEmpresa,
+  eliminarTransaccionalesPorEmpresa,
+  eliminarMaestrosPorEmpresa,
+  eliminarLogsPorEmpresa,
   obtenerLogsAuditoria,
   obtenerMetricasGlobales,
   obtenerBackups,
