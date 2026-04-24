@@ -101,9 +101,11 @@ const SuperAdminGestion = () => {
     try {
       setUpdating(true);
       const res = await api.post('/superadmin/deleteEmpresas', { empresaIds: ids });
-      toast.success(`Empresas eliminadas correctamente (ID: ${res.data.deleted.join(', ')}). Datos respaldados en Backup #${res.data.backupId}`);
+      toast.success(`Empresas eliminadas correctamente (ID: ${res.data.deleted.join(', ')}). Sucursales y depósitos asociados también fueron removidos.`);
       
       await Promise.all([fetchEmpresas(), fetchUsuarios()]);
+      // Disparar evento para que otras vistas (como listas globales de sucursales/depósitos si existen) se refresquen
+      window.dispatchEvent(new Event('refresh-dependencias'));
     } catch (err) { 
       console.error(err);
       const msg = err.response?.data?.sqlError || err.response?.data?.details || err.response?.data?.error || err.message;

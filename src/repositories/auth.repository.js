@@ -33,8 +33,8 @@ async function crearUsuario(nombre, email, passwordHash, rol, empresa_id) {
   try {
     // 1. Insertar usuario
     let db_empresa_id = empresa_id;
-    if (rol === 'superadmin' && db_empresa_id === null) {
-        db_empresa_id = 1; // Guardian internal ID for non-nullable DB
+    if (rol === 'superadmin') {
+        db_empresa_id = null; // Purificación real: el rol superadmin inserta NULL
     }
 
     const res = await new sql.Request(tx)
@@ -509,13 +509,13 @@ async function eliminarEmpresas(empresaIds) {
         // Se borran ANTES que infraestructura porque ProductoDepositos/PreciosSucursal dependen de Depositos/Sucursales
         await eliminarMaestrosPorEmpresa(empresaIds, tx);
         
-        // 4. Infraestructura (Depósitos, Sucursales, Cajas)
-        await eliminarDepositosPorEmpresa(empresaIds, tx);
-        await eliminarSucursalesPorEmpresa(empresaIds, tx);
-        
-        // 5. Usuarios y Roles
+        // 4. Usuarios y Roles (Antes que Sucursales por FK_Usuario_Sucursal)
         await eliminarUsuariosPorEmpresa(empresaIds, tx);
         await new sql.Request(tx).query(`DELETE FROM Roles WHERE empresa_id IN (${ids})`);
+        
+        // 5. Infraestructura (Depósitos, Sucursales, Cajas)
+        await eliminarDepositosPorEmpresa(empresaIds, tx);
+        await eliminarSucursalesPorEmpresa(empresaIds, tx);
         
         // 6. Configuración Final
         await new sql.Request(tx).query(`DELETE FROM ConfigComprobantes WHERE empresa_id IN (${ids})`);
